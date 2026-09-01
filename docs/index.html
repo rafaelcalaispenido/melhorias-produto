@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador · Alteração de e-mail da conta</title>
+<style>
+
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #FF4D00;
+    --orange-light: #FF6B35;
+    --black: #1A1A1A;
+    --gray-100: #F7F7F5;
+    --gray-200: #EFEFED;
+    --gray-300: #D8D8D6;
+    --gray-400: #9F9F9D;
+    --gray-500: #6B6B69;
+    --green: #22C55E;
+    --purple-light: #EEE9FF;
+    --white: #FFFFFF;
+    --font: 'Sora', sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREEN SYSTEM ── */
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--white);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header img { height: 32px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    height: 3px;
+    background: var(--gray-200);
+    position: relative;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--black);
+    transition: width 0.4s ease;
+  }
+
+  /* ── TWO COL LAYOUT ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+  }
+  .col-left {
+    padding: 60px 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .col-right {
+    background: var(--gray-100);
+    padding: 60px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── SINGLE COL LAYOUT ── */
+  .single-col {
+    flex: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 60px 40px;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 20px 40px;
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--white);
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+  }
+  .footer-center {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .etapa-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h1 { font-size: 36px; font-weight: 700; line-height: 1.15; margin-bottom: 16px; }
+  h2 { font-size: 28px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
+  h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .subtitle { font-size: 15px; color: var(--gray-500); line-height: 1.6; margin-bottom: 32px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary {
+    background: var(--black);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: #333; }
+  .btn-primary:disabled { background: var(--gray-300); color: var(--gray-400); cursor: not-allowed; }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--black);
+    border: 1.5px solid var(--gray-300);
+  }
+  .btn-secondary:hover { border-color: var(--black); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--gray-500);
+    border: none;
+  }
+  .btn-ghost:hover { color: var(--black); }
+  .btn-outline-black {
+    background: transparent;
+    color: var(--black);
+    border: 1.5px solid var(--gray-300);
+  }
+  .btn-outline-black:hover { border-color: var(--black); }
+
+  /* ── CHECKLIST ── */
+  .checklist { display: flex; flex-direction: column; gap: 0; }
+  .check-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-400);
+    cursor: default;
+  }
+  .check-item.done { color: var(--black); }
+  .check-item.active { color: var(--black); font-weight: 600; }
+  .check-circle {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gray-300);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .check-circle.filled {
+    background: var(--black);
+    border-color: var(--black);
+    color: var(--white);
+    font-size: 12px;
+  }
+
+  /* ── INTRO ILLUSTRATION ── */
+  .intro-illustration { position: relative; width: 220px; height: 250px; }
+  .intro-blob {
+    position: absolute; width: 190px; height: 210px; background: var(--gray-200);
+    border-radius: 42% 58% 55% 45% / 50% 44% 56% 50%;
+    right: 6px; top: 14px;
+  }
+  .intro-paper {
+    position: absolute; left: 8px; top: 0; width: 148px; background: #fff;
+    border-radius: 4px 18px 6px 6px; box-shadow: 0 16px 34px rgba(0,0,0,.14);
+    padding: 24px 16px 28px; z-index: 1;
+  }
+  .intro-paper::after {
+    content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0;
+    border-style: solid; border-width: 0 18px 18px 0; border-color: transparent var(--gray-200) transparent transparent;
+  }
+  .intro-paper-stripe { height: 5px; width: 55%; background: var(--orange); border-radius: 3px; margin-bottom: 18px; }
+  .intro-paper-line { height: 5px; background: var(--gray-200); border-radius: 3px; margin-bottom: 10px; }
+  .intro-mark { position: absolute; color: var(--gray-400); z-index: 2; }
+  .intro-mark-left { top: 2px; left: -8px; }
+  .intro-mark-right { top: -6px; right: 4px; }
+
+  /* ── COMPANY CARD ── */
+  .company-card {
+    background: var(--purple-light);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .company-icon {
+    width: 32px; height: 32px;
+    background: var(--white);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .company-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .company-cnpj { font-size: 13px; color: var(--gray-500); }
+  .company-cnpj strong { color: var(--black); }
+
+  .company-details {
+    background: var(--gray-100);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--gray-500);
+    line-height: 1.7;
+  }
+
+  /* ── OPTION CARDS ── */
+  .option-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+  .option-card {
+    border: 1.5px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .option-card:hover { border-color: var(--black); }
+  .option-card .card-icon {
+    font-size: 24px;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .option-card .card-text { flex: 1; }
+  .option-card .card-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .option-card .card-desc { font-size: 13px; color: var(--gray-400); }
+  .option-card .card-arrow { color: var(--gray-400); font-size: 18px; }
+  .badge-recommended {
+    display: inline-block;
+    background: var(--black);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+
+  /* ── TYPE SELECTOR CARDS ── */
+  .type-cards { display: flex; gap: 16px; margin-top: 24px; }
+  .type-card {
+    flex: 1;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .type-card:hover { border-color: var(--gray-400); }
+  .type-card.selected {
+    border-color: var(--black);
+    border-width: 2px;
+  }
+  .type-card .type-icon { font-size: 24px; margin-bottom: 12px; display: block; }
+  .type-card .type-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .type-card .type-desc { font-size: 13px; color: var(--gray-400); line-height: 1.4; }
+  .type-card .check-badge {
+    position: absolute; top: 12px; right: 12px;
+    width: 20px; height: 20px;
+    background: var(--black);
+    border-radius: 50%;
+    display: none;
+    align-items: center; justify-content: center;
+    color: var(--white); font-size: 11px;
+  }
+  .type-card.selected .check-badge { display: flex; }
+
+  /* ── UPLOAD AREA ── */
+  .upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: 12px;
+    padding: 48px 32px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--white);
+  }
+  .upload-area:hover { border-color: var(--black); background: var(--gray-100); }
+  .upload-icon { font-size: 48px; }
+  .upload-title { font-size: 18px; font-weight: 700; }
+  .upload-desc { font-size: 14px; color: var(--gray-400); }
+  .upload-hint { font-size: 12px; color: var(--gray-400); display: flex; align-items: center; gap: 4px; }
+
+  /* ── TIPS LIST ── */
+  .tips { display: flex; flex-direction: column; gap: 20px; margin-top: 16px; }
+  .tip { display: flex; gap: 14px; align-items: flex-start; }
+  .tip-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 14px; line-height: 1.5; }
+  .tip-text strong { color: var(--black); }
+  .tip-text a { color: var(--black); }
+
+  /* ── LOADING SPINNER ── */
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+  .spinner-ring {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--gray-200);
+    border-top-color: var(--orange);
+    animation: spin 1s linear infinite;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-size: 20px; font-weight: 700; }
+  .loading-desc { font-size: 14px; color: var(--gray-400); line-height: 1.6; }
+
+  /* ── REVIEW FORM ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin: 24px 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 13px; font-weight: 600; color: var(--gray-500); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--black);
+    background: var(--white);
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { outline: none; border-color: var(--black); }
+  .form-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--black);
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A1A1A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+    appearance: none;
+    cursor: pointer;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .prefix-input { display: flex; align-items: center; }
+  .prefix-input .prefix { padding: 10px 12px; background: var(--gray-100); border: 1.5px solid var(--gray-200); border-right: none; border-radius: 8px 0 0 8px; font-size: 14px; color: var(--gray-500); }
+  .prefix-input .form-input { border-radius: 0 8px 8px 0; }
+
+  /* ── TUTORIAL HIGHLIGHT ── */
+  .prod-tut-highlight {
+    outline: 3px solid #00BFB3 !important;
+    outline-offset: 5px !important;
+    border-radius: 6px !important;
+    animation: prodTutPulse 1.8s infinite;
+    position: relative;
+    z-index: 100;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes fabPulse {
+    0%,100% { transform: scale(1); box-shadow: 0 4px 18px rgba(0,191,179,0.4); }
+    50%      { transform: scale(1.06); box-shadow: 0 6px 28px rgba(0,191,179,0.6); }
+  }
+    @keyframes prodTutPulse {
+    0%,100% { outline-color: #00BFB3; box-shadow: 0 0 0 0 rgba(0,191,179,0.35); }
+    50%      { outline-color: #009990; box-shadow: 0 0 0 8px rgba(0,191,179,0); }
+  }
+  /* Tutorial side panel open: shift form left */
+  .prod-tut-panel-open {
+    padding-right: 380px;
+    transition: padding-right .3s ease;
+  }
+
+  /* ── LOADING STATUS ── */
+  .ls-step { display:flex;flex-direction:column;align-items:center;text-align:center;min-width:120px; }
+  .ls-dot { width:28px;height:28px;border-radius:50%;background:#D8D8D6;display:flex;align-items:center;justify-content:center;margin-bottom:8px;flex-shrink:0;transition:background 0.4s; }
+  .ls-dot.active { background:#FF4D00; }
+  .ls-dot.done { background:#22C55E; }
+  .ls-dot.done::after { content:''; width:10px;height:10px;border-radius:50%;background:#fff; }
+  .ls-dot.active::after { content:''; width:10px;height:10px;border-radius:50%;background:#fff; }
+  .ls-label { font-size:12px;font-weight:700;color:#9F9F9D;margin-bottom:2px;transition:color 0.4s; }
+  .ls-step.active .ls-label { color:#1A1A1A; }
+  .ls-step.done .ls-label { color:#22C55E; }
+  .ls-sub { font-size:11px;color:#9F9F9D; }
+  .ls-line { flex:1;height:2px;background:#D8D8D6;margin-bottom:36px;min-width:20px;transition:background 0.4s; }
+  .ls-line.done { background:#22C55E; }
+
+  /* ── NFS DOCUMENT ── */
+  .nfs-doc {
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .nfs-doc img { width: 100%; display: block; }
+
+  /* ── FINAL STEP ── */
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--gray-200);
+    gap: 40px;
+  }
+  .toggle-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .toggle-info p { font-size: 14px; color: var(--gray-500); line-height: 1.5; }
+  .toggle {
+    width: 48px; height: 26px;
+    background: var(--black);
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+    border: none;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    background: var(--white);
+    border-radius: 50%;
+    top: 3px; right: 3px;
+    transition: right 0.2s;
+  }
+  .toggle.off { background: var(--gray-300); }
+  .toggle.off::after { right: auto; left: 3px; }
+
+  .period-selector {
+    margin-top: 16px;
+  }
+  .period-select {
+    padding: 10px 16px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 14px;
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A1A1A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+    appearance: none;
+    cursor: pointer;
+    min-width: 200px;
+  }
+
+  .terms-box {
+    background: var(--purple-light);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .terms-box input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--black);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .terms-label { font-size: 14px; }
+  .terms-label a { color: var(--black); font-weight: 600; }
+
+  /* ── LOGIN SCREEN ── */
+  .login-card {
+    background: var(--gray-100);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+  }
+  .login-section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gray-400); margin-bottom: 16px;
+  }
+  .btn-upload-cert {
+    background: var(--black);
+    color: var(--white);
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border: none;
+    font-family: var(--font);
+    margin: 16px 0;
+    transition: background 0.15s;
+  }
+  .btn-upload-cert:hover { background: #333; }
+  .cert-badges {
+    display: flex; gap: 8px; justify-content: center; margin: 12px 0;
+  }
+  .cert-badge {
+    background: #22C55E;
+    color: white;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 20px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+  .divider-line { flex: 1; height: 1px; background: var(--gray-300); }
+  .divider-text { font-size: 13px; color: var(--gray-400); }
+  .link-btn {
+    background: none; border: none; font-family: var(--font);
+    font-size: 14px; font-weight: 600; cursor: pointer; color: var(--black);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  /* Password form */
+  .login-form-card {
+    background: var(--gray-100);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 480px;
+    width: 100%;
+  }
+  .radio-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .radio-label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+  .radio-label input { accent-color: var(--black); width: 16px; height: 16px; }
+  .password-input-wrap { position: relative; }
+  .password-input-wrap input { padding-right: 44px; }
+  .eye-btn {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; font-size: 18px; color: var(--gray-400);
+  }
+  .form-links { display: flex; justify-content: space-between; margin-top: 8px; }
+  .form-link { font-size: 13px; color: var(--black); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; background: none; border: none; font-family: var(--font); }
+
+  /* Authenticated state */
+  .auth-success-card {
+    background: var(--gray-100);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+  }
+  .check-big {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--black);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 22px;
+  }
+  .auth-title { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .cert-file-card {
+    border: 1.5px solid var(--green);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 16px; text-align: left;
+  }
+  .cert-check { color: var(--green); font-size: 18px; }
+  .cert-name { font-size: 14px; font-weight: 600; }
+  .cert-valid { font-size: 12px; color: var(--green); }
+
+  /* OCR file dialog mock */
+  .file-dialog-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500;
+  }
+  .file-dialog {
+    background: #2D2D2D;
+    border-radius: 12px;
+    width: 600px;
+    overflow: hidden;
+  }
+  .file-dialog-bar {
+    background: #3A3A3A;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #FF5F57; }
+  .dot-yellow { background: #FFBD2E; }
+  .dot-green { background: #28C840; }
+  .file-dialog-nav {
+    background: #3A3A3A;
+    padding: 8px 16px;
+    display: flex; gap: 12px; align-items: center;
+  }
+  .nav-btn { background: #555; border: none; border-radius: 4px; padding: 4px 8px; color: #CCC; font-size: 14px; cursor: pointer; }
+  .nav-title { font-size: 14px; color: #EEE; flex: 1; text-align: center; }
+  .file-dialog-body { display: flex; height: 280px; }
+  .file-sidebar { width: 160px; background: #252525; padding: 12px 0; border-right: 1px solid #444; }
+  .sidebar-item {
+    padding: 8px 16px; font-size: 13px; color: #CCC; display: flex; align-items: center; gap: 8px; cursor: pointer;
+  }
+  .sidebar-item:hover { background: #333; }
+  .sidebar-item.active { background: #3A3A3A; }
+  .file-main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .file-main-header { font-size: 13px; color: #CCC; padding-bottom: 8px; border-bottom: 1px solid #444; }
+  .file-item {
+    display: flex; flex-direction: column; align-items: center;
+    width: 80px; gap: 6px; cursor: pointer; padding: 8px;
+    border-radius: 6px; border: 2px solid transparent;
+  }
+  .file-item.selected { border-color: #4C8AFF; background: #1A2A4A; }
+  .file-item-icon { font-size: 40px; }
+  .file-item-name { font-size: 11px; color: #EEE; text-align: center; word-break: break-all; }
+  .file-dialog-footer {
+    background: #3A3A3A;
+    padding: 12px 16px;
+    display: flex; justify-content: flex-end; gap: 8px;
+  }
+  .dialog-btn {
+    padding: 8px 20px; border-radius: 6px; font-size: 14px; font-weight: 500;
+    cursor: pointer; border: none; font-family: var(--font);
+  }
+  .dialog-btn-cancel { background: #555; color: #EEE; }
+  .dialog-btn-send { background: #4C8AFF; color: white; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999;
+  }
+  .modal-box {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+  }
+  .modal-icon { font-size: 48px; margin-bottom: 16px; }
+  .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+  .modal-desc { font-size: 15px; color: var(--gray-500); line-height: 1.6; margin-bottom: 28px; }
+  .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Redirect message */
+  .redirect-box {
+    background: var(--gray-100);
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .redirect-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* eNotas config screens */
+  .enotas-header {
+    background: var(--white);
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .enotas-logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; color: #00BFB3; }
+  .enotas-header-right { display: flex; align-items: center; gap: 16px; }
+  .enotas-header-right span { font-size: 13px; color: var(--gray-400); }
+
+  .enotas-modal {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    overflow: hidden;
+  }
+  .enotas-modal-header {
+    background: var(--white);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .enotas-modal-title { font-size: 18px; font-weight: 700; }
+  .enotas-modal-header-right { display: flex; gap: 16px; align-items: center; }
+  .icon-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--gray-400); padding: 4px; }
+  .icon-btn:hover { color: var(--black); }
+
+  .enotas-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 24px;
+    background: #FAFAFA;
+  }
+  .enotas-tab {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--gray-400);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .enotas-tab.active { color: var(--black); border-bottom-color: var(--black); font-weight: 600; }
+  .enotas-tab .tab-warning { font-size: 14px; }
+
+  .enotas-body { padding: 28px 32px; }
+
+  .field-group { margin-bottom: 20px; }
+  .field-label { font-size: 13px; font-weight: 600; color: var(--gray-500); margin-bottom: 6px; display: block; }
+  .field-label .required { color: var(--orange); margin-left: 2px; }
+  .field-input {
+    width: 100%;
+    padding: 9px 13px;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--black);
+    background: var(--white);
+  }
+  .field-input:focus { outline: none; border-color: #00BFB3; }
+  .field-select {
+    width: 100%;
+    padding: 9px 13px;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    font-family: var(--font);
+    font-size: 14px;
+    appearance: none;
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+    cursor: pointer;
+  }
+
+  .checkbox-row {
+    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 16px; height: 16px; margin-top: 2px; accent-color: #00BFB3; cursor: pointer;
+  }
+  .checkbox-label { font-size: 14px; cursor: pointer; }
+  .checkbox-sublabel { font-size: 12px; color: var(--gray-400); }
+
+  .section-title-sm { font-size: 14px; font-weight: 700; margin-bottom: 14px; color: var(--black); }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .enotas-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--white);
+  }
+  .btn-enotas-next {
+    background: #00BFB3;
+    color: var(--white);
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.15s;
+  }
+  .btn-enotas-next:hover { background: #00A89E; }
+  .btn-enotas-back {
+    background: var(--white);
+    color: var(--gray-400);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-family: var(--font);
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid var(--gray-200);
+  }
+  .btn-enotas-back:hover { color: var(--black); border-color: var(--gray-400); }
+
+  /* Upload cert area */
+  .cert-upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    margin: 16px 0;
+    background: var(--white);
+    transition: all 0.15s;
+  }
+  .cert-upload-area:hover { border-color: #00BFB3; }
+  .cert-upload-text { font-size: 14px; color: var(--gray-400); }
+  .cert-upload-text strong { color: var(--black); }
+
+  .info-banner {
+    background: #E8F4FD;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #1A6A9A;
+    margin-bottom: 16px;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+
+  .reforma-badge {
+    display: inline-block;
+    background: #FFD700;
+    color: var(--black);
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  .enotas-conclusion {
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .conclusion-icon { font-size: 64px; margin-bottom: 20px; }
+  .conclusion-title { font-size: 26px; font-weight: 700; margin-bottom: 12px; }
+  .conclusion-desc { font-size: 15px; color: var(--gray-500); margin-bottom: 32px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--black); color: var(--white);
+    padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 500;
+    z-index: 9999; transition: transform 0.3s ease; pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  /* Guide arrow (onboarding pointer) */
+  #guide-arrow {
+    position: fixed; z-index: 700; pointer-events: none;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,.3));
+    animation: guideArrowPulse 0.9s ease-in-out infinite alternate;
+  }
+  #guide-arrow.hidden { display: none; }
+  @keyframes guideArrowPulse {
+    from { transform: scale(1); opacity: .7; }
+    to   { transform: scale(1.14); opacity: 1; }
+  }
+
+  /* ══════════════════════════════════════════
+     HOTMART APP SIMULATOR (SCREEN: WELCOME)
+  ══════════════════════════════════════════ */
+  .hm-app { display: flex; flex-direction: column; height: 100vh; background: #fff; overflow: hidden; }
+
+  .hm-topbar {
+    background: #191A1F; height: 64px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; position: relative; z-index: 60;
+  }
+  .hm-topbar-left { display: flex; align-items: center; gap: 20px; }
+  .hm-hamburger { background: none; border: none; cursor: pointer; padding: 6px; display: flex; opacity: .9; }
+  .hm-hamburger:hover { opacity: 1; }
+  .hm-logo { display: flex; align-items: center; gap: 8px; }
+  .hm-logo span { color: #fff; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
+  .hm-topbar-right { display: flex; align-items: center; gap: 22px; }
+  .hm-icon-btn { background: none; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; opacity: .85; padding: 0; }
+  .hm-icon-btn:hover { opacity: 1; }
+  .hm-badge {
+    position: absolute; top: -7px; right: -9px; background: #E11900; color: #fff;
+    font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 10px; line-height: 1.3;
+  }
+  .hm-avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: #fff; color: var(--orange);
+    display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800;
+  }
+
+  .hm-toolbar {
+    display: flex; align-items: center; gap: 10px; padding: 14px 24px;
+    border-bottom: 1px solid var(--gray-200); flex-shrink: 0; overflow-x: auto;
+  }
+  .hm-pill {
+    display: inline-flex; align-items: center; gap: 6px; border-radius: 20px; padding: 9px 16px;
+    font-size: 13px; font-weight: 600; white-space: nowrap; border: none; cursor: default; font-family: var(--font);
+  }
+  .hm-pill-accent { background: #fff; border: 1px solid var(--gray-200); color: var(--black); padding-left: 8px; }
+  .hm-pill-accent .hm-pill-icon {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--orange);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .hm-pill-dark { background: #191A1F; color: #fff; }
+  .hm-pill-outline { background: #fff; border: 1px solid var(--gray-300); color: var(--black); }
+
+  .hm-body { flex: 1; display: flex; position: relative; overflow: hidden; }
+
+  /* Sidebar */
+  .hm-sidebar {
+    position: absolute; top: 0; left: 0; bottom: 0; width: 64px; background: #fff;
+    border-right: 1px solid var(--gray-200); z-index: 50; transition: width .18s ease;
+    overflow-x: hidden; overflow-y: auto; padding-top: 14px; white-space: nowrap;
+    scrollbar-width: thin;
+  }
+  .hm-sidebar:hover, .hm-sidebar.pinned { width: 272px; box-shadow: 6px 0 28px rgba(0,0,0,.10); }
+  .hm-side-search { display: flex; align-items: center; gap: 14px; padding: 8px 20px 20px; border-bottom: 1px solid var(--gray-200); margin-bottom: 8px; color: var(--gray-500); }
+  .hm-side-search svg { flex-shrink: 0; }
+  .hm-side-item {
+    display: flex; align-items: center; gap: 14px; padding: 12px 20px; color: var(--gray-500);
+    cursor: pointer; position: relative; user-select: none;
+  }
+  .hm-side-item svg { flex-shrink: 0; }
+  .hm-side-label { opacity: 0; transition: opacity .12s ease; font-size: 14px; font-weight: 500; }
+  .hm-sidebar:hover .hm-side-label, .hm-sidebar.pinned .hm-side-label { opacity: 1; transition-delay: .08s; }
+  .hm-side-item.active { background: #EAEEFD; color: #3D5AFE; }
+  .hm-side-item.active svg { color: #3D5AFE; }
+  .hm-side-item:not(.active):hover { background: var(--gray-100); }
+  .hm-side-chevron { margin-left: auto; opacity: 0; flex-shrink: 0; transition: transform .2s ease; }
+  .hm-sidebar:hover .hm-side-chevron, .hm-sidebar.pinned .hm-side-chevron { opacity: .7; }
+  .hm-side-item.open .hm-side-chevron { transform: rotate(180deg); }
+  .hm-submenu { max-height: 0; overflow: hidden; transition: max-height .2s ease; }
+  .hm-sidebar:hover .hm-submenu.open, .hm-sidebar.pinned .hm-submenu.open { max-height: 420px; transition: max-height .28s ease; }
+  .hm-sidebar:not(:hover):not(.pinned) .hm-submenu { max-height: 0 !important; }
+  .hm-sub-link { padding: 10px 20px 10px 54px; font-size: 13.5px; color: var(--gray-500); cursor: pointer; }
+  .hm-sub-link:hover { color: var(--black); background: var(--gray-100); }
+  .hm-sub-link.hm-sub-target { color: var(--orange); font-weight: 600; }
+  .hm-sub-link.hm-sub-target:hover { background: #FFF1EA; }
+
+  /* Main dashboard content */
+  .hm-main { flex: 1; margin-left: 64px; padding: 32px 40px 40px; overflow-y: auto; }
+  .hm-greeting { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .hm-greeting h1 {
+    font-size: 24px; font-weight: 800; text-transform: uppercase; margin: 0;
+    max-width: 560px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .hm-eye {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--black); color: #fff;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .hm-main-card {
+    border: 1px solid var(--gray-200); border-radius: 16px; padding: 30px 32px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px; position: relative; overflow: hidden;
+  }
+  .hm-main-card-label { font-size: 12.5px; color: var(--gray-400); line-height: 1.5; flex-shrink: 0; }
+  .hm-main-card-content { text-align: center; flex: 1; }
+  .hm-main-card-content h3 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .hm-main-card-value { font-size: 30px; font-weight: 800; color: #0F9D58; margin: 2px 0; }
+  .hm-mini-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .hm-mini-card { border: 1px solid var(--gray-200); border-radius: 16px; padding: 20px 22px; }
+  .hm-mini-card-title { font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 6px; color: var(--black); margin-bottom: 14px; }
+  .hm-mini-card-title-left { display: flex; align-items: center; gap: 6px; }
+  .hm-mini-card-value { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .hm-mini-card-desc { font-size: 12.5px; color: var(--gray-500); line-height: 1.4; }
+  .hm-tutor-card { background: linear-gradient(135deg, #1a0603 0%, #6e1508 55%, #e0490f 100%); color: #fff; padding: 0; overflow: hidden; position: relative; display: flex; align-items: stretch; }
+  .hm-tutor-burst { width: 46px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .hm-tutor-content { padding: 18px 16px 18px 4px; flex: 1; }
+  .hm-tutor-content p { font-size: 13px; line-height: 1.4; margin-bottom: 12px; }
+  .hm-tutor-content p strong { color: #FF8A5C; font-weight: 700; }
+  .hm-tutor-btn { background: #000; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font); cursor: default; }
+  .hm-dots { display: flex; gap: 6px; justify-content: center; margin-top: 18px; }
+  .hm-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--gray-300); }
+  .hm-dots span:first-child { background: var(--black); }
+
+  /* Right column - Minha evolução */
+  .hm-evolucao { width: 280px; flex-shrink: 0; padding: 32px 24px 40px 0; }
+  .hm-evolucao-card { border: 1px solid var(--gray-200); border-radius: 16px; padding: 22px; text-align: center; }
+  .hm-evolucao-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .hm-evolucao-head h3 { font-size: 15px; font-weight: 700; margin: 0; }
+  .hm-black-sun { background: #FFF1EA; color: var(--orange); font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; }
+  .hm-evolucao-sub { font-size: 11.5px; color: var(--gray-400); text-align: left; margin-bottom: 12px; }
+  .hm-mascot {
+    width: 96px; height: 96px; border-radius: 50%; margin: 4px auto 14px;
+    background: radial-gradient(circle at 50% 40%, #FF6B4A, #C0281A 70%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hm-evolucao-value { font-size: 20px; font-weight: 800; color: var(--orange); }
+  .hm-evolucao-label { font-size: 12px; color: var(--gray-500); margin-bottom: 16px; }
+  .hm-progress-box { background: var(--gray-100); border-radius: 10px; padding: 12px 14px; text-align: left; margin-bottom: 16px; }
+  .hm-progress-box .top-line { font-size: 12.5px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .hm-progress-track { height: 5px; background: var(--gray-300); border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
+  .hm-progress-fill { height: 100%; width: 38%; background: var(--black); border-radius: 4px; }
+  .hm-progress-box .bottom-line { font-size: 11.5px; color: var(--gray-500); line-height: 1.4; }
+  .hm-progress-box .bottom-line strong { color: var(--black); }
+  .hm-btn-outline-full { width: 100%; background: #fff; border: 1.5px solid var(--gray-300); border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 700; font-family: var(--font); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: default; }
+
+  .hm-chat-fab {
+    position: fixed; bottom: 28px; right: 28px; width: 54px; height: 54px; border-radius: 50%;
+    background: #E85D42; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,.18); z-index: 70; cursor: default;
+  }
+  .hm-chat-fab .hm-badge { top: -4px; right: -4px; }
+
+  /* Loading transition */
+  .hm-loading-overlay {
+    position: absolute; inset: 0; background: #F6F7FA; z-index: 200;
+    display: none; align-items: center; justify-content: center;
+  }
+  .hm-loading-overlay.show { display: flex; }
+  .hm-spinner { position: relative; width: 68px; height: 68px; display: flex; align-items: center; justify-content: center; }
+  .hm-spinner-ring {
+    position: absolute; inset: 0; border-radius: 50%; border: 2.5px solid var(--gray-300);
+    border-top-color: transparent; animation: hm-spin .85s linear infinite;
+  }
+  @keyframes hm-spin { to { transform: rotate(360deg); } }
+
+  /* ══════════════════════════════════════════
+     ENOTAS SALES / CHECKOUT FLOW
+  ══════════════════════════════════════════ */
+  .enotas-static-sidebar {
+    position: absolute; top: 0; left: 0; bottom: 0; width: 64px; background: #fff;
+    border-right: 1px solid var(--gray-200); padding-top: 14px; display: flex; flex-direction: column;
+  }
+  .enotas-static-sidebar .item { padding: 12px 20px; color: var(--gray-400); display: flex; }
+  .enotas-static-sidebar .item.active { color: #3D5AFE; }
+  .enotas-main { flex: 1; margin-left: 64px; overflow-y: auto; height: 100%; }
+
+  /* Landing */
+  .enotas-landing-hero {
+    max-width: 1040px; margin: 0 auto; padding: 48px 40px 0;
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center;
+  }
+  .enotas-mini-logo { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--black); margin-bottom: 20px; display: flex; align-items: center; gap: 2px; }
+  .enotas-landing-hero h1 { font-size: 32px; line-height: 1.2; margin-bottom: 18px; }
+  .enotas-landing-hero h1 .accent { color: var(--orange); }
+  .enotas-landing-hero p { font-size: 15px; color: var(--gray-500); line-height: 1.6; margin-bottom: 26px; max-width: 460px; }
+  .enotas-hero-art {
+    position: relative; height: 260px; border-radius: 20px;
+    background: linear-gradient(135deg, #FFE8DC, #FFD3BB);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .enotas-hero-card {
+    background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 20px 44px rgba(0,0,0,.14);
+    width: 240px;
+  }
+  .enotas-hero-card .brand { font-size: 12px; font-weight: 800; margin-bottom: 10px; display:flex; align-items:center; gap:4px; }
+  .enotas-hero-card .row { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .enotas-hero-card .stat { background: var(--gray-100); border-radius: 8px; padding: 8px 10px; flex: 1; }
+  .enotas-hero-card .stat .v { font-size: 13px; font-weight: 700; }
+  .enotas-hero-card .stat .l { font-size: 9.5px; color: var(--gray-500); }
+  .enotas-hero-card .total { font-size: 11px; color: var(--gray-500); margin-bottom: 2px; }
+  .enotas-hero-card .total b { display: block; font-size: 16px; color: var(--black); }
+  .enotas-reforma-banner {
+    background: linear-gradient(135deg, var(--orange), #FF6B35); color: #fff; text-align: center;
+    padding: 22px 40px; margin-top: 36px;
+  }
+  .enotas-reforma-banner h3 { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+  .enotas-reforma-banner p { font-size: 13px; opacity: .95; max-width: 640px; margin: 0 auto; }
+  .enotas-testimonials { max-width: 1040px; margin: 0 auto; padding: 40px 40px 60px; }
+  .enotas-testimonials h3 { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+  .enotas-testi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+  .enotas-testi-card { border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px; }
+  .enotas-testi-avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--orange); color: #fff;
+    font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+  }
+  .enotas-testi-card p { font-size: 12.5px; color: var(--gray-500); line-height: 1.5; margin-bottom: 8px; }
+  .enotas-testi-card .name { font-size: 12.5px; font-weight: 700; color: var(--black); }
+
+  /* Plans */
+  .enotas-plans-wrap { max-width: 1040px; margin: 0 auto; padding: 48px 40px; display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 48px; }
+  .enotas-plans-left h2 { font-size: 24px; line-height: 1.3; margin-bottom: 20px; }
+  .enotas-plans-left h2 .accent { color: var(--orange); display: block; }
+  .enotas-check-list { margin-bottom: 20px; }
+  .enotas-check-list li { list-style: none; font-size: 14px; color: var(--black); margin-bottom: 12px; padding-left: 24px; position: relative; }
+  .enotas-check-list li::before { content: '✓'; position: absolute; left: 0; color: var(--gray-500); font-weight: 700; }
+  .enotas-plans-left .sub-title { font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+  .enotas-plans-left .muted-list li { list-style: none; font-size: 13px; color: var(--gray-400); margin-bottom: 8px; padding-left: 16px; position: relative; }
+  .enotas-plans-left .muted-list li::before { content: '–'; position: absolute; left: 0; }
+  .enotas-plan-row {
+    border: 1px solid var(--gray-200); border-radius: 12px; padding: 20px 22px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; cursor: pointer; transition: all .15s;
+  }
+  .enotas-plan-row:hover { border-color: var(--gray-300); }
+  .enotas-plan-row.selected { background: var(--gray-100); border-color: var(--black); }
+  .enotas-plan-row .left { flex: 1; }
+  .enotas-plan-radio {
+    width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid var(--gray-400); flex-shrink: 0;
+    margin-right: 12px; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .enotas-plan-row.selected .enotas-plan-radio { border-color: var(--black); }
+  .enotas-plan-row.selected .enotas-plan-radio::after { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--black); }
+  .enotas-plan-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; }
+  .enotas-plan-desc { font-size: 12.5px; color: var(--gray-500); margin-top: 6px; line-height: 1.5; max-width: 320px; }
+  .enotas-plan-cta { margin-top: 12px; display: none; }
+  .enotas-plan-row.selected .enotas-plan-cta { display: block; }
+  .enotas-plan-right { text-align: right; flex-shrink: 0; }
+  .enotas-plan-notas { font-size: 13px; color: var(--orange); font-weight: 700; margin-bottom: 4px; }
+  .enotas-plan-price { font-size: 20px; font-weight: 800; }
+  .enotas-plan-price small { font-size: 12px; font-weight: 600; color: var(--gray-500); }
+  .enotas-plan-extra { font-size: 11.5px; color: var(--gray-400); margin-top: 2px; }
+
+  /* Checkout modal */
+  .checkout-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500;
+    display: none; align-items: flex-start; justify-content: center; padding: 30px 16px; overflow-y: auto;
+  }
+  .checkout-modal-overlay.show { display: flex; }
+  .checkout-modal {
+    background: #fff; border-radius: 14px; width: 100%; max-width: 480px; overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0,0,0,.3); position: relative;
+  }
+  .checkout-modal-close {
+    position: absolute; top: 14px; right: 16px; background: none; border: none; cursor: pointer;
+    color: var(--gray-400); z-index: 2;
+  }
+  .checkout-modal-topbar {
+    display: flex; align-items: center; justify-content: space-between; background: #fff;
+    border-bottom: 1px solid var(--gray-200); padding: 16px 24px 14px;
+  }
+  .checkout-modal-topbar .brand { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; color: var(--black); }
+  .checkout-modal-topbar span { color: var(--orange); font-size: 11px; font-weight: 700; background: #FFF1EA; padding: 4px 9px; border-radius: 10px; }
+  .checkout-modal-body { padding: 18px 24px 0; max-height: 68vh; overflow-y: auto; }
+  .enotas-country { text-align: right; font-size: 12px; color: var(--gray-500); margin-bottom: 10px; }
+  .enotas-product-row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .enotas-product-thumb {
+    width: 52px; height: 52px; border-radius: 8px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--orange), #C93500); display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px; font-weight:800; text-align:center;
+  }
+  .enotas-product-info h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 2px; }
+  .enotas-product-info .author { font-size: 11.5px; color: var(--gray-400); margin-bottom: 4px; }
+  .enotas-product-info .price-main { font-size: 15px; font-weight: 800; }
+  .enotas-product-info .price-sub { font-size: 11.5px; color: var(--gray-500); }
+  .enotas-fineprint { font-size: 10.5px; color: var(--gray-400); line-height: 1.5; margin-bottom: 16px; }
+  .enotas-quickbuy { background: var(--gray-100); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .enotas-quickbuy-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .enotas-quickbuy-head .tag { font-size: 11.5px; font-weight: 700; color: var(--orange); display:flex; align-items:center; gap:5px; }
+  .enotas-quickbuy-head .powered { font-size: 10px; color: var(--gray-400); }
+  .enotas-quickbuy p { font-size: 13px; margin-bottom: 8px; }
+  .enotas-quickbuy .email-row { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--gray-500); }
+  .enotas-quickbuy .email-row a { color: var(--black); font-weight: 600; text-decoration: none; }
+  .enotas-field-row { display: flex; align-items: center; gap: 10px; border: 1px solid var(--gray-300); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: var(--black); }
+  .enotas-field-row.checked { border-color: #3D5AFE; }
+  .enotas-checkbox { width: 16px; height: 16px; border: 1.5px solid var(--gray-400); border-radius: 4px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  .enotas-checkbox.on { background: var(--black); border-color: var(--black); color: #fff; }
+  .enotas-coupon { border: 1px solid var(--gray-300); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--gray-500); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .enotas-section-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .enotas-pay-method { border: 1px solid var(--gray-300); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+  .enotas-pay-method-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .enotas-pay-method.selected { border-color: var(--black); }
+  .enotas-pay-radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--gray-400); flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  .enotas-pay-method.selected .enotas-pay-radio { border-color: var(--black); }
+  .enotas-pay-method.selected .enotas-pay-radio::after { content:''; width: 8px; height: 8px; border-radius: 50%; background: var(--black); }
+  .enotas-pay-body { padding: 0 14px 14px; }
+  .enotas-saved-card { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--gray-500); background: var(--gray-100); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+  .enotas-select-parcelas { border: 1px solid var(--gray-300); border-radius: 8px; padding: 10px 12px; font-size: 13px; display: flex; justify-content: space-between; color: var(--black); }
+  .checkout-modal-footer-help { background: var(--black); color: rgba(255,255,255,.85); font-size: 10.5px; line-height: 1.6; padding: 14px 24px; margin-top: 18px; }
+  .checkout-modal-footer-help a { color: #fff; }
+  .checkout-modal-bottombar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-top: 1px solid var(--gray-200); position: sticky; bottom: 0; background: #fff; }
+  .checkout-modal-bottombar .price { font-size: 13.5px; font-weight: 700; }
+  .btn-green { background: #00A650; color: #fff; }
+  .btn-green:hover { background: #008f45; }
+
+  /* OTP / processing / success (share modal shell) */
+  .enotas-step-body { padding: 30px 30px 26px; text-align: center; }
+  .enotas-step-body.left { text-align: left; }
+  .enotas-step-title { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+  .enotas-otp-row { display: flex; gap: 8px; justify-content: center; margin: 20px 0 10px; }
+  .enotas-otp-box {
+    width: 42px; height: 50px; border: 1.5px solid var(--gray-300); border-radius: 8px; text-align: center;
+    font-size: 20px; font-family: var(--font); font-weight: 700;
+  }
+  .enotas-otp-box:focus { outline: none; border-color: #3D5AFE; }
+  .enotas-otp-expire { font-size: 12px; color: var(--gray-400); margin-bottom: 10px; }
+  .enotas-otp-resend { font-size: 13px; color: var(--black); font-weight: 600; text-decoration: underline; cursor: pointer; }
+  .enotas-protected { font-size: 11px; color: var(--gray-400); margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .enotas-rocket { width: 76px; height: 76px; margin: 6px auto 18px; }
+  .enotas-success-banner {
+    background: #DFF7E8; color: #0F7A34; display: flex; align-items: center; gap: 10px;
+    padding: 16px 24px; font-size: 17px; font-weight: 700;
+  }
+  .enotas-success-body { padding: 20px 24px 0; }
+  .enotas-success-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .enotas-success-body p { font-size: 12.5px; color: var(--gray-500); line-height: 1.5; margin-bottom: 16px; }
+  .enotas-email-box { background: var(--gray-100); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; font-size: 12.5px; }
+  .enotas-email-box .lbl { color: var(--gray-500); margin-bottom: 2px; }
+  .enotas-email-box .val { font-weight: 700; margin-bottom: 8px; }
+  .enotas-email-box .help { color: var(--gray-400); }
+  .enotas-resumo-row { display: flex; justify-content: space-between; align-items: flex-start; font-size: 13px; margin-bottom: 4px; gap: 10px; }
+  .enotas-resumo-tag { background: var(--gray-200); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-left: 6px; }
+  .enotas-resumo-code { font-size: 11.5px; color: var(--gray-400); margin-bottom: 16px; }
+
+  /* ══════════════════════════════════════════
+     TELA 6 (Dashboard eNotas / Conta criada)
+  ══════════════════════════════════════════ */
+  .t6-tabbar { background: #fff; padding: 14px 24px; border-radius: 8px 8px 0 0; border-bottom: 1px solid var(--gray-200); color: #555; font-size: 15px; }
+  .t6-card { background: #fff; padding: 26px 28px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 10px rgba(0,0,0,.05); margin-bottom: 16px; }
+  .t6-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .t6-card-head h3 { font-size: 15px; font-weight: 700; margin: 0; }
+  .t6-btn-blue { background: #3D5AFE; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; font-family: var(--font); display: inline-flex; align-items: center; gap: 6px; cursor: default; }
+  .t6-hr { border-top: 1px solid var(--gray-200); margin-bottom: 18px; }
+  .t6-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 16px; }
+  .t6-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .t6-stat { border: 1px solid var(--gray-200); border-radius: 10px; padding: 16px 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .t6-stat .v { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .t6-stat .l { font-size: 12px; color: var(--gray-500); }
+  .t6-btn-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
+  .t6-btn-outline { background: #fff; border: 1px solid var(--gray-300); border-radius: 8px; padding: 9px 15px; font-size: 13px; font-weight: 600; font-family: var(--font); display: inline-flex; align-items: center; gap: 7px; cursor: pointer; color: var(--black); }
+  .t6-btn-outline:hover { border-color: var(--gray-400); }
+  .t6-logo-center { text-align: center; font-size: 13px; font-weight: 800; color: var(--gray-400); letter-spacing: -0.02em; }
+  .t6-config-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.05); padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
+  .t6-config-icon { width: 40px; height: 40px; border-radius: 50%; background: #1A1A1A; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .t6-config-text { flex: 1; }
+  .t6-config-text b { font-size: 14px; display: block; margin-bottom: 2px; }
+  .t6-config-text div { font-size: 12.5px; color: #00A99D; }
+
+/* ═══════════ ADIÇÕES, Simulador Alterações na conta ═══════════ */
+:root{ --blue:#3D5AFE; --amber:#F59E0B; --amber-bg:#FEF6E7; --red:#EF4444; --green-bg:#E9F9EF; }
+.sim-cover{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:56px 24px; background:radial-gradient(1200px 500px at 50% -10%, #FFF3EC 0%, var(--white) 55%); }
+.sim-cover .brand-row{ display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+.sim-cover .brand-row img{ height:30px; }
+.sim-cover h1{ font-size:34px; text-align:center; max-width:720px; }
+.sim-cover .subtitle{ text-align:center; max-width:620px; margin-bottom:8px; }
+.legend{ display:inline-flex; align-items:center; gap:8px; background:var(--white); border:1px solid var(--gray-200);
+  padding:8px 14px; border-radius:999px; font-size:12.5px; color:var(--gray-500); margin:18px 0 34px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+.scn-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; width:100%; max-width:980px; }
+.scn-card{ background:var(--white); border:1px solid var(--gray-200); border-radius:18px; padding:24px; cursor:pointer;
+  transition:.18s; position:relative; display:flex; flex-direction:column; gap:10px; }
+.scn-card:hover{ border-color:var(--black); transform:translateY(-3px); box-shadow:0 14px 30px rgba(0,0,0,.08); }
+.scn-card.soon{ opacity:.55; cursor:not-allowed; }
+.scn-card.soon:hover{ transform:none; border-color:var(--gray-200); box-shadow:none; }
+.scn-risk{ font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:4px 10px; border-radius:999px; align-self:flex-start; }
+.risk-low{ background:var(--green-bg); color:#128A4B; }
+.risk-mid{ background:var(--amber-bg); color:#B4740A; }
+.risk-high{ background:#FDECEC; color:#C0392B; }
+.scn-card h3{ font-size:17px; }
+.scn-card p{ font-size:13px; color:var(--gray-500); line-height:1.5; }
+.scn-card .go{ margin-top:auto; font-size:13px; font-weight:700; color:var(--orange); display:flex; align-items:center; gap:6px; }
+.other-scn{ margin-top:26px; width:100%; max-width:980px; }
+.other-scn .ttl{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gray-400); margin-bottom:12px; text-align:center; }
+.other-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.other-card{ background:var(--gray-100); border:1px dashed var(--gray-300); border-radius:14px; padding:16px; text-align:center; font-size:13px; color:var(--gray-500); }
+
+.novo-badge{ display:inline-flex; align-items:center; gap:5px; background:var(--orange); color:#fff; font-size:10.5px;
+  font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 8px; border-radius:999px; vertical-align:middle; }
+.novo-badge::before{ content:''; width:5px; height:5px; border-radius:50%; background:#fff; }
+
+.mc-view{ animation:fadein .25s ease; }
+@keyframes fadein{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+.mc-wrap{ max-width:900px; margin:0 auto; width:100%; padding:34px 40px 60px; }
+.mc-breadcrumb{ font-size:13px; color:var(--gray-400); margin-bottom:10px; }
+.mc-breadcrumb b{ color:var(--black); }
+.mc-title{ font-size:30px; font-weight:700; margin-bottom:18px; }
+.mc-tabs{ display:flex; gap:22px; border-bottom:1px solid var(--gray-200); margin-bottom:22px; font-size:14px; flex-wrap:wrap; }
+.mc-tab{ padding:0 0 12px; color:var(--gray-400); cursor:pointer; }
+.mc-tab.active{ color:var(--black); font-weight:600; border-bottom:2px solid var(--black); }
+.mc-note{ display:flex; gap:12px; align-items:flex-start; background:var(--gray-100); border-radius:12px; padding:14px 16px; font-size:13px; color:var(--gray-500); margin-bottom:20px; }
+.mc-card{ background:var(--white); border:1px solid var(--gray-200); border-radius:16px; padding:22px 24px; margin-bottom:18px; }
+.mc-card h3{ font-size:16px; margin-bottom:4px; }
+.mc-card .hint{ font-size:12.5px; color:var(--gray-400); margin-bottom:16px; }
+.field-label{ font-size:12.5px; color:var(--gray-500); margin-bottom:6px; }
+.field-box{ display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid var(--gray-300);
+  border-radius:10px; padding:12px 14px; font-size:14px; background:var(--white); flex-wrap:wrap; }
+.field-box.locked{ background:var(--gray-100); color:var(--gray-500); }
+
+.wz{ max-width:860px; margin:0 auto; width:100%; padding:30px 40px 60px; }
+.wz-steps{ display:flex; align-items:flex-start; justify-content:space-between; margin:8px 0 26px; }
+.wz-step{ display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; position:relative; }
+.wz-step .dot{ width:26px; height:26px; border-radius:50%; border:2px solid var(--gray-300); display:flex; align-items:center; justify-content:center; background:var(--white); font-size:12px; color:var(--gray-400); z-index:2; }
+.wz-step.active .dot{ border-color:var(--black); color:var(--black); }
+.wz-step.done .dot{ background:var(--black); border-color:var(--black); color:#fff; }
+.wz-step .lbl{ font-size:11.5px; color:var(--gray-400); text-align:center; max-width:120px; }
+.wz-step.active .lbl,.wz-step.done .lbl{ color:var(--black); }
+.wz-line{ position:absolute; top:13px; left:-50%; width:100%; height:2px; background:var(--gray-200); z-index:1; }
+.wz-step.done .wz-line,.wz-step.active .wz-line{ background:var(--black); }
+.wz-panel{ background:var(--gray-100); border-radius:16px; padding:26px 28px; }
+.wz-panel h2{ font-size:20px; margin-bottom:8px; }
+.wz-panel p.desc{ font-size:14px; color:var(--gray-500); line-height:1.6; margin-bottom:18px; }
+.info-row{ font-size:13.5px; margin:3px 0; } .info-row b{ display:inline-block; min-width:66px; }
+
+.risk-banner{ display:flex; align-items:center; gap:12px; border-radius:12px; padding:12px 16px; font-size:13px; margin-bottom:20px; line-height:1.5; }
+.risk-banner.low{ background:var(--green-bg); color:#128A4B; } .risk-banner.mid{ background:var(--amber-bg); color:#B4740A; }
+.risk-banner.high{ background:#FDECEC; color:#C0392B; }
+
+.ft-overlay .checkout-modal{ max-width:440px; text-align:center; }
+.ft-oval{ width:170px; height:210px; margin:10px auto 16px; border-radius:50%/45%; border:3px dashed var(--orange);
+  display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 40%, #FFF3EC, #fff); }
+.ft-oval.scanning{ border-style:solid; animation:ftpulse 1.1s ease-in-out infinite; }
+@keyframes ftpulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,77,0,.25);} 50%{ box-shadow:0 0 0 14px rgba(255,77,0,0);} }
+.ft-oval svg{ width:80px; height:80px; }
+.ft-provider{ font-size:11.5px; color:var(--gray-400); margin-top:12px; line-height:1.5; }
+
+.up-box{ border:1.5px dashed var(--gray-300); border-radius:14px; padding:16px 18px; display:flex; align-items:center; gap:14px; background:var(--white); margin-bottom:12px; }
+.up-ico{ width:42px; height:42px; border-radius:10px; background:var(--gray-100); display:flex; align-items:center; justify-content:center; font-size:20px; }
+.up-box .t{ font-size:14px; font-weight:600; } .up-box .s{ font-size:12px; color:var(--gray-400); }
+.up-tag{ margin-left:auto; font-size:12px; font-weight:700; color:var(--green); }
+
+.result{ max-width:640px; margin:0 auto; text-align:center; padding:56px 30px; }
+.result .rico{ width:84px; height:84px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 22px; }
+.result .rico svg{ width:40px; height:40px; }
+.rico.ok{ background:var(--green-bg); color:#128A4B; } .rico.wait{ background:var(--amber-bg); color:#B4740A; } .rico.cx{ background:#EEF1FF; color:#33409E; }
+.result h2{ font-size:26px; margin-bottom:12px; } .result p{ font-size:14.5px; color:var(--gray-500); line-height:1.6; }
+.sec-window{ background:var(--amber-bg); border:1px solid #F6D98A; border-radius:12px; padding:16px; text-align:left; margin:22px 0; font-size:13px; color:#7A5606; line-height:1.55; }
+.notfixed{ display:inline-flex; gap:8px; align-items:center; font-size:13px; font-weight:600; color:var(--black); text-decoration:underline; cursor:pointer; margin-top:6px; }
+.notfixed svg{ width:16px; height:16px; }
+
+.wz-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:24px; gap:14px; }
+.back-link{ font-size:13.5px; color:var(--gray-500); cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+.back-link:hover{ color:var(--black); }
+.back-link svg{ width:15px; height:15px; }
+.restart{ position:fixed; left:18px; bottom:18px; z-index:400; background:var(--white); border:1px solid var(--gray-300);
+  color:var(--black); font-size:12.5px; padding:9px 14px; border-radius:999px; cursor:pointer; display:flex; gap:6px; align-items:center; box-shadow:0 4px 14px rgba(0,0,0,.06); }
+.restart svg{ width:14px; height:14px; }
+
+/* ── inline svg icon helper ── */
+.ico{ display:inline-flex; vertical-align:middle; }
+.ico svg{ width:16px; height:16px; }
+
+/* ── modern buttons ── */
+.ui-btn{ font-family:var(--font); font-size:14px; font-weight:600; border-radius:12px; padding:13px 22px;
+  border:1px solid transparent; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+  gap:9px; transition:.16s ease; line-height:1; white-space:nowrap; }
+.ui-btn svg{ width:17px; height:17px; flex:none; }
+.ui-btn-primary{ background:var(--black); color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.14); }
+.ui-btn-primary:hover{ transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,.20); }
+.ui-btn-primary:active{ transform:translateY(0); box-shadow:0 2px 8px rgba(0,0,0,.14); }
+.ui-btn-primary:disabled{ opacity:.6; cursor:default; transform:none; box-shadow:none; }
+.ui-btn-outline{ background:var(--white); color:var(--black); border-color:var(--gray-300); }
+.ui-btn-outline:hover{ border-color:var(--black); background:var(--gray-100); }
+.ui-btn-lg{ font-size:15px; padding:15px 26px; width:100%; border-radius:14px; }
+/* Novo badge sitting inside a dark button */
+.ui-btn-primary .novo-badge{ background:var(--orange); }
+
+/* ═══════════ Modo apresentação (anotações) ═══════════ */
+.anno-toggle{ position:fixed; right:18px; bottom:18px; z-index:520; background:var(--orange); color:#fff; border:none;
+  font-family:var(--font); font-size:12.5px; font-weight:600; padding:11px 16px; border-radius:999px; cursor:pointer;
+  display:flex; gap:8px; align-items:center; box-shadow:0 8px 22px rgba(255,77,0,.35); transition:.2s; }
+.anno-toggle svg{ width:16px; height:16px; }
+body.anno-on .anno-toggle{ right:356px; background:var(--black); box-shadow:0 8px 22px rgba(0,0,0,.3); }
+.anno-rail{ position:fixed; top:0; right:0; bottom:0; width:340px; background:#101114; color:#EDEDED;
+  transform:translateX(100%); transition:transform .28s ease; z-index:510; overflow-y:auto; padding:28px 22px 90px; }
+.anno-rail.on{ transform:none; }
+.anno-rail .anno-kicker{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8A8F98; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.anno-rail .anno-kicker svg{ width:15px; height:15px; }
+.anno-rail .anno-title{ font-size:19px; font-weight:700; color:#fff; margin-bottom:4px; line-height:1.2; }
+.anno-rail .anno-step{ font-size:12px; color:var(--orange); font-weight:600; margin-bottom:22px; }
+.anno-sec{ margin-bottom:20px; }
+.anno-sec .lbl{ font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#8A8F98; margin-bottom:9px; display:flex; align-items:center; gap:8px; }
+.anno-sec .lbl svg{ width:14px; height:14px; }
+.anno-sec ul{ list-style:none; margin:0; padding:0; }
+.anno-sec li{ font-size:13px; line-height:1.5; color:#D5D7DC; padding-left:15px; position:relative; margin-bottom:8px; }
+.anno-sec li::before{ content:''; position:absolute; left:0; top:8px; width:5px; height:5px; border-radius:50%; background:var(--orange); }
+.anno-empty{ font-size:13px; color:#8A8F98; line-height:1.5; }
+body.anno-on .hm-app{ padding-right:340px; }
+body.anno-on .sim-cover{ padding-right:340px; }
+
+/* seleção de canal (médio risco) */
+.choice-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:6px; }
+.choice{ border:1.5px solid var(--gray-300); border-radius:14px; padding:16px 18px; cursor:pointer; transition:.15s; background:var(--white); }
+.choice:hover{ border-color:var(--black); }
+.choice h4{ font-size:14.5px; }
+.choice p{ font-size:12px; color:var(--gray-500); margin-top:2px; }
+.choice.selected{ border-color:var(--black); box-shadow:0 0 0 1px var(--black) inset; }
+.choice-head{ display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.choice-head h4{ margin:0; }
+.choice .rec{ font-size:10px; font-weight:700; color:#128A4B; background:var(--green-bg); padding:2px 8px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
+
+/* ═══════════ As-is (Como é hoje) ═══════════ */
+.seg{ display:inline-flex; background:var(--gray-100); border:1px solid var(--gray-200); border-radius:10px; padding:3px; gap:2px; margin-bottom:20px; }
+.seg button{ font-family:var(--font); font-size:13px; font-weight:600; border:none; background:transparent; color:var(--gray-500); padding:8px 16px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; }
+.seg button svg{ width:15px; height:15px; }
+.seg button.on{ background:var(--white); color:var(--black); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+.seg button.on.is-hoje{ color:#C0392B; }
+.deadend{ display:flex; gap:12px; align-items:flex-start; background:#FDECEC; border:1px solid #F3C0C0; border-radius:12px; padding:14px 16px; font-size:13px; color:#8A2B2B; line-height:1.5; margin-bottom:14px; }
+.deadend svg{ width:18px; height:18px; flex:none; margin-top:1px; }
+
+.help-wrap{ max-width:720px; margin:0 auto; width:100%; padding:30px 40px 70px; }
+.help-card{ background:var(--gray-100); border-radius:16px; padding:26px 28px; }
+.help-h1{ font-size:23px; font-weight:700; margin-bottom:6px; }
+.help-lead{ font-size:14px; color:var(--gray-500); margin-bottom:20px; }
+.pill-row{ display:flex; gap:12px; flex-wrap:wrap; }
+.pill-opt{ border:1px solid var(--gray-300); background:var(--white); border-radius:999px; padding:10px 18px; font-size:13.5px; cursor:pointer; transition:.15s; }
+.pill-opt:hover{ border-color:var(--black); }
+.pill-opt.sel{ border-color:var(--orange); box-shadow:0 0 0 1px var(--orange) inset; color:var(--orange); }
+.hd-sep{ height:1px; background:var(--gray-200); margin:20px 0; }
+.vstep{ display:flex; flex-direction:column; gap:10px; margin-bottom:22px; }
+.vstep .it{ display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--gray-400); }
+.vstep .it .rc{ width:16px; height:16px; border-radius:50%; border:2px solid var(--gray-300); }
+.vstep .it.active{ color:var(--black); font-weight:600; }
+.vstep .it.active .rc{ border-color:var(--orange); box-shadow:inset 0 0 0 3px var(--orange); }
+.sel-box{ border:1px solid var(--orange); border-radius:8px; padding:12px 14px; font-size:14px; background:var(--white); color:var(--gray-400); display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+.sel-box.filled{ color:var(--black); border-color:var(--gray-300); }
+.sel-menu{ border:1px solid var(--gray-200); border-radius:8px; background:var(--white); margin-top:6px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.08); }
+.sel-menu div{ padding:11px 14px; font-size:13.5px; cursor:pointer; }
+.sel-menu div:hover{ background:var(--gray-100); }
+.fld{ margin-bottom:15px; } .fld label{ display:block; font-size:12.5px; color:var(--gray-600,#4b4b49); margin-bottom:6px; }
+.fld input,.fld textarea{ width:100%; border:1px solid var(--gray-300); border-radius:8px; padding:11px 12px; font-family:var(--font); font-size:13.5px; background:var(--white); }
+.fld textarea{ min-height:78px; resize:vertical; }
+.help-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:22px; }
+.btn-voltar{ font-family:var(--font); font-size:13.5px; font-weight:600; color:var(--orange); background:var(--white); border:1px solid var(--orange); border-radius:10px; padding:11px 20px; cursor:pointer; display:inline-flex; gap:7px; align-items:center; }
+.btn-voltar svg{ width:15px; height:15px; }
+
+/* ticket thread */
+.thread{ display:flex; flex-direction:column; gap:12px; margin:6px 0 4px; }
+.msg{ max-width:82%; padding:12px 14px; border-radius:14px; font-size:13.5px; line-height:1.5; }
+.msg .who{ font-size:10.5px; font-weight:700; color:var(--gray-400); margin-bottom:4px; text-transform:uppercase; letter-spacing:.03em; }
+.msg.agent{ background:var(--white); border:1px solid var(--gray-200); align-self:flex-start; border-bottom-left-radius:4px; }
+.msg.me{ background:var(--black); color:#fff; align-self:flex-end; border-bottom-right-radius:4px; }
+.msg.me .who{ color:#9a9a9a; }
+.msg.sys{ background:transparent; color:var(--gray-400); align-self:center; font-size:12px; text-align:center; max-width:100%; }
+.msg.reprovado{ background:#FDECEC; border:1px solid #F3C0C0; color:#9B2C2C; align-self:flex-start; border-bottom-left-radius:4px; }
+.day-chip{ align-self:center; font-size:11px; color:var(--gray-500); background:var(--gray-100); padding:4px 12px; border-radius:999px; }
+.cost-box{ background:#FDECEC; border:1px solid #F3C0C0; border-radius:12px; padding:16px; margin-top:20px; font-size:13px; color:#8A2B2B; line-height:1.55; }
+.cost-box b{ color:#7A1F1F; }
+
+/* ═══════════ Hub por motivo ═══════════ */
+.scn-section{ width:100%; max-width:980px; margin-top:6px; }
+.scn-section .sec-h{ font-size:13px; font-weight:700; color:var(--black); margin:22px 0 12px; display:flex; align-items:baseline; gap:10px; letter-spacing:.02em; }
+.scn-section .sec-h .sub{ font-weight:400; color:var(--gray-400); font-size:12px; }
+.scn-grid.cols2{ grid-template-columns:1fr 1fr; }
+.scn-flag{ font-size:10px; font-weight:700; color:#C0392B; background:#FDECEC; padding:3px 8px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; margin-left:6px; }
+.scn-card .risk-line{ display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+
+/* selo de tickets (substitui o selo de risco no hub) */
+.scn-tickets{ font-size:11px; font-weight:600; color:var(--gray-500); background:var(--gray-100); border:1px solid var(--gray-200);
+  padding:4px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:6px; }
+.scn-tickets b{ color:var(--black); font-weight:700; }
+.scn-tickets svg{ width:13px; height:13px; opacity:.7; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════ COVER / HUB ══════════════ -->
+<div class="screen active" id="scr-hub">
+  <div class="sim-cover">
+    <div class="brand-row"><img src="logo-hotmart-white.png" alt="Hotmart"></div>
+    <div class="etapa-label" style="text-align:center;">Simulador · Alterações na conta</div>
+    <h1>Alterações na conta Hotmart</h1>
+    <p class="subtitle">Protótipo que compara <b>como é hoje</b> e a <b>proposta</b> self-service. Organizado por tipo de alteração, começando por e-mail. Escolha um cenário para simular.</p>
+    <div class="legend">Elementos marcados com <span class="novo-badge">Novo</span> não existem hoje, são a proposta.</div>
+
+    <div class="scn-section">
+      <div class="sec-h">E-mail da conta Hotmart <span class="sub">Produtor e Afiliado · 12.690 tickets/semestre de troca de e-mail</span></div>
+      <div class="scn-grid cols2">
+        <div class="scn-card" onclick="startMotivo('trocasimples')">
+          <h3>Trocar para um novo e-mail</h3>
+          <p>Ainda tenho acesso ao e-mail atual, só quero migrar para outro endereço. Mesmo assim, hoje depende do CX.</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+        <div class="scn-card" onclick="startMotivo('perda')">
+          <h3>Perdi o acesso ao e-mail antigo</h3>
+          <p>Hackeado, bloqueado ou excluído. Não recebo mais nada no e-mail atual.</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scn-section">
+      <div class="sec-h">E-mail da compra <span class="sub">Comprador</span></div>
+      <div class="scn-grid cols2">
+        <div class="scn-card" onclick="startCompra()">
+          <div class="risk-line"><span class="scn-tickets"><b>15.998</b> tickets/semestre</span></div>
+          <h3>Trocar o e-mail de uma compra</h3>
+          <p>O produtor já troca sozinho (com regras). O comprador não consegue trocar o próprio e precisa abrir chamado.</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="other-scn">
+      <div class="ttl">Outros tipos de alteração (em breve)</div>
+      <div class="other-grid">
+        <div class="other-card">Documentos e titularidade</div>
+        <div class="other-card">País</div>
+        <div class="other-card">Demais alterações</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PLATAFORMA (chrome + views) ══════════════ -->
+<div class="screen" id="scr-platform">
+  <div class="hm-app">
+    <header class="hm-topbar">
+      <div class="hm-topbar-left">
+        <button class="hm-hamburger" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="hm-logo"><img src="logo-hotmart.jpg" alt="Hotmart" style="height:22px;width:auto;display:block;"></div>
+      </div>
+      <div class="hm-topbar-right">
+        <div class="hm-avatar">TP</div>
+      </div>
+    </header>
+
+    <div class="hm-body">
+      <nav class="hm-sidebar" id="hm-sidebar">
+        <div class="hm-side-search"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><span class="hm-side-label">Buscar</span></div>
+        <div class="hm-side-item"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 11L12 4l8 7v8a1 1 0 01-1 1H5a1 1 0 01-1-1z"/></svg><span class="hm-side-label">Home</span></div>
+        <div class="hm-side-item active"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg><span class="hm-side-label">Minha Conta</span></div>
+        <div class="hm-side-item"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg><span class="hm-side-label">Carteira</span></div>
+      </nav>
+
+      <main class="hm-main" style="padding:0;overflow:auto;">
+        <!-- VIEW: Minha Conta -->
+        <div class="mc-view" id="v-conta">
+          <div class="mc-wrap">
+            <div class="mc-breadcrumb">Painel / <b>Minha Conta</b></div>
+            <div class="mc-title">Minha Conta</div>
+            <div class="seg" id="mode-seg">
+              <button id="seg-hoje" class="is-hoje" onclick="setContaMode('hoje')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Como é hoje</button>
+              <button id="seg-prop" class="on" onclick="setContaMode('proposta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg> Proposta</button>
+            </div>
+            <div class="mc-tabs">
+              <div class="mc-tab">Perfil</div>
+              <div class="mc-tab active">Dados Pessoais</div>
+              <div class="mc-tab">Documentos</div>
+              <div class="mc-tab">Dados Financeiros</div>
+              <div class="mc-tab">Preferências</div>
+            </div>
+            <div class="mc-note"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></span> Estes dados são necessários para cumprimento dos requisitos de órgãos reguladores. Tratamos seus dados conforme os Termos de Uso e a Política de Privacidade.</div>
+
+            <div class="mc-card">
+              <h3>E-mail de acesso</h3>
+              <div class="hint">É com este e-mail que você acessa a sua conta Hotmart.</div>
+              <div class="field-label">E-mail atual</div>
+              <div class="field-box" id="conta-email-box">
+                <span id="conta-email">thiago.oliveira@email.com</span>
+                <span id="email-action"></span>
+              </div>
+              <div class="hint" id="email-hint" style="margin-top:12px;margin-bottom:0;"></div>
+            </div>
+
+            <div class="mc-card">
+              <h3>Natureza do negócio<span id="conta-natureza-tag" style="font-size:12px;color:var(--gray-400);font-weight:400;">: Pessoa Física</span></h3>
+              <div class="hint">CPF/CNPJ e titularidade da conta.</div>
+              <div class="field-box locked" id="conta-natureza-box"><span id="conta-natureza">Pessoa Física · CPF 115.***.**6-94</span><span style="font-size:12px;display:inline-flex;align-items:center;gap:6px;"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> em avaliação</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Verify start -->
+        <div class="mc-view" id="v-verify" style="display:none;">
+          <div class="wz">
+            <div class="mc-breadcrumb">Painel / Minha Conta / <b>Alterar e-mail</b></div>
+            <div class="mc-title">Alterar e-mail <span class="novo-badge">Novo</span></div>
+            <div class="risk-banner" id="risk-banner"></div>
+            <div id="wz-steps" class="wz-steps"></div>
+            <div class="wz-panel" id="verify-panel"></div>
+            <div class="wz-actions">
+              <span class="back-link" onclick="showView('v-conta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Voltar</span>
+              <button class="ui-btn ui-btn-primary" id="verify-cta" onclick="verifyCta()">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: New email -->
+        <div class="mc-view" id="v-newemail" style="display:none;">
+          <div class="wz">
+            <div class="mc-title">Novo e-mail <span class="novo-badge">Novo</span></div>
+            <div id="wz-steps-2" class="wz-steps"></div>
+            <div class="wz-panel">
+              <h2>Qual será o seu novo e-mail?</h2>
+              <p class="desc">Vamos enviar um código para confirmar o acesso a este novo endereço.</p>
+              <div class="field-label">Novo e-mail</div>
+              <div class="field-box"><input id="new-email-input" style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="thiago.oliveira.novo@email.com"></div>
+            </div>
+            <div class="wz-actions">
+              <span class="back-link" onclick="showView('v-conta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Cancelar</span>
+              <button class="ui-btn ui-btn-primary" id="newemail-cta" onclick="afterNewEmail()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+                Enviar código
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Docs (alto) -->
+        <div class="mc-view" id="v-docs" style="display:none;">
+          <div class="wz">
+            <div class="mc-title">Confirmação de identidade <span class="novo-badge">Novo</span></div>
+            <div id="wz-steps-3" class="wz-steps"></div>
+            <div class="wz-panel">
+              <h2>Envie seus documentos</h2>
+              <p class="desc">Para alterações de maior risco, confirmamos identidade e titularidade. Envie em <b>PDF</b>, fazemos a leitura por OCR e validamos o QR Code do documento.</p>
+              <div class="up-box"><div class="up-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg></div><div><div class="t">RG ou CNH (PDF)</div><div class="s">Leitura por OCR + validação de QR Code</div></div><span class="up-tag" id="doc1tag">Validado</span></div>
+              <div class="up-box" id="up-socios" style="display:none;"><div class="up-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/></svg></div><div><div class="t">Contrato social + aceite dos sócios</div><div class="s">Conta PJ com mais de um sócio</div></div><span class="up-tag" style="color:var(--amber);">Pendente</span></div>
+              <div class="risk-banner high" style="margin:14px 0 0;">Esta alteração envolve titularidade/alto risco, segue para <b>análise assistida</b> do time de CX.</div>
+            </div>
+            <div class="wz-actions">
+              <span class="back-link" onclick="showView('v-conta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Cancelar</span>
+              <button class="ui-btn ui-btn-primary" onclick="goResult('alto')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+                Enviar para análise
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Result -->
+        <div class="mc-view" id="v-result" style="display:none;">
+          <div class="result" id="result-inner"></div>
+        </div>
+
+        <!-- VIEW: As-is (Como é hoje) -->
+        <div class="mc-view" id="v-asis" style="display:none;">
+          <div class="help-wrap" id="asis-inner"></div>
+        </div>
+
+        <!-- VIEW: E-mail da compra -->
+        <div class="mc-view" id="v-compra" style="display:none;">
+          <div class="help-wrap">
+            <div class="mc-breadcrumb">Painel / <b>E-mail da compra</b></div>
+            <div class="mc-title" style="margin-bottom:10px;">Trocar o e-mail de uma compra</div>
+            <div class="seg" id="compra-seg">
+              <button id="cseg-hoje" class="is-hoje" onclick="setCompraMode('hoje')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Como é hoje</button>
+              <button id="cseg-prop" class="on" onclick="setCompraMode('proposta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg> Proposta</button>
+            </div>
+            <div id="compra-inner"></div>
+            <div style="margin-top:22px;"><span class="back-link" onclick="goTo('scr-hub')">Voltar aos cenários</span></div>
+          </div>
+        </div>
+
+        <!-- VIEW: E-mail da compra (fluxo proposta) -->
+        <div class="mc-view" id="v-compra-flow" style="display:none;">
+          <div class="wz"><div id="compra-flow-inner"></div></div>
+        </div>
+      </main>
+    </div>
+
+    <div class="hm-loading-overlay" id="hm-loading-overlay">
+      <div class="hm-spinner"><div class="hm-spinner-ring"></div><img src="logo-hotmart-loading.jpg" alt="" style="width:28px;height:28px;object-fit:contain;border-radius:50%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ OTP OVERLAY ══════════════ -->
+<div class="checkout-modal-overlay" id="otp-overlay">
+  <div class="checkout-modal" style="max-width:420px;">
+    <button class="checkout-modal-close" onclick="closeOtp()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="enotas-step-body left" style="padding-top:40px;">
+      <div class="enotas-step-title" id="otp-title">Quase lá!</div>
+      <p style="font-size:13.5px;color:var(--gray-500);line-height:1.5;" id="otp-sub"></p>
+      <div class="enotas-otp-row">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+      </div>
+      <div class="enotas-otp-expire" style="text-align:center;">O código expira em 15 minutos.</div>
+      <div style="text-align:center;"><span class="enotas-otp-resend" onclick="showToast('Código reenviado!')">Reenviar código</span></div>
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--gray-400);display:flex;align-items:center;justify-content:center;gap:6px;"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> Protegido por <strong>hotmart</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ FACETEC OVERLAY ══════════════ -->
+<div class="checkout-modal-overlay ft-overlay" id="ft-overlay">
+  <div class="checkout-modal" style="max-width:440px;">
+    <div class="enotas-step-body" style="padding-top:36px;text-align:center;">
+      <div class="enotas-step-title">Confirme que é você <span class="novo-badge">Novo</span></div>
+      <p style="font-size:13.5px;color:var(--gray-500);line-height:1.5;margin-top:6px;">Posicione seu rosto no contorno. Faremos a captura com prova de vida.</p>
+      <div class="ft-oval" id="ft-oval"><svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.3"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg></div>
+      <button class="ui-btn ui-btn-primary ui-btn-lg" id="ft-btn" onclick="ftCapture()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="2.4"/><path d="M6.5 18a5.5 5.5 0 0111 0"/></svg>
+        Iniciar captura
+      </button>
+      <div class="ft-provider">Biometria por <strong>FaceTec</strong>, o mesmo motor já usado no cadastro/KYC da conta.</div>
+    </div>
+  </div>
+</div>
+
+<!-- painel de anotações (modo apresentação) -->
+<aside class="anno-rail" id="anno-rail">
+  <div class="anno-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-3"/><path d="M12 15l9-9-3-3-9 9v3z"/></svg> Modo apresentação</div>
+  <div class="anno-title" id="anno-title">Simulador de decisão</div>
+  <div class="anno-step" id="anno-step">Escolha um cenário</div>
+  <div id="anno-body"></div>
+</aside>
+<button class="anno-toggle" id="anno-toggle" onclick="toggleAnno()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8v.4"/></svg>
+  <span id="anno-toggle-label">Modo apresentação</span>
+</button>
+
+<!-- toast + fixed controls -->
+<div class="toast" id="toast"></div>
+<button class="restart" onclick="location.reload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 12a8 8 0 108-8"/><path d="M4 4v5h5"/></svg> Reiniciar simulador</button>
+
+<script>
+/* ═══════════ Simulador · Alterações na conta (e-mail) ═══════════ */
+
+var state = { branch:null };
+var otpLock = false; // evita otpComplete disparar duas vezes
+
+var ICON = {
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>',
+  face:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="2.4"/><path d="M6.5 18a5.5 5.5 0 0111 0"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+  person:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.4"/></svg>',
+  arrowL:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>'
+};
+
+var BRANCHES = {
+  baixo: { risk:'low', label:'Baixo risco',
+    banner:'Você ainda tem acesso ao e-mail atual e a biometria confere → troca imediata, sem atendimento.',
+    steps:['Confirmação de identidade','Biometria','Novo e-mail','Confirmar novo e-mail'] },
+  medio: { risk:'mid', label:'Médio risco',
+    banner:'Você não tem mais acesso ao e-mail atual → confirma por um canal de recuperação (e-mail secundário ou SMS) + biometria, com janela de segurança.',
+    steps:['Verificação de identidade','Biometria','Novo e-mail','Confirmar novo e-mail'] },
+  alto:  { risk:'high', label:'Alto risco',
+    banner:'Conta PJ / saldo alto → além da biometria, exige documento e segue para análise assistida do CX.',
+    steps:['Biometria','Documentos','Análise assistida'] }
+};
+
+function startBranch(b){
+  state.branch=b; state.channel=null;
+  var isPJ = (b==='alto');
+  document.getElementById('conta-natureza').textContent = isPJ ? 'Pessoa Jurídica · CNPJ 12.***.***/0001-**' : 'Pessoa Física · CPF 115.***.**6-94';
+  document.getElementById('conta-natureza-tag').textContent = isPJ ? ': Pessoa Jurídica' : ': Pessoa Física';
+  document.getElementById('up-socios').style.display = isPJ ? 'flex' : 'none';
+  goTo('scr-platform'); showView('v-conta'); setContaMode('hoje');
+}
+
+/* top-level screen switch */
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='scr-hub') setAnno('hub');
+}
+
+/* inner view switch (inside platform) */
+function showView(id){
+  document.querySelectorAll('.mc-view').forEach(function(v){ v.style.display='none'; });
+  document.getElementById(id).style.display='block';
+  var main=document.querySelector('.hm-main'); if(main) main.scrollTop=0;
+}
+
+/* stepper render */
+function renderSteps(containerId, activeIdx){
+  var b=BRANCHES[state.branch]; if(!b) return;
+  var html='';
+  b.steps.forEach(function(s,idx){
+    var cls = idx<activeIdx?'done':(idx===activeIdx?'active':'');
+    var mark = idx<activeIdx
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:13px;height:13px;"><path d="M5 12.5l4.5 4.5L19 7"/></svg>'
+      : (idx+1);
+    html += '<div class="wz-step '+cls+'">'+(idx>0?'<div class="wz-line"></div>':'')+
+            '<div class="dot">'+mark+'</div><div class="lbl">'+s+'</div></div>';
+  });
+  var el=document.getElementById(containerId); if(el) el.innerHTML=html;
+}
+
+/* ── entrada: botão "Alterar e-mail" ── */
+function startEmailChange(){ showView('v-verify'); openStepIntro(); }
+
+function openStepIntro(){
+  var b=BRANCHES[state.branch];
+  var rb=document.getElementById('risk-banner');
+  rb.className=''; rb.innerHTML=''; rb.style.display='none';
+  renderSteps('wz-steps',0);
+  var panel=document.getElementById('verify-panel');
+  var cta=document.getElementById('verify-cta');
+  if(state.branch==='baixo'){
+    panel.innerHTML='<h2>Vamos confirmar que é você</h2><p class="desc">Enviaremos um código de segurança para o seu <b>e-mail atual</b>. Você vai digitá-lo na próxima etapa.</p>'+
+      '<div class="info-row"><b>Nome:</b> Thiago Pereira</div><div class="info-row"><b>E-mail:</b> thiago.oliveira@email.com</div>';
+    cta.innerHTML=ICON.mail+' Enviar código por e-mail';
+  } else if(state.branch==='medio'){
+    panel.innerHTML='<h2>Vamos confirmar que é você</h2><p class="desc">Como você não tem mais acesso ao e-mail atual, escolha por onde receber o código de confirmação. Depois, confirmamos com biometria.</p>'+
+      '<div class="choice-row" style="margin-top:6px;">'+
+        '<div class="choice" data-ch="secondary" onclick="selectChannel(\'secondary\')"><div class="choice-head"><h4>E-mail de recuperação</h4><span class="rec">Recomendado</span></div><p>s***@email.com · canal secundário verificado</p></div>'+
+        '<div class="choice" data-ch="phone" onclick="selectChannel(\'phone\')"><div class="choice-head"><h4>SMS no telefone</h4></div><p>(31) 9 9***-**12 · telefone verificado</p></div>'+
+      '</div>'+
+      '<div style="margin-top:14px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">canais de recuperação cadastrados na etapa de prevenção</span></div>';
+    cta.innerHTML='Selecione um canal'; cta.disabled=true;
+  } else {
+    panel.innerHTML='<h2>Vamos confirmar que é você</h2><p class="desc">Por se tratar de conta PJ / saldo elevado, iniciamos pela <b>biometria com prova de vida</b> e, em seguida, documentos.</p>'+
+      '<div class="info-row"><b>Conta:</b> Pessoa Jurídica</div>';
+    cta.innerHTML=ICON.face+' Iniciar biometria';
+  }
+  setAnno('verify-'+state.branch);
+}
+
+/* primeiro passo após a intro */
+function verifyCta(){
+  if(state.branch==='baixo') openOtp('email');
+  else if(state.branch==='medio') openOtp(state.channel || 'secondary');
+  else openFacetec();
+}
+
+/* ── OTP ── */
+var otpCtx=null;
+function openOtp(kind){
+  otpCtx=kind; otpLock=false;
+  var s=document.getElementById('otp-sub');
+  if(kind==='email'){ s.innerHTML='Digite o código que enviamos para <strong>thiago.oliveira@email.com</strong>.'; }
+  else if(kind==='secondary'){ s.innerHTML='Digite o código que enviamos para o seu e-mail de recuperação <strong>s***@email.com</strong>.'; }
+  else if(kind==='phone'){ s.innerHTML='Digite o código que enviamos por SMS para <strong>(31) 9 9***-**12</strong>.'; }
+  else if(kind==='new'){ s.innerHTML='Digite o código que enviamos para o <strong>novo e-mail</strong>.'; }
+  else if(kind==='compra-mail'){ s.innerHTML='Digite o código que enviamos para o <strong>e-mail da compra</strong> (c***@email.com).'; }
+  else if(kind==='compra-sms'){ s.innerHTML='Digite o código que enviamos por SMS para <strong>(31) 9 9***-**12</strong>.'; }
+  else if(kind==='compra-new'){ s.innerHTML='Digite o código que enviamos para o <strong>novo e-mail</strong> da compra.'; }
+  setAnno('otp-'+kind);
+  document.querySelectorAll('#otp-overlay .enotas-otp-box').forEach(function(b){ b.value=''; });
+  document.getElementById('otp-overlay').classList.add('show');
+  setTimeout(function(){ var f=document.querySelector('#otp-overlay .enotas-otp-box'); if(f) f.focus(); }, 100);
+  autoFillOtpDemo();
+}
+function closeOtp(){ document.getElementById('otp-overlay').classList.remove('show'); }
+function otpAdvance(el){
+  if(el.value.length>=1){ var n=el.nextElementSibling; if(n&&n.classList.contains('enotas-otp-box')) n.focus(); }
+  var boxes=document.querySelectorAll('#otp-overlay .enotas-otp-box');
+  var full=Array.prototype.every.call(boxes,function(b){return b.value.length===1;});
+  if(full && !otpLock){ otpLock=true; setTimeout(otpComplete,350); }
+}
+function autoFillOtpDemo(){
+  var boxes=document.querySelectorAll('#otp-overlay .enotas-otp-box'); var code='481920';
+  boxes.forEach(function(b,idx){ setTimeout(function(){ b.value=code[idx]; if(idx===5) otpAdvance(b); }, 550+idx*130); });
+}
+function otpComplete(){
+  var ctx=otpCtx;
+  closeOtp(); showLoading();
+  setTimeout(function(){
+    hideLoading();
+    if(ctx==='new'){ goResult(state.branch); }     // baixo ou medio
+    else if(ctx==='compra-mail'||ctx==='compra-sms'){ compraFlow('newemail'); }  // identidade confirmada
+    else if(ctx==='compra-new'){ compraResult(); }  // novo e-mail confirmado
+    else { openFacetec(); }                        // após confirmar e-mail/telefone
+  }, 900);
+}
+
+/* ── FaceTec ── */
+function openFacetec(){
+  document.getElementById('ft-overlay').classList.add('show');
+  document.getElementById('ft-oval').classList.remove('scanning');
+  var btn=document.getElementById('ft-btn'); btn.disabled=false;
+  btn.innerHTML=ICON.face+' Iniciar captura';
+  setAnno('facetec');
+}
+function ftCapture(){
+  var oval=document.getElementById('ft-oval'), btn=document.getElementById('ft-btn');
+  oval.classList.add('scanning'); btn.disabled=true; btn.innerHTML=ICON.face+' Analisando…';
+  setTimeout(function(){
+    document.getElementById('ft-overlay').classList.remove('show');
+    oval.classList.remove('scanning');
+    showToast('Biometria confirmada');
+    if(state.branch==='alto'){ showView('v-docs'); renderSteps('wz-steps-3',1); setAnno('docs'); }
+    else { resetNewEmailBtn(); showView('v-newemail'); renderSteps('wz-steps-2', 2); setAnno('newemail'); }
+  }, 1700);
+}
+
+/* ── novo e-mail (uma ação só) ── */
+function resetNewEmailBtn(){
+  var btn=document.getElementById('newemail-cta');
+  if(btn){ btn.dataset.sent=''; btn.disabled=false; }
+}
+function afterNewEmail(){
+  var btn=document.getElementById('newemail-cta');
+  if(btn){ if(btn.dataset.sent==='1') return; btn.dataset.sent='1'; btn.disabled=true; }
+  openOtp('new');
+}
+
+/* ── loading ── */
+function showLoading(){ document.getElementById('hm-loading-overlay').classList.add('show'); }
+function hideLoading(){ document.getElementById('hm-loading-overlay').classList.remove('show'); }
+
+/* ── resultados ── */
+function goResult(kind){
+  var el=document.getElementById('result-inner'); var h='';
+  if(kind==='baixo'){
+    h='<div class="rico ok">'+ICON.check+'</div><h2>E-mail alterado com sucesso</h2>'+
+      '<p>Seu novo e-mail já está ativo. Você pode acessar a conta imediatamente com <b>thiago.oliveira.novo@email.com</b>.</p>'+
+      '<div style="margin-top:10px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">resolução em minutos, sem abrir chamado</span></div>';
+  } else if(kind==='medio'){
+    h='<div class="rico wait">'+ICON.clock+'</div><h2>Alteração confirmada, em janela de segurança</h2>'+
+      '<p>Validamos sua identidade por um canal de recuperação (e-mail secundário ou SMS) e biometria. A troca será efetivada após uma janela de segurança.</p>'+
+      '<div class="sec-window"><b>Janela de segurança (24–72h)</b><br>Enviamos um aviso para os canais antigos. Se não foi você, é possível contestar e reverter a alteração neste período. Saques ficam bloqueados temporariamente por segurança.</div>'+
+      '<span class="notfixed" onclick="showToast(\'Contestação registrada, alteração revertida.\')">'+ICON.warn+' Não fui eu, contestar alteração</span>';
+  } else {
+    h='<div class="rico cx">'+ICON.person+'</div><h2>Solicitação enviada para análise</h2>'+
+      '<p>Por envolver titularidade / alto risco, sua solicitação segue para <b>análise assistida</b> do time de CX. Você receberá o retorno em até <b>2 dias úteis</b>.</p>'+
+      '<div class="sec-window" style="background:#EEF1FF;border-color:#C7D0FF;color:#33409E;">Você já enviou tudo pela plataforma (biometria + documentos + aceite dos sócios). O CX apenas valida onde a automação ainda não cobre, sem o vai e vem de reenvio por ticket.</div>';
+  }
+  h+='<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">'+ICON.arrowL+' Voltar aos cenários</button></div>';
+  el.innerHTML=h; showView('v-result'); setAnno('result-'+kind);
+}
+
+/* ── toast ── */
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+/* ═══════════ Modo apresentação (anotações) ═══════════ */
+var SECICON = {
+  do:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.6"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>',
+  safe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>'
+};
+function S(lbl, icon, items){ return {lbl:lbl, icon:icon, items:items}; }
+
+var ANNO = {
+  hub:{ title:'Simulador de decisão', step:'Escolha um cenário', secs:[
+    S('O que é isto','do',['Cada card é um perfil de usuário com um nível de risco diferente. O fluxo se adapta ao risco.']),
+    S('Como o risco é definido','check',['Combinamos: acesso ao e-mail atual, tipo de conta (PF/PJ), saldo e sinais de fraude (dispositivo, localização).']),
+    S('Por que importa','safe',['Casos simples viram self-service; casos sensíveis mantêm o time de CX. Reduz tickets sem abrir mão de segurança.']) ]},
+  conta:{ title:'Minha Conta', step:'Ponto de entrada', secs:[
+    S('O que a pessoa faz','do',['Encontra "Alterar e-mail" direto no painel. Hoje isso só existe abrindo um chamado no atendimento.']),
+    S('O que roda por trás','check',['Ao clicar, o sistema classifica o risco da conta em tempo real para escolher a trilha certa.']),
+    S('Segurança','safe',['Nada muda ainda, apenas inicia a verificação de identidade.']) ]},
+  'verify-baixo':{ title:'Confirmação de identidade', step:'Baixo risco', secs:[
+    S('O que a pessoa faz','do',['Ainda acessa o e-mail atual, então confirma a posse dele com um código de 6 dígitos.']),
+    S('O que roda por trás','check',['Código enviado ao e-mail atual; checagem de dispositivo/IP conhecido da conta.']),
+    S('Por que é seguro','safe',['Provar acesso ao e-mail atual já é um fator forte de identidade.']) ]},
+  'verify-medio':{ title:'Confirmação de identidade', step:'Médio risco', secs:[
+    S('O que a pessoa faz','do',['Perdeu o e-mail antigo. Escolhe outro canal confiável já cadastrado: e-mail de recuperação secundário (recomendado) ou SMS.']),
+    S('O que roda por trás','check',['Enviamos o código ao canal escolhido e preparamos a biometria como 2º fator.']),
+    S('Por que é seguro','safe',['E-mail secundário é preferível ao SMS, imune a golpe de troca de chip (SIM swap).']) ]},
+  'verify-alto':{ title:'Confirmação de identidade', step:'Alto risco', secs:[
+    S('O que a pessoa faz','do',['Conta PJ / saldo elevado: começa pela biometria e, em seguida, envia documentos.']),
+    S('O que roda por trás','check',['Além da biometria e documento, a titularidade é conferida em base oficial.']),
+    S('Por que é seguro','safe',['Camadas somadas (biometria + documento + análise humana) para o caso mais sensível.']) ]},
+  'otp-email':{ title:'Código por e-mail', step:'Verificação', secs:[
+    S('O que a pessoa faz','do',['Digita o código de 6 dígitos recebido no e-mail atual.']),
+    S('O que roda por trás','check',['Confere o código, a validade (15 min) e tentativa única; observa dispositivo/IP.']),
+    S('Por que é seguro','safe',['Prova a posse do canal antes de qualquer alteração.']) ]},
+  'otp-secondary':{ title:'Código no e-mail secundário', step:'Verificação', secs:[
+    S('O que a pessoa faz','do',['Digita o código enviado ao e-mail de recuperação secundário.']),
+    S('O que roda por trás','check',['Mesmo controle de código/validade; canal já verificado previamente pela conta.']),
+    S('Por que é seguro','safe',['Canal independente do e-mail perdido e mais robusto que SMS.']) ]},
+  'otp-phone':{ title:'Código por SMS', step:'Verificação', secs:[
+    S('O que a pessoa faz','do',['Digita o código enviado por SMS ao telefone verificado.']),
+    S('O que roda por trás','check',['Confere o código; observa sinais de SIM swap (chip trocado há pouco).']),
+    S('Por que é seguro','safe',['Fator adicional, sempre combinado com a biometria a seguir.']) ]},
+  'otp-new':{ title:'Confirmar novo e-mail', step:'Destino', secs:[
+    S('O que a pessoa faz','do',['Digita o código enviado ao NOVO e-mail informado.']),
+    S('O que roda por trás','check',['Prova que a pessoa realmente controla o endereço de destino.']),
+    S('Por que é seguro','safe',['Evita cadastrar um e-mail com erro de digitação ou de terceiros.']) ]},
+  facetec:{ title:'Biometria (FaceTec)', step:'Prova de vida', secs:[
+    S('O que a pessoa faz','do',['Faz uma selfie com prova de vida, o mesmo motor já usado no cadastro/KYC.']),
+    S('O que roda por trás','check',['Compara o rosto com o documento já validado na conta e detecta foto/vídeo/deepfake.']),
+    S('Por que é seguro','safe',['Garante pessoa real e titular, barra selfies/documentos forjados por IA.']) ]},
+  newemail:{ title:'Novo e-mail', step:'Destino', secs:[
+    S('O que a pessoa faz','do',['Informa o novo endereço de e-mail.']),
+    S('O que roda por trás','check',['Verifica se o e-mail já existe na plataforma, se é domínio descartável ou está em lista de fraude; dispara o código.']),
+    S('Por que é seguro','safe',['Confirma que o destino é válido e controlado pela pessoa.']) ]},
+  docs:{ title:'Documentos', step:'Alto risco', secs:[
+    S('O que a pessoa faz','do',['Envia RG/CNH em PDF e, se PJ, o contrato social com aceite dos sócios.']),
+    S('O que roda por trás','check',['OCR extrai os dados, valida o QR Code do documento e cruza a titularidade com base oficial (SERPRO).']),
+    S('Por que é seguro','safe',['PDF + QR Code + OCR dificultam documento adulterado; titularidade conferida na fonte.']) ]},
+  'result-baixo':{ title:'Troca imediata', step:'Desfecho · Baixo risco', secs:[
+    S('O que acontece','do',['Todos os fatores conferiram, então o e-mail é trocado na hora.']),
+    S('Bastidores','check',['Registro em trilha de auditoria; e-mail antigo removido dos acessos.']),
+    S('Impacto','safe',['Resolve em minutos, sem chamado. É o caso de maior volume (base 5D<).']) ]},
+  'result-medio':{ title:'Janela de segurança', step:'Desfecho · Médio risco', secs:[
+    S('O que acontece','do',['A troca é confirmada, mas passa por uma janela de 24–72h antes de virar definitiva.']),
+    S('O que roda na janela','check',['Aviso em todos os canais restantes (e-mail secundário, SMS, push) com botão "não fui eu"; saque congelado; checagens de risco (dispositivo, velocidade, reputação do novo e-mail); score da biometria em revisão se estiver no limite.']),
+    S('Desfecho','safe',['Sem contestação + risco ok → efetiva. Contestou ou deu alerta → reverte e vai para Fraude/CX.']) ]},
+  'result-alto':{ title:'Análise assistida', step:'Desfecho · Alto risco', secs:[
+    S('O que acontece','do',['A pessoa já enviou biometria + documento + aceite de sócios pela plataforma; o caso segue para validação humana do CX.']),
+    S('Bastidores','check',['OCR + leitura do QR Code do documento; conferência de titularidade (quadro societário) em base oficial. O humano entra só onde a automação não cobre.']),
+    S('Impacto','safe',['Reduz o vai-e-vem de reenvio por ticket, mantendo o olho humano onde é crítico.']) ]}
+};
+
+function setAnno(key){
+  state.annoKey = key;
+  var a = ANNO[key];
+  var title=document.getElementById('anno-title'), step=document.getElementById('anno-step'), body=document.getElementById('anno-body');
+  if(!a){ title.textContent='Modo apresentação'; step.textContent=''; body.innerHTML='<div class="anno-empty">Avance pelo fluxo para ver a explicação de cada etapa.</div>'; return; }
+  title.textContent=a.title; step.textContent=a.step;
+  var h='';
+  a.secs.forEach(function(sec){
+    h+='<div class="anno-sec"><div class="lbl">'+SECICON[sec.icon]+' '+sec.lbl+'</div><ul>';
+    sec.items.forEach(function(it){ h+='<li>'+it+'</li>'; });
+    h+='</ul></div>';
+  });
+  body.innerHTML=h;
+}
+function toggleAnno(){
+  var on = document.body.classList.toggle('anno-on');
+  document.getElementById('anno-rail').classList.toggle('on', on);
+  document.getElementById('anno-toggle-label').textContent = on ? 'Ocultar anotações' : 'Modo apresentação';
+  if(on) setAnno(state.annoKey || 'hub');
+}
+
+/* ── seleção de canal (médio risco) ── */
+function selectChannel(ch){
+  state.channel = ch;
+  document.querySelectorAll('#verify-panel .choice').forEach(function(c){ c.classList.toggle('selected', c.dataset.ch===ch); });
+  var cta=document.getElementById('verify-cta');
+  cta.disabled=false;
+  cta.innerHTML = (ch==='secondary' ? ICON.mail+' Enviar código para o e-mail secundário' : ICON.send+' Enviar código por SMS');
+  setAnno(ch==='secondary'?'verify-medio':'verify-medio');
+}
+
+/* ═══════════ As-is (Como é hoje) ═══════════ */
+var IC_CH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>';
+var IC_ALERT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.4"/></svg>';
+var IC_AR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+function setContaMode(m){
+  state.contaMode=m;
+  document.getElementById('seg-prop').classList.toggle('on', m==='proposta');
+  document.getElementById('seg-hoje').classList.toggle('on', m==='hoje');
+  var act=document.getElementById('email-action'), hint=document.getElementById('email-hint');
+  if(m==='proposta'){
+    act.innerHTML='<button class="ui-btn ui-btn-primary" onclick="startEmailChange()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h4L18 10l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg> Alterar e-mail <span class="novo-badge">Novo</span></button>';
+    hint.innerHTML='Na proposta, a alteração passa a ser self-service na plataforma, com verificação forte (código + biometria).';
+    setAnno('conta');
+  } else {
+    act.innerHTML='<span style="font-size:12.5px;color:var(--gray-400);">sem opção de alterar aqui</span>';
+    hint.innerHTML='<div class="deadend">'+IC_ALERT+'<div>Hoje não existe opção de trocar o e-mail da conta pela plataforma. É preciso abrir um chamado no atendimento, com envio de documento e selfie.</div></div>'+
+      '<button class="btn-voltar" style="border-color:var(--gray-300);color:var(--black);" onclick="startAsis()">'+IC_CH+' Ir para a Central de Ajuda</button>';
+    setAnno('conta-hoje');
+  }
+}
+
+function startAsis(ctx){ state.asisCtx=ctx||null; state.asis={motivo:'Acesso e configurações da conta', espec:'Alteração do email da compra ou da minha conta Hotmart'}; showView('v-asis'); asisGo('persona'); }
+
+function asisGo(step){
+  state.asisStep=step;
+  var el=document.getElementById('asis-inner'); var h='';
+  var back='<span class="back-link" onclick="showView(\'v-conta\')">'+ICON.arrowL+' Voltar</span>';
+  if(step==='persona'){
+    h='<div class="help-card"><div class="help-h1">Como podemos ajudar?</div><div class="help-lead">Selecione o tipo de atendimento que precisa:</div>'+
+      '<div class="pill-row">'+
+      '<div class="pill-opt" onclick="asisPersona(this,\'Comprador\')">Sou Comprador(a)</div>'+
+      '<div class="pill-opt" onclick="asisPersona(this,\'Produtor\')">Sou Produtor(a)</div>'+
+      '<div class="pill-opt" onclick="asisPersona(this,\'Afiliado\')">Sou Afiliado(a)</div></div>'+
+      '<div class="hd-sep"></div><div class="help-actions">'+back+
+      '<button class="ui-btn ui-btn-primary" id="asis-cta" disabled onclick="asisAfterPersona()">Iniciar solicitação '+IC_AR+'</button></div></div>';
+  } else if(step==='motivo'){
+    h='<div class="help-card"><div class="etapa-label">Solicitação de atendimento</div><div class="help-h1">Como podemos ajudar?</div>'+
+      vstep(0)+
+      '<div class="fld"><label>Selecione o motivo do contato</label>'+
+      selBox(state.asis.motivo,'Selecione o motivo do contato')+
+      selMenu(['Acesso e configurações da conta','Cancelamentos e reembolsos','Dúvidas e problemas gerais sobre o produto que comprei','Problemas com pagamentos ou finalização da compra','Sobre compras de produtos físicos'],'asisPickMotivo')+
+      '</div><div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'persona\')">'+ICON.arrowL+' Voltar</button>'+
+      '<button class="ui-btn ui-btn-primary" id="asis-cta" '+(state.asis.motivo?'':'disabled')+' onclick="asisGo(\'espec\')">Avançar '+IC_AR+'</button></div></div>';
+  } else if(step==='espec'){
+    h='<div class="help-card"><div class="etapa-label">Solicitação de atendimento</div><div class="help-h1">Como podemos ajudar?</div>'+
+      vstep(0)+
+      '<div class="fld"><label>Informe a especificação *</label>'+
+      selBox(state.asis.espec,'Especifique um pouco mais')+
+      selMenu(['Alteração do email da compra ou da minha conta Hotmart','Conta bloqueada','Dúvidas sobre aplicativo Hotmart','Excluir, desativar ou reativar conta','Não consigo acessar minha conta ou produto','Quero ser produtor(a) ou afiliado(a)','Redefinir senha'],'asisPickEspec')+
+      '</div><div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'motivo\')">'+ICON.arrowL+' Voltar</button>'+
+      '<button class="ui-btn ui-btn-primary" id="asis-cta" '+(state.asis.espec?'':'disabled')+' onclick="asisGo(\'dados\')">Avançar '+IC_AR+'</button></div></div>';
+  } else if(step==='dados'){
+    h='<div class="help-card"><div class="etapa-label">Solicitação de atendimento</div><div class="help-h1">Informações necessárias para a sequência do atendimento</div>'+
+      vstep(1)+
+      '<div class="fld"><label>Nome *</label><input value="Thiago Pereira"></div>'+
+      '<div class="fld"><label>Email cadastrado na plataforma *</label><input value="thiago.oliveira@email.com"></div>'+
+      '<div class="fld"><label>Descreva sua solicitação *</label><textarea placeholder="Digite o que você precisa resolver..."></textarea></div>'+
+      '<div class="fld"><label>Anexe uma imagem que ilustre o problema</label><input value="" placeholder="Selecione um arquivo"></div>'+
+      '<div class="fld"><label>Informe o seu país atual *</label><input value="Brasil"></div>'+
+      '<div class="fld"><label>Selecione o idioma *</label><div class="pill-row"><div class="pill-opt sel">Português Brasileiro</div><div class="pill-opt">Espanhol</div><div class="pill-opt">Inglês</div><div class="pill-opt">Francês</div><div class="pill-opt">Italiano</div></div></div>'+
+      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'espec\')">'+ICON.arrowL+' Voltar</button>'+
+      (state.asisCtx==='compra'
+        ? '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'especificacoes\')">Avançar '+IC_AR+'</button>'
+        : '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'enviado\')">Enviar solicitação '+IC_AR+'</button>')+
+      '</div></div>';
+  } else if(step==='especificacoes'){
+    h='<div class="help-card"><div class="etapa-label">Solicitação de atendimento</div><div class="help-h1">Especificações</div>'+
+      '<div class="fld"><label>Anexe o comprovante de pagamento da compra, se houver</label><input value="" placeholder="Selecione um arquivo"></div>'+
+      '<div class="fld"><label>E-mail atualmente cadastrado *</label><input value="thiago.comprador@email.com"></div>'+
+      '<div class="fld"><label>Novo e-mail que deseja utilizar *</label><input value="thiago.comprador.novo@email.com"></div>'+
+      '<div class="fld"><label>CPF do comprador *</label><input value="115.***.**6-94"></div>'+
+      '<div class="fld"><label>Número da transação e nome do produto, se houver</label><input value="" placeholder="HP1234567890 · Curso de..."></div>'+
+      '<div class="fld"><label>Motivo da solicitação *</label>'+selBox('E-mail incorreto','Selecione o motivo')+'</div>'+
+      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'dados\')">'+ICON.arrowL+' Voltar</button>'+
+      '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'enviado\')">Enviar solicitação '+IC_AR+'</button></div></div>';
+  } else if(step==='chat'){
+    h='<div class="help-card"><div class="etapa-label">Atendimento</div><div class="help-h1">Você entrou na fila do chat</div>'+
+      '<div class="thread"><div class="msg sys">Chat iniciado · aguardando um atendente disponível</div>'+
+      '<div class="msg agent"><div class="who">Atendente</div>Olá! Em breve um de nossos atendentes vai te ajudar. Para a troca de e-mail, vamos precisar validar sua identidade com documento e selfie.</div></div>'+
+      '<div class="help-actions"><button class="btn-voltar" onclick="showView(\'v-conta\')">'+ICON.arrowL+' Voltar</button>'+
+      '<button class="ui-btn ui-btn-primary" onclick="asisStartLoop()">Continuar o atendimento '+IC_AR+'</button></div></div>';
+  } else if(step==='enviado'){
+    h='<div class="help-card" style="text-align:center;"><div class="rico wait" style="width:70px;height:70px;margin:6px auto 16px;background:var(--amber-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;">'+ICON.clock+'</div>'+
+      '<div class="help-h1">Solicitação enviada</div>'+
+      '<p class="help-lead">Protocolo <b>'+asisProto()+'</b>. Você receberá o retorno por e-mail. O prazo pode levar alguns dias.</p>'+
+      '<button class="ui-btn ui-btn-primary" onclick="asisStartLoop()">Ver andamento do atendimento '+IC_AR+'</button></div>';
+  } else if(step==='loop'){
+    h='<div class="help-card"><div class="etapa-label">Ticket '+asisProto()+' · '+asisTema()+'</div>'+
+      '<div class="thread" id="asis-thread"></div>'+
+      '<div class="help-actions" id="asis-loop-actions" style="justify-content:flex-end;"></div></div>';
+  } else if(step==='resolvido'){
+    var d=asisCfg().desf; var compra=(state.asisCtx==='compra');
+    var ico = d.partial
+      ? '<div class="rico wait" style="width:70px;height:70px;margin:6px auto 16px;background:var(--amber-bg);color:#B4740A;border-radius:50%;display:flex;align-items:center;justify-content:center;">'+ICON.warn+'</div>'
+      : '<div class="rico ok" style="width:70px;height:70px;margin:6px auto 16px;background:var(--green-bg);color:#128A4B;border-radius:50%;display:flex;align-items:center;justify-content:center;">'+ICON.check+'</div>';
+    var lead = d.desc ? d.desc : ('Concluído após <b>'+d.dias+'</b> e <b>'+d.inter+'</b> com o atendimento.');
+    h='<div class="help-card" style="text-align:center;">'+ico+
+      '<div class="help-h1">'+d.title+'</div>'+
+      '<p class="help-lead">'+lead+'</p>'+
+      '<div class="cost-box" style="text-align:left;"><b>Custo operacional deste caso:</b> '+d.cost+'</div>'+
+      '<div style="margin-top:22px;display:flex;gap:12px;justify-content:center;">'+
+      '<button class="ui-btn ui-btn-outline" onclick="'+(compra?'showView(\'v-compra\')':'showView(\'v-conta\')')+'">'+ICON.arrowL+' '+(compra?'Voltar':'Minha Conta')+'</button>'+
+      '<button class="ui-btn ui-btn-primary" onclick="compararProposta()">Comparar com a proposta '+IC_AR+'</button></div></div>';
+  }
+  el.innerHTML=h;
+  setAnno('asis-'+step);
+  if(step==='loop') asisRenderThread();
+}
+
+function vstep(active){
+  function it(i,txt){ return '<div class="it'+(i===active?' active':(i<active?' active':''))+'"><span class="rc"></span>'+txt+'</div>'; }
+  return '<div class="vstep">'+it(0,'Detalhe da solicitação')+it(1,'Dados do atendimento')+'</div>';
+}
+function selBox(val,ph){ return '<div class="sel-box'+(val?' filled':'')+'">'+(val||ph)+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M6 9l6 6 6-6"/></svg></div>'; }
+function selMenu(opts,cb){ var h='<div class="sel-menu">'; opts.forEach(function(o){ h+='<div onclick="'+cb+'(\''+o.replace(/'/g,"\'")+'\')">'+o+'</div>'; }); return h+'</div>'; }
+function asisPersona(el,p){ state.asis.persona=p; document.querySelectorAll('#asis-inner .pill-opt').forEach(function(x){x.classList.remove('sel');}); el.classList.add('sel'); document.getElementById('asis-cta').disabled=false; }
+function asisAfterPersona(){ if(state.asis.persona==='Produtor') asisGo('chat'); else asisGo('motivo'); }
+function asisPickMotivo(v){ state.asis.motivo=v; asisGo('motivo'); }
+function asisPickEspec(v){ state.asis.espec=v; asisGo('espec'); }
+function compararProposta(){
+  if(state.asisCtx==='compra'){ showView('v-compra'); setCompraMode('proposta'); }
+  else { showView('v-conta'); setContaMode('proposta'); }
+}
+
+/* conjuntos de mensagens do ticket, por cenário */
+var ASIS_SETS = {
+  perda:{ msgs:[
+    {t:'sys', text:'Solicitação #482193 aberta · Motivo: Alteração de e-mail da conta'},
+    {t:'agent', who:'Ana · Suporte N1', text:'Olá! Para prosseguir, precisamos validar sua identidade. Envie foto do documento (RG frente e verso ou CNH) e uma selfie segurando o documento.'},
+    {t:'me', text:'Enviei o documento e a selfie.'},
+    {t:'day', text:'1 dia depois'},
+    {t:'reprovado', who:'Ana · Suporte N1', text:'A selfie está com baixa iluminação e o rosto não ficou nítido. Poderia reenviar seguindo as orientações?'},
+    {t:'me', text:'Reenviei a selfie.'},
+    {t:'day', text:'2 dias depois'},
+    {t:'agent', who:'Bruno · Suporte N1', text:'Olá, sou o Bruno e vou dar continuidade ao atendimento. Poderia enviar novamente seu nome, o e-mail atual e os documentos?'},
+    {t:'me', text:'Eu já tinha enviado tudo, mas segue novamente.'},
+    {t:'sys', text:'Atendimento encaminhado para o time N2 para execução da alteração.'},
+    {t:'day', text:'4 dias depois'},
+    {t:'agent', who:'Suporte N2', text:'Identidade validada. A alteração do e-mail foi concluída.'}
+  ], desf:{ title:'E-mail alterado', dias:'4 dias', inter:'7 interações', partial:false,
+    cost:'um ticket que passou por N1, foi reprovado e reenviado, trocou de atendente (perda de contexto) e escalou para o N2. Multiplique por cerca de <b>2.115 tickets/mês</b> neste motivo, com <b>DSAT de 10,49%</b>.' } },
+
+  trocasimples:{ msgs:[
+    {t:'sys', text:'Solicitação #482210 aberta · Motivo: Alteração de e-mail da conta'},
+    {t:'agent', who:'Ana · Suporte N1', text:'Olá! Mesmo para essa alteração, precisamos validar sua identidade. Envie documento (RG ou CNH) e uma selfie segurando o documento.'},
+    {t:'me', text:'Mas eu ainda acesso meu e-mail atual... enviei o documento e a selfie.'},
+    {t:'day', text:'1 dia depois'},
+    {t:'reprovado', who:'Ana · Suporte N1', text:'A selfie ficou com baixa iluminação. Poderia reenviar?'},
+    {t:'me', text:'Reenviei a selfie.'},
+    {t:'day', text:'3 dias depois'},
+    {t:'agent', who:'Suporte N1', text:'Identidade validada. A alteração do e-mail foi concluída.'}
+  ], desf:{ title:'E-mail alterado', dias:'3 dias', inter:'5 interações', partial:false,
+    cost:'mesmo sendo uma troca simples, com a pessoa ainda acessando o e-mail atual, foi preciso abrir chamado, enviar documento e selfie e esperar. É o caso mais evidente de algo que não deveria depender de atendimento.' } },
+
+  transicao:{ msgs:[
+    {t:'sys', text:'Solicitação #482233 aberta · Motivo: Alteração de e-mail (conta PJ)'},
+    {t:'agent', who:'Ana · Suporte N1', text:'Olá! Por ser conta PJ, precisamos de: RG ou CNH do responsável, uma selfie, e o contrato social com aceite de todos os sócios.'},
+    {t:'me', text:'Enviei os documentos e a selfie.'},
+    {t:'day', text:'1 dia depois'},
+    {t:'reprovado', who:'Ana · Suporte N1', text:'A selfie não ficou nítida e faltou o documento de um dos sócios. Poderia reenviar?'},
+    {t:'me', text:'Reenviei a selfie e o documento do sócio.'},
+    {t:'day', text:'3 dias depois'},
+    {t:'agent', who:'Bruno · Suporte N1', text:'Olá, sou o Bruno e vou continuar. Poderia reenviar o contrato social e confirmar os dados?'},
+    {t:'me', text:'Já tinha enviado, mas segue novamente.'},
+    {t:'sys', text:'Atendimento encaminhado para o time N2 para execução da alteração.'},
+    {t:'day', text:'8 dias depois'},
+    {t:'agent', who:'Suporte N2', text:'Titularidade validada. A alteração do e-mail foi concluída.'}
+  ], desf:{ title:'E-mail alterado', dias:'8 dias', inter:'11 interações', partial:false,
+    cost:'conta PJ exige documento do responsável, selfie e aceite de todos os sócios. Reprovações, troca de atendente e escalonamento para o N2 tornam este o caso mais caro e demorado.' } },
+
+  unificacao:{ msgs:[
+    {t:'sys', text:'Solicitação #482251 aberta · Motivo: Unificação/transferência de contas'},
+    {t:'agent', who:'Ana · Suporte N1', text:'Olá! Para validar, envie documento e selfie das duas contas envolvidas.'},
+    {t:'me', text:'Enviei os documentos das duas contas.'},
+    {t:'day', text:'2 dias depois'},
+    {t:'agent', who:'Bruno · Suporte N1', text:'Conseguimos validar sua identidade e podemos alterar o e-mail. Porém não é possível transferir produtos, saldo, afiliações ou coproduções de uma conta para outra, nem unificar contas.'},
+    {t:'me', text:'Mas era exatamente isso que eu precisava...'},
+    {t:'day', text:'3 dias depois'},
+    {t:'agent', who:'Suporte N1', text:'Infelizmente essa transferência não é suportada pela plataforma hoje.'}
+  ], desf:{ title:'Resolvido em parte', dias:'3 dias', inter:'6 interações', partial:true,
+    desc:'A identidade foi validada e o e-mail pode ser alterado, mas a unificação e a transferência de produtos e saldo não são suportadas hoje.',
+    cost:'o cliente passou por todo o atendimento, mas o que ele realmente queria (unificar e transferir) não é possível. Gera esforço, frustração e DSAT, mesmo sem solução.' } },
+
+  compra:{ msgs:[
+    {t:'sys', text:'Solicitação #482270 aberta · Motivo: Alteração de e-mail da compra (E-mail incorreto)'},
+    {t:'agent', who:'Ana · Suporte N1', text:'Olá! Recebemos sua solicitação. Estamos conferindo os dados da compra (comprovante, CPF e número da transação) para localizar o pedido.'},
+    {t:'day', text:'1 dia depois'},
+    {t:'reprovado', who:'Ana · Suporte N1', text:'O comprovante de pagamento enviado está ilegível e não localizamos a transação. Poderia reenviar o comprovante e confirmar o número do pedido?'},
+    {t:'me', text:'Reenviei o comprovante e o número da transação.'},
+    {t:'day', text:'2 dias depois'},
+    {t:'agent', who:'Suporte N1', text:'Compra localizada e dados validados. O e-mail da compra foi alterado.'}
+  ], desf:{ title:'E-mail da compra alterado', dias:'2 dias', inter:'4 interações', partial:false,
+    cost:'o comprador não consegue resolver sozinho hoje. Precisa abrir chamado e informar comprovante, CPF e número da transação. O tema tem <b>DSAT de 12,19%</b>, bem acima dos 2,86% de quando o produtor faz a troca.' } }
+};
+function asisScen(){
+  if(state.asisCtx==='compra') return 'compra';
+  return state.motivo || (state.branch==='alto'?'transicao':(state.branch==='baixo'?'trocasimples':'perda'));
+}
+function asisCfg(){ return ASIS_SETS[asisScen()] || ASIS_SETS.perda; }
+
+function asisStartLoop(){ state.asisMsg=0; state.asisArr=asisCfg().msgs; asisGo('loop'); }
+function asisRenderThread(){
+  var th=document.getElementById('asis-thread'); var act=document.getElementById('asis-loop-actions');
+  var arr=state.asisArr||asisCfg().msgs; var n=state.asisMsg||0;
+  var h='';
+  for(var i=0;i<=n && i<arr.length;i++){
+    var m=arr[i];
+    if(m.t==='day'){ h+='<div class="day-chip">'+m.text+'</div>'; }
+    else if(m.t==='sys'){ h+='<div class="msg sys">'+m.text+'</div>'; }
+    else { h+='<div class="msg '+(m.t==='me'?'me':(m.t==='reprovado'?'reprovado':'agent'))+'">'+(m.who?'<div class="who">'+m.who+'</div>':'')+m.text+'</div>'; }
+  }
+  th.innerHTML=h;
+  if(n < arr.length-1){
+    act.innerHTML='<button class="ui-btn ui-btn-primary" onclick="asisNextMsg()">Avançar no atendimento '+IC_AR+'</button>';
+  } else {
+    act.innerHTML='<button class="ui-btn ui-btn-primary" onclick="asisGo(\'resolvido\')">Ver desfecho '+IC_AR+'</button>';
+  }
+}
+function asisNextMsg(){ state.asisMsg=(state.asisMsg||0)+1; asisRenderThread(); }
+
+/* anotações do as-is (custo operacional) */
+ANNO['conta-hoje']={ title:'Como é hoje', step:'Ponto de entrada', secs:[
+  S('O que a pessoa encontra','do',['Nenhuma opção de trocar o e-mail na plataforma. Ela precisa sair para a Central de Ajuda e abrir um chamado.']),
+  S('O que isso gera','check',['Todo pedido, mesmo o mais simples, vira ticket humano. Nada resolve sozinho.']),
+  S('Custo','safe',['Cerca de 2.115 tickets por mês só neste motivo, com DSAT de 10,49%.']) ]};
+ANNO['asis-persona']={ title:'Abertura de chamado', step:'Central de Ajuda', secs:[
+  S('O que a pessoa faz','do',['Escolhe o tipo de atendimento (Comprador, Produtor ou Afiliado).']),
+  S('Inconsistência atual','check',['Produtor cai num chat; Comprador e Afiliado caem num formulário. Experiências diferentes para o mesmo pedido.']),
+  S('Custo','safe',['A partir daqui, a resolução depende 100% de atendimento humano.']) ]};
+ANNO['asis-motivo']={ title:'Navegar os menus', step:'Detalhe da solicitação', secs:[
+  S('O que a pessoa faz','do',['Procura, entre vários menus de suporte, o motivo certo do contato.']),
+  S('Atrito','check',['Sem garantia de acerto. Escolher errado joga o ticket para a fila errada.']) ]};
+ANNO['asis-espec']={ title:'Especificar', step:'Detalhe da solicitação', secs:[
+  S('O que a pessoa faz','do',['Escolhe a especificação "Alteração do email da compra ou da minha conta".']),
+  S('Atrito','check',['O mesmo item mistura e-mail da compra e e-mail da conta, que são coisas diferentes.']) ]};
+ANNO['asis-dados']={ title:'Formulário', step:'Dados do atendimento', secs:[
+  S('O que a pessoa faz','do',['Preenche nome, e-mail, descrição, país e idioma.']),
+  S('O que falta','check',['O documento e a selfie nem são pedidos aqui: só depois, dentro do atendimento, o que alonga a jornada.']) ]};
+ANNO['asis-chat']={ title:'Chat do Produtor', step:'Atendimento', secs:[
+  S('O que acontece','do',['O Produtor cai em uma fila de chat e o atendente conduz tudo manualmente.']),
+  S('Custo','safe',['Ocupa um atendente em tempo real, do início ao fim.']) ]};
+ANNO['asis-enviado']={ title:'Na fila', step:'Ticket aberto', secs:[
+  S('O que acontece','do',['O ticket entra na fila do N1 e a pessoa aguarda um retorno por e-mail.']),
+  S('Custo','safe',['O tempo de resolução (dias) e o custo por ticket começam a correr aqui.']) ]};
+ANNO['asis-loop']={ title:'Vai e vem do atendimento', step:'Onde mora o custo', secs:[
+  S('O que acontece','do',['Cada mensagem é uma interação humana: pedido de documento e selfie, reprovação, reenvio, troca de atendente que retoma do zero e, por fim, escalonamento para o N2.']),
+  S('Por que é caro','check',['Reprovação de selfie, perda de contexto entre atendentes e escalonamento N1 para N2 são os principais motores de custo e de DSAT.']) ]};
+ANNO['asis-resolvido']={ title:'Resolvido, enfim', step:'Desfecho de hoje', secs:[
+  S('O que aconteceu','do',['A troca foi concluída após vários dias e várias interações.']),
+  S('O contraste','check',['Na proposta, o mesmo caso se resolve em minutos, self-service, mantendo a segurança por biometria.']),
+  S('Escala','safe',['Cerca de 2.115 tickets/mês neste motivo. A conta do custo operacional se multiplica.']) ]};
+
+/* ═══════════ Motivos (hub) ═══════════ */
+var MOTIVOS = {
+  trocasimples:{ branch:'baixo', titulo:'Trocar para um novo e-mail',
+                nota:'A pessoa ainda tem acesso ao e-mail atual, então a verificação é a mais simples. Ainda assim, hoje isso depende do CX.' },
+  perda:      { branch:'medio', titulo:'Perdi o acesso ao e-mail antigo',
+                nota:'A pessoa não recebe mais nada no e-mail atual, então a verificação usa canais alternativos.' },
+  transicao:  { branch:'alto',  titulo:'Transição profissional ou mudança de PJ',
+                nota:'Envolve mudança de titularidade ou natureza (PF para PJ), por isso é tratado como alto risco.' },
+  unificacao: { branch:'alto',  titulo:'Unificação ou transferência de contas',
+                nota:'A troca de e-mail é possível, mas transferir produtos e saldo entre contas não é. Isso segue como caso assistido.' },
+  compradorvendedor:{ branch:'baixo', titulo:'Virar produtor ou afiliado',
+                nota:'A pessoa ainda tem acesso ao e-mail atual, então a verificação é a mais simples.' }
+};
+function startMotivo(key){
+  state.motivo=key;
+  startBranch(MOTIVOS[key].branch);
+}
+
+/* ═══════════ E-mail da compra ═══════════ */
+function startCompra(){ state.motivo=null; state.branch=null; goTo('scr-platform'); showView('v-compra'); setCompraMode('hoje'); }
+
+function setCompraMode(m){
+  state.compraMode=m;
+  document.getElementById('cseg-prop').classList.toggle('on', m==='proposta');
+  document.getElementById('cseg-hoje').classList.toggle('on', m==='hoje');
+  var regras='<div class="mc-card"><h3>Produtor: já pode trocar hoje</h3><div class="hint">Dentro da gestão de vendas, com regras:</div>'+
+    '<ul style="margin:0;padding-left:18px;font-size:13px;color:var(--gray-600,#4b4b49);line-height:1.7;">'+
+    '<li>Só o e-mail de compra de um aluno do próprio produto.</li>'+
+    '<li>Até 40 dias após a compra e o aluno não pode ter acessado o produto.</li>'+
+    '<li>O novo e-mail não pode ter saldo nem afiliação ativa.</li>'+
+    '<li>Compra "Aprovada" ou "Completa", sem duas alterações anteriores.</li>'+
+    '<li>O novo e-mail não pode ser o do próprio produtor.</li></ul></div>';
+  var buyer;
+  if(m==='hoje'){
+    buyer='<div class="mc-card"><h3>Comprador: não consegue trocar o próprio</h3>'+
+      '<div class="deadend" style="margin:8px 0 14px;">'+IC_ALERT+'<div>Quando o comprador precisa trocar o próprio e-mail (ou transferir compras de vários produtores), não há opção na plataforma. É preciso abrir um chamado.</div></div>'+
+      '<button class="btn-voltar" style="border-color:var(--gray-300);color:var(--black);" onclick="startAsis(\'compra\')">'+IC_CH+' Abrir chamado</button></div>';
+    setAnno('compra-hoje');
+  } else {
+    buyer='<div class="mc-card"><h3>Comprador: passa a trocar sozinho <span class="novo-badge">Novo</span></h3>'+
+      '<div class="hint">Self-service com verificação por código, no e-mail da compra ou por SMS no telefone do checkout. Sem biometria, porque o comprador não tem cadastro biométrico.</div>'+
+      '<button class="ui-btn ui-btn-primary" onclick="compraStart()">'+ICON.mail+' Simular troca self-service</button></div>';
+    setAnno('compra-proposta');
+  }
+  document.getElementById('compra-inner').innerHTML=regras+buyer;
+}
+function compraSteps(active){
+  var labels=['Verificação','Novo e-mail','Confirmar novo e-mail'];
+  var html='';
+  labels.forEach(function(s,idx){
+    var cls=idx<active?'done':(idx===active?'active':'');
+    var mark=idx<active?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:13px;height:13px;"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':(idx+1);
+    html+='<div class="wz-step '+cls+'">'+(idx>0?'<div class="wz-line"></div>':'')+'<div class="dot">'+mark+'</div><div class="lbl">'+s+'</div></div>';
+  });
+  return '<div class="wz-steps">'+html+'</div>';
+}
+function compraStart(){ state.compraCh=null; showView('v-compra-flow'); compraFlow('verify'); }
+function compraFlow(step){
+  var el=document.getElementById('compra-flow-inner'); var h='';
+  if(step==='verify'){
+    h='<div class="mc-title">Alterar e-mail da compra <span class="novo-badge">Novo</span></div>'+
+      compraSteps(0)+
+      '<div class="wz-panel"><h2>Confirme que é você</h2>'+
+      '<p class="desc">Escolha por onde receber o código de confirmação. O comprador não tem biometria, então usamos um código.</p>'+
+      '<div class="choice-row">'+
+        '<div class="choice" data-cch="email" onclick="compraSelectCh(this,\'email\')"><div class="choice-head"><h4>Código no e-mail da compra</h4></div><p>c***@email.com</p></div>'+
+        '<div class="choice" data-cch="sms" onclick="compraSelectCh(this,\'sms\')"><div class="choice-head"><h4>Código por SMS</h4></div><p>(31) 9 9***-**12 · telefone do checkout</p></div>'+
+      '</div></div>'+
+      '<div class="wz-actions"><span class="back-link" onclick="setCompraMode(\'proposta\'); showView(\'v-compra\');">'+ICON.arrowL+' Voltar</span>'+
+      '<button class="ui-btn ui-btn-primary" id="compra-cta" disabled onclick="compraFlowCta()">Enviar código</button></div>';
+  } else if(step==='newemail'){
+    h='<div class="mc-title">Novo e-mail da compra <span class="novo-badge">Novo</span></div>'+
+      compraSteps(1)+
+      '<div class="wz-panel"><h2>Qual será o novo e-mail?</h2>'+
+      '<p class="desc">Identidade confirmada. Informe o novo e-mail. Enviaremos um código para confirmar o acesso a ele.</p>'+
+      '<div class="field-label">Novo e-mail</div>'+
+      '<div class="field-box"><input id="compra-new-input" style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="thiago.comprador.novo@email.com"></div></div>'+
+      '<div class="wz-actions"><span class="back-link" onclick="compraFlow(\'verify\')">'+ICON.arrowL+' Voltar</span>'+
+      '<button class="ui-btn ui-btn-primary" onclick="openOtp(\'compra-new\')">'+ICON.send+' Enviar código</button></div>';
+  }
+  el.innerHTML=h;
+  setAnno(step==='verify'?'compra-verify':'compra-newemail');
+}
+function compraSelectCh(elm,ch){
+  state.compraCh=ch;
+  document.querySelectorAll('#compra-flow-inner .choice').forEach(function(c){ c.classList.toggle('selected', c.dataset.cch===ch); });
+  var cta=document.getElementById('compra-cta'); cta.disabled=false;
+  cta.innerHTML=(ch==='sms'?ICON.send+' Enviar código por SMS':ICON.mail+' Enviar código por e-mail');
+}
+function compraFlowCta(){ openOtp(state.compraCh==='sms'?'compra-sms':'compra-mail'); }
+function compraResult(){
+  var el=document.getElementById('result-inner');
+  el.innerHTML='<div class="rico ok">'+ICON.check+'</div><h2>E-mail da compra alterado</h2>'+
+    '<p>O comprador confirmou a identidade e trocou o e-mail da compra sozinho, sem abrir chamado.</p>'+
+    '<div style="margin-top:10px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">tira da fila do atendimento o maior volume de troca de e-mail</span></div>'+
+    '<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">'+ICON.arrowL+' Voltar aos cenários</button></div>';
+  showView('v-result'); setAnno('compra-result');
+}
+
+/* anotações da compra */
+ANNO['compra-proposta']={ title:'E-mail da compra', step:'Proposta', secs:[
+  S('Situação','do',['O produtor já troca o e-mail de uma compra sozinho, com regras. O comprador ainda não consegue trocar o próprio.']),
+  S('Proposta','check',['Habilitar o comprador a trocar sozinho, confirmando por código no e-mail da compra ou por SMS (telefone do checkout), sem depender de biometria.']),
+  S('Impacto','safe',['É o maior volume de troca de e-mail (cerca de 16 mil tickets), boa parte aberta pelo próprio comprador.']) ]};
+ANNO['compra-hoje']={ title:'E-mail da compra', step:'Como é hoje', secs:[
+  S('Situação','do',['O comprador não consegue trocar o próprio e-mail nem transferir compras de vários produtores.']),
+  S('O que acontece','check',['Vira chamado, mesmo fluxo manual de atendimento.']),
+  S('Custo','safe',['Tickets abertos pelo comprador têm DSAT mais alto (12,19%) que os abertos pelo produtor (2,86%).']) ]};
+ANNO['otp-compra']={ title:'Confirmar e-mail da compra', step:'Verificação', secs:[
+  S('O que a pessoa faz','do',['Digita o código enviado ao e-mail da compra para provar a posse.']),
+  S('Por que é seguro','safe',['Confirma o acesso antes de trocar, sem depender de atendimento.']) ]};
+ANNO['compra-result']={ title:'Trocado', step:'Desfecho', secs:[
+  S('O que acontece','do',['O comprador resolve sozinho, em minutos.']),
+  S('Impacto','safe',['Deflaciona o maior volume de troca de e-mail da fila do CX.']) ]};
+
+/* protocolo/tema do as-is por cenário */
+function asisProto(){ return {trocasimples:'#482210',perda:'#482193',transicao:'#482233',unificacao:'#482251',compra:'#482270'}[asisScen()]||'#482193'; }
+function asisTema(){ return state.asisCtx==='compra'?'Alteração de e-mail da compra':'Alteração de e-mail da conta'; }
+ANNO['asis-especificacoes']={ title:'Especificações da compra', step:'Dados do atendimento', secs:[
+  S('O que a pessoa faz','do',['Informa comprovante de pagamento, e-mail atual, novo e-mail, CPF, número da transação e nome do produto, e o motivo "E-mail incorreto".']),
+  S('Atrito','check',['São muitos dados que o comprador nem sempre tem à mão (número da transação, comprovante), o que trava e alonga o atendimento.']),
+  S('Custo','safe',['Tudo isso para uma troca que, na proposta, o próprio comprador faria com um código no e-mail da compra.']) ]};
+
+/* anotações do fluxo proposta da compra */
+ANNO['compra-verify']={ title:'Confirme que é você', step:'Proposta · E-mail da compra', secs:[
+  S('O que a pessoa faz','do',['Escolhe receber um código no e-mail da compra ou por SMS no telefone do checkout.']),
+  S('Por que sem biometria','check',['O comprador não faz cadastro biométrico para comprar, então a verificação é por código de posse de canal.']),
+  S('Por que é seguro','safe',['Prova que a pessoa controla o e-mail da compra ou o telefone informado no checkout.']) ]};
+ANNO['compra-newemail']={ title:'Novo e-mail da compra', step:'Proposta · E-mail da compra', secs:[
+  S('O que a pessoa faz','do',['Informa o novo e-mail e confirma o acesso a ele com um segundo código.']),
+  S('Por que é seguro','safe',['Confirma que o destino é válido e controlado pela pessoa, evitando erro de digitação ou e-mail de terceiros.']) ]};
+ANNO['otp-compra-mail']=ANNO['otp-compra-sms']={ title:'Código de verificação', step:'Proposta · E-mail da compra', secs:[
+  S('O que a pessoa faz','do',['Digita o código de 6 dígitos recebido no canal escolhido.']),
+  S('Por que é seguro','safe',['Prova a posse do canal antes de liberar a troca.']) ]};
+ANNO['otp-compra-new']={ title:'Confirmar novo e-mail', step:'Proposta · E-mail da compra', secs:[
+  S('O que a pessoa faz','do',['Digita o código enviado ao novo e-mail para confirmar que tem acesso a ele.']),
+  S('Por que é seguro','safe',['Garante que o novo endereço é realmente da pessoa.']) ]};
+ANNO['compra-proposta']={ title:'E-mail da compra', step:'Proposta', secs:[
+  S('Situação','do',['O produtor já troca o e-mail de uma compra sozinho, com regras. O comprador ainda não consegue trocar o próprio.']),
+  S('Proposta','check',['Habilitar o comprador a trocar sozinho, com código no e-mail da compra ou por SMS do checkout. Sem biometria, porque ele não tem cadastro biométrico.']),
+  S('Impacto','safe',['É o maior volume de troca de e-mail (cerca de 15.998 tickets no semestre), boa parte aberta pelo próprio comprador, com DSAT de 12,19%.']) ]};
+
+</script>
+</body>
+</html>

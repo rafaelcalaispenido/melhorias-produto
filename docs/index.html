@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador · Alteração de e-mail da conta</title>
+<link rel="stylesheet" href="simulador-alteracoes-conta.css">
+</head>
+<body>
+
+<!-- ══════════════ COVER / HUB ══════════════ -->
+<div class="screen active" id="scr-hub">
+  <div class="sim-cover">
+    <div class="brand-row"><img src="logo-hotmart-white.png" alt="Hotmart"></div>
+    <div class="etapa-label" style="text-align:center;">Simulador · Alterações na conta</div>
+    <h1>Alterações na conta Hotmart</h1>
+    <p class="subtitle">Protótipo que compara <b>como é hoje</b> e a <b>proposta</b> self-service. Organizado por tipo de alteração, começando por e-mail. Escolha um cenário para simular.</p>
+    <div class="legend">Elementos marcados com <span class="novo-badge">Novo</span> não existem hoje, são a proposta.</div>
+
+    <div class="scn-section">
+      <div class="sec-h">E-mail da conta Hotmart <span class="sub">Produtor e Afiliado · 12.690 tickets/semestre de troca de e-mail</span></div>
+      <div class="scn-grid cols2">
+        <div class="scn-card" onclick="startMotivo('trocasimples')">
+          <h3>Trocar para um novo e-mail</h3>
+          <p>Ainda tenho acesso ao e-mail atual, só quero migrar para outro endereço. Mesmo assim, hoje depende do CX.</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+        <div class="scn-card" onclick="startMotivo('perda')">
+          <h3>Perdi o acesso ao e-mail antigo</h3>
+          <p>Hackeado, bloqueado ou excluído. Não recebo mais nada no e-mail atual.</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scn-section">
+      <div class="sec-h">E-mail da compra <span class="sub">Comprador</span></div>
+      <div class="scn-grid cols2">
+        <div class="scn-card" onclick="startCompra()">
+          <div class="risk-line"><span class="scn-tickets"><b>15.998</b> tickets/semestre</span></div>
+          <h3>Trocar o e-mail de uma compra</h3>
+          <p>O produtor já troca sozinho (com regras). O comprador não consegue trocar o próprio e precisa abrir chamado.</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="other-scn">
+      <div class="ttl">Outros tipos de alteração (em breve)</div>
+      <div class="other-grid">
+        <div class="other-card">Documentos e titularidade</div>
+        <div class="other-card">País</div>
+        <div class="other-card">Demais alterações</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PLATAFORMA (chrome + views) ══════════════ -->
+<div class="screen" id="scr-platform">
+  <div class="hm-app">
+    <header class="hm-topbar">
+      <div class="hm-topbar-left">
+        <button class="hm-hamburger" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="hm-logo"><img src="logo-hotmart.jpg" alt="Hotmart" style="height:22px;width:auto;display:block;"></div>
+      </div>
+      <div class="hm-topbar-right">
+        <div class="hm-avatar">TP</div>
+      </div>
+    </header>
+
+    <div class="hm-body">
+      <nav class="hm-sidebar" id="hm-sidebar">
+        <div class="hm-side-search"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><span class="hm-side-label">Buscar</span></div>
+        <div class="hm-side-item"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 11L12 4l8 7v8a1 1 0 01-1 1H5a1 1 0 01-1-1z"/></svg><span class="hm-side-label">Home</span></div>
+        <div class="hm-side-item active"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg><span class="hm-side-label">Minha Conta</span></div>
+        <div class="hm-side-item"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg><span class="hm-side-label">Carteira</span></div>
+      </nav>
+
+      <main class="hm-main" style="padding:0;overflow:auto;">
+        <!-- VIEW: Minha Conta -->
+        <div class="mc-view" id="v-conta">
+          <div class="mc-wrap">
+            <div class="mc-breadcrumb">Painel / <b>Minha Conta</b></div>
+            <div class="mc-title">Minha Conta</div>
+            <div class="seg" id="mode-seg">
+              <button id="seg-hoje" class="is-hoje" onclick="setContaMode('hoje')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Como é hoje</button>
+              <button id="seg-prop" class="on" onclick="setContaMode('proposta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg> Proposta</button>
+            </div>
+            <div class="mc-tabs">
+              <div class="mc-tab">Perfil</div>
+              <div class="mc-tab active">Dados Pessoais</div>
+              <div class="mc-tab">Documentos</div>
+              <div class="mc-tab">Dados Financeiros</div>
+              <div class="mc-tab">Preferências</div>
+            </div>
+            <div class="mc-note"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></span> Estes dados são necessários para cumprimento dos requisitos de órgãos reguladores. Tratamos seus dados conforme os Termos de Uso e a Política de Privacidade.</div>
+
+            <div class="mc-card">
+              <h3>E-mail de acesso</h3>
+              <div class="hint">É com este e-mail que você acessa a sua conta Hotmart.</div>
+              <div class="field-label">E-mail atual</div>
+              <div class="field-box" id="conta-email-box">
+                <span id="conta-email">thiago.oliveira@email.com</span>
+                <span id="email-action"></span>
+              </div>
+              <div class="hint" id="email-hint" style="margin-top:12px;margin-bottom:0;"></div>
+            </div>
+
+            <div class="mc-card">
+              <h3>Natureza do negócio<span id="conta-natureza-tag" style="font-size:12px;color:var(--gray-400);font-weight:400;">: Pessoa Física</span></h3>
+              <div class="hint">CPF/CNPJ e titularidade da conta.</div>
+              <div class="field-box locked" id="conta-natureza-box"><span id="conta-natureza">Pessoa Física · CPF 115.***.**6-94</span><span style="font-size:12px;display:inline-flex;align-items:center;gap:6px;"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> em avaliação</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Verify start -->
+        <div class="mc-view" id="v-verify" style="display:none;">
+          <div class="wz">
+            <div class="mc-breadcrumb">Painel / Minha Conta / <b>Alterar e-mail</b></div>
+            <div class="mc-title">Alterar e-mail <span class="novo-badge">Novo</span></div>
+            <div class="risk-banner" id="risk-banner"></div>
+            <div id="wz-steps" class="wz-steps"></div>
+            <div class="wz-panel" id="verify-panel"></div>
+            <div class="wz-actions">
+              <span class="back-link" onclick="showView('v-conta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Voltar</span>
+              <button class="ui-btn ui-btn-primary" id="verify-cta" onclick="verifyCta()">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: New email -->
+        <div class="mc-view" id="v-newemail" style="display:none;">
+          <div class="wz">
+            <div class="mc-title">Novo e-mail <span class="novo-badge">Novo</span></div>
+            <div id="wz-steps-2" class="wz-steps"></div>
+            <div class="wz-panel">
+              <h2>Qual será o seu novo e-mail?</h2>
+              <p class="desc">Vamos enviar um código para confirmar o acesso a este novo endereço.</p>
+              <div class="field-label">Novo e-mail</div>
+              <div class="field-box"><input id="new-email-input" style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="thiago.oliveira.novo@email.com"></div>
+            </div>
+            <div class="wz-actions">
+              <span class="back-link" onclick="showView('v-conta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Cancelar</span>
+              <button class="ui-btn ui-btn-primary" id="newemail-cta" onclick="afterNewEmail()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+                Enviar código
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Docs (alto) -->
+        <div class="mc-view" id="v-docs" style="display:none;">
+          <div class="wz">
+            <div class="mc-title">Confirmação de identidade <span class="novo-badge">Novo</span></div>
+            <div id="wz-steps-3" class="wz-steps"></div>
+            <div class="wz-panel">
+              <h2>Envie seus documentos</h2>
+              <p class="desc">Para alterações de maior risco, confirmamos identidade e titularidade. Envie em <b>PDF</b>, fazemos a leitura por OCR e validamos o QR Code do documento.</p>
+              <div class="up-box"><div class="up-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg></div><div><div class="t">RG ou CNH (PDF)</div><div class="s">Leitura por OCR + validação de QR Code</div></div><span class="up-tag" id="doc1tag">Validado</span></div>
+              <div class="up-box" id="up-socios" style="display:none;"><div class="up-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/></svg></div><div><div class="t">Contrato social + aceite dos sócios</div><div class="s">Conta PJ com mais de um sócio</div></div><span class="up-tag" style="color:var(--amber);">Pendente</span></div>
+              <div class="risk-banner high" style="margin:14px 0 0;">Esta alteração envolve titularidade/alto risco, segue para <b>análise assistida</b> do time de CX.</div>
+            </div>
+            <div class="wz-actions">
+              <span class="back-link" onclick="showView('v-conta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Cancelar</span>
+              <button class="ui-btn ui-btn-primary" onclick="goResult('alto')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+                Enviar para análise
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Result -->
+        <div class="mc-view" id="v-result" style="display:none;">
+          <div class="result" id="result-inner"></div>
+        </div>
+
+        <!-- VIEW: As-is (Como é hoje) -->
+        <div class="mc-view" id="v-asis" style="display:none;">
+          <div class="help-wrap" id="asis-inner"></div>
+        </div>
+
+        <!-- VIEW: E-mail da compra -->
+        <div class="mc-view" id="v-compra" style="display:none;">
+          <div class="help-wrap">
+            <div class="mc-breadcrumb">Painel / <b>E-mail da compra</b></div>
+            <div class="mc-title" style="margin-bottom:10px;">Trocar o e-mail de uma compra</div>
+            <div class="seg" id="compra-seg">
+              <button id="cseg-hoje" class="is-hoje" onclick="setCompraMode('hoje')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Como é hoje</button>
+              <button id="cseg-prop" class="on" onclick="setCompraMode('proposta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg> Proposta</button>
+            </div>
+            <div id="compra-inner"></div>
+            <div style="margin-top:22px;"><span class="back-link" onclick="goTo('scr-hub')">Voltar aos cenários</span></div>
+          </div>
+        </div>
+
+        <!-- VIEW: E-mail da compra (fluxo proposta) -->
+        <div class="mc-view" id="v-compra-flow" style="display:none;">
+          <div class="wz"><div id="compra-flow-inner"></div></div>
+        </div>
+      </main>
+    </div>
+
+    <div class="hm-loading-overlay" id="hm-loading-overlay">
+      <div class="hm-spinner"><div class="hm-spinner-ring"></div><img src="logo-hotmart-loading.jpg" alt="" style="width:28px;height:28px;object-fit:contain;border-radius:50%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ OTP OVERLAY ══════════════ -->
+<div class="checkout-modal-overlay" id="otp-overlay">
+  <div class="checkout-modal" style="max-width:420px;">
+    <button class="checkout-modal-close" onclick="closeOtp()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="enotas-step-body left" style="padding-top:40px;">
+      <div class="enotas-step-title" id="otp-title">Quase lá!</div>
+      <p style="font-size:13.5px;color:var(--gray-500);line-height:1.5;" id="otp-sub"></p>
+      <div class="enotas-otp-row">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+        <input class="enotas-otp-box" maxlength="1" inputmode="numeric" oninput="otpAdvance(this)">
+      </div>
+      <div class="enotas-otp-expire" style="text-align:center;">O código expira em 15 minutos.</div>
+      <div style="text-align:center;"><span class="enotas-otp-resend" onclick="showToast('Código reenviado!')">Reenviar código</span></div>
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--gray-400);display:flex;align-items:center;justify-content:center;gap:6px;"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> Protegido por <strong>hotmart</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ FACETEC OVERLAY ══════════════ -->
+<div class="checkout-modal-overlay ft-overlay" id="ft-overlay">
+  <div class="checkout-modal" style="max-width:440px;">
+    <div class="enotas-step-body" style="padding-top:36px;text-align:center;">
+      <div class="enotas-step-title">Confirme que é você <span class="novo-badge">Novo</span></div>
+      <p style="font-size:13.5px;color:var(--gray-500);line-height:1.5;margin-top:6px;">Posicione seu rosto no contorno. Faremos a captura com prova de vida.</p>
+      <div class="ft-oval" id="ft-oval"><svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.3"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg></div>
+      <button class="ui-btn ui-btn-primary ui-btn-lg" id="ft-btn" onclick="ftCapture()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="2.4"/><path d="M6.5 18a5.5 5.5 0 0111 0"/></svg>
+        Iniciar captura
+      </button>
+      <div class="ft-provider">Biometria por <strong>FaceTec</strong>, o mesmo motor já usado no cadastro/KYC da conta.</div>
+    </div>
+  </div>
+</div>
+
+<!-- painel de anotações (modo apresentação) -->
+<aside class="anno-rail" id="anno-rail">
+  <div class="anno-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-3"/><path d="M12 15l9-9-3-3-9 9v3z"/></svg> Modo apresentação</div>
+  <div class="anno-title" id="anno-title">Simulador de decisão</div>
+  <div class="anno-step" id="anno-step">Escolha um cenário</div>
+  <div id="anno-body"></div>
+</aside>
+<button class="anno-toggle" id="anno-toggle" onclick="toggleAnno()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8v.4"/></svg>
+  <span id="anno-toggle-label">Modo apresentação</span>
+</button>
+
+<!-- toast + fixed controls -->
+<div class="toast" id="toast"></div>
+<button class="restart" onclick="location.reload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 12a8 8 0 108-8"/><path d="M4 4v5h5"/></svg> Reiniciar simulador</button>
+
+<script src="simulador-alteracoes-conta.js"></script>
+</body>
+</html>

@@ -45,10 +45,25 @@
       </div>
     </div>
 
+    <div class="scn-section">
+      <div class="sec-h">Documentos e titularidade <span class="sub">Produtor e Afiliado · natureza da conta e CNPJ</span></div>
+      <div class="scn-grid cols2">
+        <div class="scn-card" onclick="startTitularidade('pf-pj')">
+          <h3>Pessoa Física → Pessoa Jurídica</h3>
+          <p>Conta em PF que quer migrar para o CNPJ de uma empresa da qual é sócio(a).</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+        <div class="scn-card" onclick="startTitularidade('pj-pj')">
+          <h3>Pessoa Jurídica → outra PJ</h3>
+          <p>Conta registrada como PJ que quer migrar para outro CNPJ (nova empresa ou encerramento da anterior).</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </div>
+
     <div class="other-scn">
       <div class="ttl">Outros tipos de alteração (em breve)</div>
       <div class="other-grid">
-        <div class="other-card">Documentos e titularidade</div>
         <div class="other-card">País</div>
         <div class="other-card">Demais alterações</div>
       </div>
@@ -200,6 +215,61 @@
         <!-- VIEW: E-mail da compra (fluxo proposta) -->
         <div class="mc-view" id="v-compra-flow" style="display:none;">
           <div class="wz"><div id="compra-flow-inner"></div></div>
+        </div>
+
+        <!-- VIEW: Titularidade — Minha Conta entry -->
+        <div class="mc-view" id="v-tit-conta" style="display:none;">
+          <div class="mc-wrap">
+            <div class="mc-breadcrumb">Painel / <b>Minha Conta</b></div>
+            <div class="mc-title">Minha Conta</div>
+            <div class="seg" id="tit-seg">
+              <button id="tseg-hoje" class="is-hoje" onclick="setTitMode('hoje')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Como é hoje</button>
+              <button id="tseg-prop" class="on" onclick="setTitMode('proposta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg> Proposta</button>
+            </div>
+            <div class="mc-tabs">
+              <div class="mc-tab">Perfil</div>
+              <div class="mc-tab active">Dados Pessoais</div>
+              <div class="mc-tab">Documentos</div>
+              <div class="mc-tab">Dados Financeiros</div>
+              <div class="mc-tab">Preferências</div>
+            </div>
+            <div class="mc-note"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></span> Estes dados são necessários para cumprimento dos requisitos de órgãos reguladores. Tratamos seus dados conforme os Termos de Uso e a Política de Privacidade.</div>
+            <div class="mc-card">
+              <h3>E-mail de acesso</h3>
+              <div class="hint">É com este e-mail que você acessa a sua conta Hotmart.</div>
+              <div class="field-box locked"><span>thiago.oliveira@email.com</span></div>
+            </div>
+            <div class="mc-card">
+              <h3>Natureza do negócio<span id="tit-natureza-tag" style="font-size:12px;color:var(--gray-400);font-weight:400;"></span></h3>
+              <div class="hint">CPF/CNPJ e titularidade da conta.</div>
+              <div class="field-box" id="tit-natureza-box">
+                <span id="tit-natureza"></span>
+                <span id="tit-action"></span>
+              </div>
+              <div class="hint" id="tit-hint" style="margin-top:12px;margin-bottom:0;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Titularidade — Central de Ajuda (as-is) -->
+        <div class="mc-view" id="v-tit-asis" style="display:none;">
+          <div class="help-wrap" id="tit-asis-inner"></div>
+        </div>
+
+        <!-- VIEW: Titularidade — Wizard proposta -->
+        <div class="mc-view" id="v-tit-wizard" style="display:none;">
+          <div class="wz">
+            <div class="mc-breadcrumb">Painel / Minha Conta / <b>Alterar tipo de conta</b></div>
+            <div class="mc-title">Alterar tipo de conta <span class="novo-badge">Novo</span></div>
+            <div id="tit-wz-steps" class="wz-steps"></div>
+            <div class="wz-panel" id="tit-wz-panel"></div>
+            <div class="wz-actions" id="tit-wz-actions"></div>
+          </div>
+        </div>
+
+        <!-- VIEW: Titularidade — Result -->
+        <div class="mc-view" id="v-tit-result" style="display:none;">
+          <div class="result" id="tit-result-inner"></div>
         </div>
       </main>
     </div>

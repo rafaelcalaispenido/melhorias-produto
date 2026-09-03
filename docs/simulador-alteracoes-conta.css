@@ -1361,6 +1361,8 @@
 .ui-btn-primary:disabled{ opacity:.6; cursor:default; transform:none; box-shadow:none; }
 .ui-btn-outline{ background:var(--white); color:var(--black); border-color:var(--gray-300); }
 .ui-btn-outline:hover{ border-color:var(--black); background:var(--gray-100); }
+.ui-btn-ghost{ background:transparent; color:var(--gray-500); border-color:transparent; }
+.ui-btn-ghost:hover{ background:var(--gray-100); color:var(--black); border-color:var(--gray-200); }
 .ui-btn-lg{ font-size:15px; padding:15px 26px; width:100%; border-radius:14px; }
 /* Novo badge sitting inside a dark button */
 .ui-btn-primary .novo-badge{ background:var(--orange); }
@@ -1416,7 +1418,18 @@ body.anno-on .sim-cover{ padding-right:340px; }
 .pill-opt{ border:1px solid var(--gray-300); background:var(--white); border-radius:999px; padding:10px 18px; font-size:13.5px; cursor:pointer; transition:.15s; }
 .pill-opt:hover{ border-color:var(--black); }
 .pill-opt.sel{ border-color:var(--orange); box-shadow:0 0 0 1px var(--orange) inset; color:var(--orange); }
+.pill-opt-disabled{ opacity:.4; cursor:not-allowed; pointer-events:none; }
 .hd-sep{ height:1px; background:var(--gray-200); margin:20px 0; }
+.help-card-cols{ display:flex; gap:0; padding:0; overflow:hidden; }
+.asis-sidebar{ width:170px; flex-shrink:0; background:var(--gray-200); padding:24px 18px; display:flex; flex-direction:column; gap:0; }
+.asis-side-step{ display:flex; align-items:flex-start; gap:10px; font-size:12.5px; color:var(--gray-400); padding:10px 0; position:relative; }
+.asis-side-step + .asis-side-step::before{ content:''; position:absolute; left:7px; top:-50%; width:1.5px; height:50%; background:var(--gray-300); }
+.asis-side-dot{ width:16px; height:16px; border-radius:50%; border:2px solid var(--gray-300); flex-shrink:0; margin-top:1px; background:var(--gray-200); }
+.asis-side-step.done .asis-side-dot{ border-color:#128A4B; background:#128A4B; }
+.asis-side-step.done{ color:var(--gray-500); }
+.asis-side-step.active .asis-side-dot{ border-color:var(--orange); box-shadow:0 0 0 3px rgba(240,90,40,.15); background:var(--white); }
+.asis-side-step.active{ color:var(--black); font-weight:600; }
+.asis-main{ flex:1; padding:24px 22px; min-width:0; }
 .vstep{ display:flex; flex-direction:column; gap:10px; margin-bottom:22px; }
 .vstep .it{ display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--gray-400); }
 .vstep .it .rc{ width:16px; height:16px; border-radius:50%; border:2px solid var(--gray-300); }
@@ -1464,3 +1477,81 @@ body.anno-on .sim-cover{ padding-right:340px; }
   padding:4px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:6px; }
 .scn-tickets b{ color:var(--black); font-weight:700; }
 .scn-tickets svg{ width:13px; height:13px; opacity:.7; }
+
+/* ═══════════ Titularidade — SERPRO card ═══════════ */
+.serpro-card{ background:var(--gray-100); border:1px solid var(--gray-200); border-radius:12px; padding:16px 18px; margin-top:16px; }
+.serpro-badge{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:var(--gray-500); background:var(--white); border:1px solid var(--gray-200); border-radius:999px; padding:3px 10px; margin-bottom:14px; letter-spacing:.03em; text-transform:uppercase; }
+.serpro-row{ display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:1px solid var(--gray-200); font-size:13.5px; }
+.serpro-row:last-child{ border-bottom:none; }
+.serpro-lbl{ flex-shrink:0; min-width:140px; color:var(--gray-500); font-size:12px; font-weight:500; }
+.serpro-val{ color:var(--black); font-weight:500; flex:1; }
+.serpro-val.mono{ font-family:monospace; font-size:13px; }
+.serpro-row.serpro-qsa{ align-items:flex-start; }
+.serpro-row.serpro-qsa .serpro-val{ display:flex; flex-direction:column; gap:4px; }
+.status-ativa{ color:#128A4B; font-weight:700; display:inline-flex; align-items:center; gap:4px; }
+.qsa-item{ display:flex; align-items:center; gap:6px; font-size:13px; }
+.check-item{ color:#128A4B; }
+.mono{ font-family:monospace; }
+.amber-bg{ background:var(--amber-bg,#FFFBEA); }
+
+/* ── 2FA channel selector ─────────────────────────── */
+.seg-opt {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 8px;
+  border: 1.5px solid var(--gray-200); background: var(--white);
+  color: var(--gray-500); font-family: inherit; font-size: 12.5px;
+  font-weight: 500; cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+}
+.seg-opt:hover { border-color: var(--gray-300); color: var(--black); }
+.seg-opt.active { border-color: var(--black); color: var(--black); font-weight: 600; background: var(--gray-100); }
+
+/* ── Sócios tracker ───────────────────────────────── */
+.socios-tracker {
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;
+}
+.socios-tracker-title {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--gray-400); margin-bottom: 12px;
+}
+.st-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--gray-100);
+}
+.st-item:last-child { border-bottom: none; padding-bottom: 0; }
+.st-avatar {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--black);
+  color: var(--white); font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.st-avatar.pending { background: var(--gray-200); color: var(--gray-500); }
+.st-info { flex: 1; min-width: 0; }
+.st-name { font-size: 13.5px; font-weight: 600; color: var(--black); }
+.st-you { font-size: 11px; font-weight: 400; color: var(--gray-400); margin-left: 4px; }
+.st-status { font-size: 12px; margin-top: 2px; }
+.st-status.confirmed { color: #128A4B; font-weight: 500; }
+.st-status.pending { color: #B4740A; font-weight: 500; }
+.st-note { font-size: 11.5px; color: var(--gray-400); margin-top: 4px; line-height: 1.5; }
+
+/* ── Carência timeline ────────────────────────────── */
+.carencia-timeline {
+  background: var(--gray-100); border: 1px solid var(--gray-200);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;
+}
+.carencia-title {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--gray-400); margin-bottom: 12px;
+}
+.ct-step {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 5px 0; font-size: 13px; line-height: 1.45;
+}
+.ct-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  margin-top: 4px;
+}
+.ct-dot.done { background: #128A4B; }
+.ct-dot.pending { background: #D97706; }
+.ct-dot.future { background: var(--gray-300); }
+.ct-body { color: var(--gray-500); }
+.ct-body b { color: var(--black); }

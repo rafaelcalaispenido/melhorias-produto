@@ -115,6 +115,7 @@ function openOtp(kind){
   else if(kind==='compra-sms'){ s.innerHTML='Digite o código que enviamos por SMS para <strong>(31) 9 9***-**12</strong>.'; }
   else if(kind==='compra-new'){ s.innerHTML='Digite o código que enviamos para o <strong>novo e-mail</strong> da compra.'; }
   else if(kind==='tit-2fa'){ s.innerHTML='Digite o código que enviamos para confirmar a solicitação de <strong>troca de titularidade</strong>.'; }
+  else if(kind==='socia-2fa'){ s.innerHTML='Digite o código que enviamos para <strong>maria.santos@empresa.com.br</strong> para confirmar sua identidade.'; }
   setAnno('otp-'+kind);
   document.querySelectorAll('#otp-overlay .enotas-otp-box').forEach(function(b){ b.value=''; });
   document.getElementById('otp-overlay').classList.add('show');
@@ -141,6 +142,7 @@ function otpComplete(){
     else if(ctx==='compra-mail'||ctx==='compra-sms'){ compraFlow('newemail'); }  // identidade confirmada
     else if(ctx==='compra-new'){ compraResult(); }  // novo e-mail confirmado
     else if(ctx==='tit-2fa'){ titGoResult(); }
+    else if(ctx==='socia-2fa'){ sociaFlowGo(4); }
     else { openFacetec(); }                        // após confirmar e-mail/telefone
   }, 900);
 }
@@ -163,6 +165,11 @@ function ftCapture(){
     if(state.titFacetecNext){
       state.titFacetecNext=false;
       titWizGo('cnpj');
+      return;
+    }
+    if(state.sociaFacetecNext){
+      state.sociaFacetecNext=false;
+      sociaFlowGo(3);
       return;
     }
     if(state.branch==='alto'){ showView('v-docs'); renderSteps('wz-steps-3',1); setAnno('docs'); }
@@ -202,7 +209,7 @@ function goResult(kind){
       '<p>Por envolver titularidade / alto risco, sua solicitação segue para <b>análise assistida</b> do time de CX. Você receberá o retorno em até <b>2 dias úteis</b>.</p>'+
       '<div class="sec-window" style="background:#EEF1FF;border-color:#C7D0FF;color:#33409E;">Você já enviou tudo pela plataforma (biometria + documentos + aceite dos sócios). O CX apenas valida onde a automação ainda não cobre, sem o vai e vem de reenvio por ticket.</div>';
   }
-  h+='<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">'+ICON.arrowL+' Voltar aos cenários</button></div>';
+  h+='<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">Voltar aos cenários</button></div>';
   el.innerHTML=h; showView('v-result'); setAnno('result-'+kind);
 }
 
@@ -342,7 +349,7 @@ function startAsis(ctx){ state.asisCtx=ctx||null; state.asis={motivo:'Acesso e c
 function asisGo(step){
   state.asisStep=step;
   var el=document.getElementById('asis-inner'); var h='';
-  var back='<span class="back-link" onclick="showView(\'v-conta\')">'+ICON.arrowL+' Voltar</span>';
+  var back='<span class="back-link" onclick="showView(\'v-conta\')">Voltar</span>';
   if(step==='persona'){
     var compradorClass = (state.asisCtx==='compra') ? 'pill-opt' : 'pill-opt pill-disabled';
     var compradorClick = (state.asisCtx==='compra') ? 'onclick="asisPersona(this,\'Comprador\')"' : '';
@@ -381,7 +388,7 @@ function asisGo(step){
           '<div class="sel-item-disabled">Redefinir senha</div>'+
         '</div>'+
       '</div>'+
-      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'persona\')">'+ICON.arrowL+' Voltar</button>'+
+      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'persona\')">Voltar</button>'+
       '<button class="ui-btn ui-btn-primary" id="asis-cta" disabled onclick="asisGo(\'dados\')">Avançar '+IC_AR+'</button></div></div>';
   } else if(step==='motivo'||step==='espec'){
     asisGo('motispec'); return;
@@ -394,7 +401,7 @@ function asisGo(step){
       '<div class="fld"><label>Anexe uma imagem que ilustre o problema</label><input value="" placeholder="Selecione um arquivo"></div>'+
       '<div class="fld"><label>Informe o seu país atual *</label><input value="Brasil"></div>'+
       '<div class="fld"><label>Selecione o idioma *</label><div class="pill-row"><div class="pill-opt sel">Português Brasileiro</div><div class="pill-opt">Espanhol</div><div class="pill-opt">Inglês</div><div class="pill-opt">Francês</div><div class="pill-opt">Italiano</div></div></div>'+
-      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'espec\')">'+ICON.arrowL+' Voltar</button>'+
+      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'espec\')">Voltar</button>'+
       (state.asisCtx==='compra'
         ? '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'especificacoes\')">Avançar '+IC_AR+'</button>'
         : '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'enviado\')">Enviar solicitação '+IC_AR+'</button>')+
@@ -407,13 +414,13 @@ function asisGo(step){
       '<div class="fld"><label>CPF do comprador *</label><input value="115.***.**6-94"></div>'+
       '<div class="fld"><label>Número da transação e nome do produto, se houver</label><input value="" placeholder="HP1234567890 · Curso de..."></div>'+
       '<div class="fld"><label>Motivo da solicitação *</label>'+selBox('E-mail incorreto','Selecione o motivo')+'</div>'+
-      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'dados\')">'+ICON.arrowL+' Voltar</button>'+
+      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'dados\')">Voltar</button>'+
       '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'enviado\')">Enviar solicitação '+IC_AR+'</button></div></div>';
   } else if(step==='chat'){
     h='<div class="help-card"><div class="etapa-label">Atendimento</div><div class="help-h1">Você entrou na fila do chat</div>'+
       '<div class="thread"><div class="msg sys">Chat iniciado · aguardando um atendente disponível</div>'+
       '<div class="msg agent"><div class="who">Atendente</div>Olá! Em breve um de nossos atendentes vai te ajudar. Para a troca de e-mail, vamos precisar validar sua identidade com documento e selfie.</div></div>'+
-      '<div class="help-actions"><button class="btn-voltar" onclick="showView(\'v-conta\')">'+ICON.arrowL+' Voltar</button>'+
+      '<div class="help-actions"><button class="btn-voltar" onclick="showView(\'v-conta\')">Voltar</button>'+
       '<button class="ui-btn ui-btn-primary" onclick="asisStartLoop()">Continuar o atendimento '+IC_AR+'</button></div></div>';
   } else if(step==='enviado'){
     h='<div class="help-card" style="text-align:center;"><div class="rico wait" style="width:70px;height:70px;margin:6px auto 16px;background:var(--amber-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;">'+ICON.clock+'</div>'+
@@ -435,7 +442,7 @@ function asisGo(step){
       '<p class="help-lead">'+lead+'</p>'+
       '<div class="cost-box" style="text-align:left;"><b>Custo operacional deste caso:</b> '+d.cost+'</div>'+
       '<div style="margin-top:22px;display:flex;gap:12px;justify-content:center;">'+
-      '<button class="ui-btn ui-btn-outline" onclick="'+(compra?'showView(\'v-compra\')':'showView(\'v-conta\')')+'">'+ICON.arrowL+' '+(compra?'Voltar':'Minha Conta')+'</button>'+
+      '<button class="ui-btn ui-btn-outline" onclick="'+(compra?'showView(\'v-compra\')':'showView(\'v-conta\')')+'">'+((compra?'Voltar':'Minha Conta'))+'</button>'+
       '<button class="ui-btn ui-btn-primary" onclick="compararProposta()">Comparar com a proposta '+IC_AR+'</button></div></div>';
   }
   el.innerHTML=h;
@@ -579,13 +586,13 @@ ANNO['conta-hoje']={ title:'Como é hoje', step:'Ponto de entrada', secs:[
   S('Impacto operacional','check',['Qualquer solicitação, mesmo a mais simples, gera um ticket humano. Nenhum caso se resolve de forma autônoma.']),
   S('Volume','safe',['Aproximadamente 2.115 tickets por mês registrados apenas para este motivo, com índice de insatisfação (DSAT) de 10,49%.']) ]};
 ANNO['asis-persona']={ title:'Abertura de chamado', step:'Central de Ajuda', secs:[
-  S('O que o usuário faz','do',['Identifica seu perfil de atendimento — Produtor ou Afiliado — para iniciar a solicitação.']),
+  S('O que o usuário faz','do',['Identifica seu perfil de atendimento (Produtor ou Afiliado) para iniciar a solicitação.']),
   S('Inconsistência atual','check',['Produtores são direcionados ao chat em tempo real; Afiliados passam pelo formulário assíncrono. Dois caminhos distintos para a mesma demanda geram experiências inconsistentes e dificultam a padronização do atendimento.']),
   S('Custo operacional','safe',['A partir desta etapa, a resolução depende integralmente do atendimento humano.']) ]};
 ANNO['asis-motispec']={ title:'Seleção de motivo e especificação', step:'Detalhe da solicitação', secs:[
   S('O que o usuário faz','do',['Navega pelos menus de suporte para localizar o motivo correto e, em seguida, a especificação correspondente à sua demanda.']),
   S('Pontos de atrito','check',['Não há garantia de que o usuário identificará as opções corretas. Uma seleção equivocada resulta no encaminhamento do ticket para a fila errada, gerando retrabalho e aumento do tempo de resolução.']),
-  S('Ambiguidade no sistema','safe',['O mesmo item de especificação ("Alteração do email da compra ou da minha conta") agrupa situações distintas — e-mail de compra e e-mail de conta — sem diferenciação, o que prejudica a triagem.']) ]};
+  S('Ambiguidade no sistema','safe',['O mesmo item de especificação ("Alteração do email da compra ou da minha conta") agrupa situações distintas (e-mail de compra e e-mail de conta) sem diferenciação, o que prejudica a triagem.']) ]};
 ANNO['asis-dados']={ title:'Formulário', step:'Dados do atendimento', secs:[
   S('O que a pessoa faz','do',['Preenche nome, e-mail, descrição, país e idioma.']),
   S('O que falta','check',['O documento e a selfie nem são pedidos aqui: só depois, dentro do atendimento, o que alonga a jornada.']) ]};
@@ -671,7 +678,7 @@ function compraFlow(step){
         '<div class="choice" data-cch="email" onclick="compraSelectCh(this,\'email\')"><div class="choice-head"><h4>Código no e-mail da compra</h4></div><p>c***@email.com</p></div>'+
         '<div class="choice" data-cch="sms" onclick="compraSelectCh(this,\'sms\')"><div class="choice-head"><h4>Código por SMS</h4></div><p>(31) 9 9***-**12 · telefone do checkout</p></div>'+
       '</div></div>'+
-      '<div class="wz-actions"><span class="back-link" onclick="setCompraMode(\'proposta\'); showView(\'v-compra\');">'+ICON.arrowL+' Voltar</span>'+
+      '<div class="wz-actions"><span class="back-link" onclick="setCompraMode(\'proposta\'); showView(\'v-compra\');">Voltar</span>'+
       '<button class="ui-btn ui-btn-primary" id="compra-cta" disabled onclick="compraFlowCta()">Enviar código</button></div>';
   } else if(step==='newemail'){
     h='<div class="mc-title">Novo e-mail da compra <span class="novo-badge">Novo</span></div>'+
@@ -680,7 +687,7 @@ function compraFlow(step){
       '<p class="desc">Identidade confirmada. Informe o novo e-mail. Enviaremos um código para confirmar o acesso a ele.</p>'+
       '<div class="field-label">Novo e-mail</div>'+
       '<div class="field-box"><input id="compra-new-input" style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="thiago.comprador.novo@email.com"></div></div>'+
-      '<div class="wz-actions"><span class="back-link" onclick="compraFlow(\'verify\')">'+ICON.arrowL+' Voltar</span>'+
+      '<div class="wz-actions"><span class="back-link" onclick="compraFlow(\'verify\')">Voltar</span>'+
       '<button class="ui-btn ui-btn-primary" onclick="openOtp(\'compra-new\')">'+ICON.send+' Enviar código</button></div>';
   }
   el.innerHTML=h;
@@ -698,7 +705,7 @@ function compraResult(){
   el.innerHTML='<div class="rico ok">'+ICON.check+'</div><h2>E-mail da compra alterado</h2>'+
     '<p>O comprador confirmou a identidade e trocou o e-mail da compra sozinho, sem abrir chamado.</p>'+
     '<div style="margin-top:10px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">tira da fila do atendimento o maior volume de troca de e-mail</span></div>'+
-    '<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">'+ICON.arrowL+' Voltar aos cenários</button></div>';
+    '<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">Voltar aos cenários</button></div>';
   showView('v-result'); setAnno('compra-result');
 }
 
@@ -787,12 +794,12 @@ function setTitMode(m) {
       action.innerHTML = '<button class="ui-btn ui-btn-primary" onclick="startTitChange()">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M4 20h4L18 10l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>' +
         ' Alterar tipo de conta <span class="novo-badge">Novo</span></button>';
-      hint.innerHTML = 'Na proposta, o sistema consulta o CNPJ via SERPRO e valida automaticamente que você é sócio — sem necessidade de atendimento.';
+      hint.innerHTML = 'Na proposta, o sistema consulta o CNPJ via SERPRO e valida automaticamente que você é sócio, sem necessidade de atendimento.';
     } else {
       action.innerHTML = '<button class="ui-btn ui-btn-primary" onclick="startTitChange()">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M4 20h4L18 10l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>' +
         ' Iniciar alteração <span class="novo-badge">Novo</span></button>';
-      hint.innerHTML = 'Na proposta, a plataforma coleta biometria + 2FA do solicitante e consulta SERPRO. Cada sócio valida em sua própria conta Hotmart (biometria + doc + 2FA) — CX só entra se houver problema. Carência de 48h após todas as validações.';
+      hint.innerHTML = 'Na proposta, a plataforma coleta biometria + 2FA do solicitante e consulta SERPRO. Cada sócio valida em sua própria conta Hotmart (biometria + doc + 2FA). CX só entra se houver problema. Carência de 48h após todas as validações.';
     }
     setAnno('tit-conta-proposta');
   } else {
@@ -815,7 +822,7 @@ function startTitAsis() {
 function titAsisGo(step) {
   state.titAsisStep = step;
   var el = document.getElementById('tit-asis-inner');
-  var back = '<span class="back-link" onclick="showView(\'v-tit-conta\')">' + ICON.arrowL + ' Voltar</span>';
+  var back = '<span class="back-link" onclick="showView(\'v-tit-conta\')">Voltar</span>';
   var h = '';
 
   if (step === 'persona') {
@@ -869,7 +876,7 @@ function titAsisGo(step) {
         docsHtml +
         '<div style="margin-top:10px;font-size:12px;color:var(--gray-400);">Certifique-se de que todas as imagens estejam com boa qualidade. <span style="color:var(--black);font-weight:500;cursor:pointer;">Saiba mais</span></div>' +
       '</div>' +
-      '<div class="help-actions"><button class="btn-voltar" onclick="titAsisGo(\'persona\')">' + ICON.arrowL + ' Voltar</button>' +
+      '<div class="help-actions"><button class="btn-voltar" onclick="titAsisGo(\'persona\')">Voltar</button>' +
       '<button class="ui-btn ui-btn-primary" onclick="titAsisGo(\'dados\')">Avançar ' + IC_AR + '</button></div>' +
       '<div style="margin-top:14px;text-align:center;font-size:12px;color:var(--gray-400);">Ou veja como seria na proposta: <span style="color:var(--black);font-weight:600;cursor:pointer;text-decoration:underline;" onclick="titAsisGo(\'proposta-embedded\')">formulário integrado à Hotmart →</span></div>' +
       '</div>';
@@ -903,9 +910,9 @@ function titAsisGo(step) {
       '</div>' +
       '<div style="padding:10px 12px;background:#E6F5EE;border:1px solid #A8D8BF;border-radius:8px;font-size:12.5px;color:#128A4B;display:flex;gap:8px;align-items:flex-start;">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="1.8" style="width:14px;height:14px;flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +
-        '<span>Na proposta, o formulário é exibido diretamente na Hotmart — o usuário já está identificado. Nome, e-mail e especificação são pré-preenchidos automaticamente, eliminando erros e agilizando a abertura do chamado.</span>' +
+        '<span>Na proposta, o formulário é exibido diretamente na Hotmart. O usuário já está identificado. Nome, e-mail e especificação são pré-preenchidos automaticamente, eliminando erros e agilizando a abertura do chamado.</span>' +
       '</div>' +
-      '<div class="help-actions"><button class="btn-voltar" onclick="titAsisGo(\'motispec\')">' + ICON.arrowL + ' Voltar</button>' +
+      '<div class="help-actions"><button class="btn-voltar" onclick="titAsisGo(\'motispec\')">Voltar</button>' +
       '<button class="ui-btn ui-btn-primary" onclick="titAsisGo(\'enviado\')">Simular envio ' + IC_AR + '</button></div>' +
       '</div>';
   } else if (step === 'dados') {
@@ -935,7 +942,7 @@ function titAsisGo(step) {
       '<div class="fld"><label>Selecione o idioma *</label>' +
         '<div class="pill-row" style="flex-wrap:wrap;gap:6px;"><div class="pill-opt sel">Português Brasileiro</div><div class="pill-opt">Espanhol</div><div class="pill-opt">Inglês</div><div class="pill-opt">Francês</div><div class="pill-opt">Italiano</div></div>' +
       '</div>' +
-      '<div class="help-actions" style="padding-top:10px;"><button class="btn-voltar" onclick="titAsisGo(\'motispec\')">' + ICON.arrowL + ' Voltar</button>' +
+      '<div class="help-actions" style="padding-top:10px;"><button class="btn-voltar" onclick="titAsisGo(\'motispec\')">Voltar</button>' +
       '<button class="ui-btn ui-btn-primary" onclick="titAsisGo(\'enviado\')">Avançar ' + IC_AR + '</button></div>' +
       '<div style="text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-200);"><span style="font-size:17px;font-weight:800;color:var(--gray-300);letter-spacing:-.01em;">hotmart</span></div>' +
       '</div></div>';
@@ -1011,7 +1018,7 @@ var TIT_ASIS_SETS = {
       title: 'Conta migrada para PJ',
       dias: '4 dias',
       inter: '9 interações',
-      cost: 'N1 reprovou duas vezes (selfie com baixa iluminação, Contrato Social em print ao invés de PDF) e escalou para N2. Todo o processo validou uma informação — CPF no quadro societário — que o SERPRO retorna em segundos via API.'
+      cost: 'N1 reprovou duas vezes (selfie com baixa iluminação, Contrato Social em print ao invés de PDF) e escalou para N2. Todo o processo validou uma informação (CPF no quadro societário) que o SERPRO retorna em segundos via API.'
     }
   },
   tit_pj_pj: {
@@ -1021,7 +1028,7 @@ var TIT_ASIS_SETS = {
       {t:'me', text:'Enviei os documentos da empresa atual.'},
       {t:'day', text:'1 dia depois'},
       {t:'reprovado', who:'Bruno · Suporte N1', text:'Faltam os documentos da nova empresa e o aceite formal dos demais sócios da empresa atual (precisa ser por e-mail cadastrado na Hotmart). Poderia providenciar?'},
-      {t:'me', text:'A nova empresa é ME — enviei o Contrato Social. Estou solicitando o aceite à minha sócia.'},
+      {t:'me', text:'A nova empresa é ME. Enviei o Contrato Social. Estou solicitando o aceite à minha sócia.'},
       {t:'day', text:'2 dias depois'},
       {t:'agent', who:'Bruno · Suporte N1', text:'Recebemos o Contrato Social. Aguardamos o aceite da outra sócia pelo e-mail cadastrado dela na Hotmart.'},
       {t:'me', text:'Minha sócia enviou o aceite por e-mail.'},
@@ -1104,7 +1111,7 @@ function titWizGo(step) {
 
   if (step === 'biometria') {
     panel.innerHTML = '<h2>Vamos confirmar que é você</h2>' +
-      '<p class="desc">Para alterar a natureza do negócio, precisamos confirmar sua identidade com <b>biometria facial com prova de vida</b> — o mesmo motor já usado no KYC da conta.</p>' +
+      '<p class="desc">Para alterar a natureza do negócio, precisamos confirmar sua identidade com <b>biometria facial com prova de vida</b>, o mesmo motor já usado no KYC da conta.</p>' +
       '<div class="info-row"><b>Conta:</b> Thiago Pereira · ' + (state.titScenario === 'pf-pj' ? 'Pessoa Física' : 'Pessoa Jurídica · CNPJ 12.345.678/0001-99') + '</div>';
     actions.innerHTML = '<span class="back-link" onclick="showView(\'v-tit-conta\')">' + ICON.arrowL + ' Cancelar</span>' +
       '<button class="ui-btn ui-btn-primary" onclick="titOpenFacetec()">' + ICON.face + ' Iniciar biometria</button>';
@@ -1123,7 +1130,7 @@ function titWizGo(step) {
       '<div style="margin-top:12px;font-size:12px;color:var(--gray-400);display:flex;align-items:center;gap:6px;">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px;flex-shrink:0;"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>' +
       ' Consulta segura à Receita Federal via API (SERPRO). <span class="novo-badge">Novo</span></div>';
-    actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'biometria\')">' + ICON.arrowL + ' Voltar</span>' +
+    actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'biometria\')">Voltar</span>' +
       '<button class="ui-btn ui-btn-primary" id="tit-cnpj-btn" onclick="titSerproSearch()">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:15px;height:15px;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>' +
       ' Consultar CNPJ</button>';
@@ -1132,7 +1139,7 @@ function titWizGo(step) {
     var isPfPj2 = state.titScenario === 'pf-pj';
     if (isPfPj2) {
       panel.innerHTML = '<h2>Confirme os dados da empresa</h2>' +
-        '<p class="desc">Dados obtidos via SERPRO. Seu CPF consta no quadro societário — nenhum documento adicional é necessário.</p>' +
+        '<p class="desc">Dados obtidos via SERPRO. Seu CPF consta no quadro societário. Nenhum documento adicional é necessário.</p>' +
         '<div class="serpro-card">' +
           '<div class="serpro-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:13px;height:13px;"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg> Receita Federal · SERPRO</div>' +
           '<div class="serpro-row"><span class="serpro-lbl">Razão Social</span><span class="serpro-val">Thiago Pereira Consultoria ME</span></div>' +
@@ -1145,15 +1152,24 @@ function titWizGo(step) {
           '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="1.8" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +
           '<span>CPF encontrado no quadro societário. A alteração pode ser concluída agora, sem envio de documentos.</span>' +
         '</div>' +
-        '<div style="margin-top:10px;text-align:right;">' +
+        '<div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<span class="back-link" style="font-size:12px;gap:5px;" onclick="titPdfClick()">' + IC_PDF + ' Extrato SERPRO</span>' +
           '<button class="ui-btn ui-btn-ghost" style="font-size:12.5px;padding:6px 12px;" onclick="titShowDocUpload()">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>' +
           ' Alterar informações</button>' +
+        '</div>' +
+        '<div style="margin-top:6px;text-align:center;">' +
+          '<span class="back-link" style="font-size:12px;color:var(--gray-400);" onclick="titSerproValidar()">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:12px;height:12px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v.4M12 11v5" stroke-linecap="round"/></svg>' +
+          ' Como validar esses dados?</span>' +
         '</div>';
-      actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'cnpj\')">' + ICON.arrowL + ' Voltar</span>' +
-        '<button class="ui-btn ui-btn-primary" onclick="titShowTwoFA()">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M20 6L9 17l-5-5"/></svg>' +
-        ' Confirmar alteração</button>';
+      actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'cnpj\')">Voltar</span>' +
+        '<div style="display:flex;gap:10px;align-items:center;">' +
+          '<span class="back-link" style="display:inline-flex;gap:5px;" onclick="titContinuarDepois()">' + IC_CLOCK + ' Continuar depois</span>' +
+          '<button class="ui-btn ui-btn-primary" onclick="titShowTwoFA()">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M20 6L9 17l-5-5"/></svg>' +
+          ' Confirmar alteração</button>' +
+        '</div>';
     } else {
       panel.innerHTML = '<h2>Confirme os dados da nova empresa</h2>' +
         '<p class="desc">Ao confirmar, notificações serão enviadas a cada sócio da nova empresa para que validem sua identidade em suas próprias contas Hotmart. A alteração só será efetivada após todas as validações.</p>' +
@@ -1165,13 +1181,19 @@ function titWizGo(step) {
           '<div class="serpro-row"><span class="serpro-lbl">Situação</span><span class="serpro-val"><span class="status-ativa">● ATIVA</span></span></div>' +
           '<div class="serpro-row serpro-qsa"><span class="serpro-lbl">Quadro Societário</span><span class="serpro-val">' +
             '<div class="qsa-item" style="justify-content:space-between;"><span><b>Thiago Pereira</b> · CPF 115.***.**6-94 · Sócio</span><svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2.5" style="width:16px;height:16px;flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg></div>' +
-            '<div class="qsa-item" style="justify-content:space-between;margin-top:6px;"><span><b>Maria Santos</b> · CPF 042.***.**3-17 · Sócia <span style="color:var(--gray-500);">— aceite pendente</span></span><svg viewBox="0 0 24 24" fill="none" stroke="#B4740A" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5M12 16v.4"/></svg></div>' +
+            '<div class="qsa-item" style="justify-content:space-between;margin-top:6px;"><span><b>Maria Santos</b> · CPF 042.***.**3-17 · Sócia <span style="color:var(--gray-500);">(aceite pendente)</span></span><svg viewBox="0 0 24 24" fill="none" stroke="#B4740A" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5M12 16v.4"/></svg></div>' +
           '</span></div>' +
         '</div>' +
-        '<div style="margin-top:8px;text-align:right;">' +
+        '<div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<span class="back-link" style="font-size:12px;gap:5px;" onclick="titPdfClick()">' + IC_PDF + ' Extrato SERPRO</span>' +
           '<button class="ui-btn ui-btn-ghost" style="font-size:12.5px;padding:6px 12px;" onclick="titShowDocUpload()">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>' +
           ' Alterar informações</button>' +
+        '</div>' +
+        '<div style="margin-top:6px;text-align:center;">' +
+          '<span class="back-link" style="font-size:12px;color:var(--gray-400);" onclick="titSerproValidar()">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:12px;height:12px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v.4M12 11v5" stroke-linecap="round"/></svg>' +
+          ' Como validar esses dados?</span>' +
         '</div>' +
         '<div style="margin-top:14px;">' +
           '<div style="font-size:11px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Notificação da sócia</div>' +
@@ -1190,21 +1212,15 @@ function titWizGo(step) {
           '<div id="tit-no-account" style="display:none;">' +
             '<div class="field-label">E-mail para envio do convite</div>' +
             '<div class="field-box"><input style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" placeholder="email@externo.com"></div>' +
-            '<div style="margin-top:10px;padding:10px 12px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;">' +
-              '<div style="font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">O que ela precisará fazer</div>' +
-              '<ul style="margin:0;padding-left:16px;font-size:12.5px;color:var(--gray-500);line-height:1.8;">' +
-                '<li>Criar uma conta Hotmart</li>' +
-                '<li>Enviar RG ou CNH (documento de identidade)</li>' +
-                '<li>Realizar biometria facial com prova de vida</li>' +
-                '<li>Confirmar com código 2FA</li>' +
-              '</ul>' +
-            '</div>' +
           '</div>' +
         '</div>';
-      actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'cnpj\')">' + ICON.arrowL + ' Voltar</span>' +
-        '<button class="ui-btn ui-btn-primary" onclick="titShowTwoFA()">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:15px;height:15px;"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>' +
-        ' Continuar</button>';
+      actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'cnpj\')">Voltar</span>' +
+        '<div style="display:flex;gap:10px;align-items:center;">' +
+          '<span class="back-link" style="display:inline-flex;gap:5px;" onclick="titContinuarDepois()">' + IC_CLOCK + ' Continuar depois</span>' +
+          '<button class="ui-btn ui-btn-primary" onclick="titShowTwoFA()">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:15px;height:15px;"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>' +
+          ' Confirmar alteração</button>' +
+        '</div>';
     }
     setAnno('tit-confirmar');
   }
@@ -1231,7 +1247,7 @@ function titShowTwoFA() {
       '<div class="choice" data-ch="sms" onclick="titChSelect(this)"><div class="choice-head"><h4>SMS</h4></div><p>(11) 9****-8901</p></div>' +
     '</div>';
   actions.innerHTML =
-    '<span class="back-link" onclick="titWizGo(\'confirmar\')">' + ICON.arrowL + ' Voltar</span>' +
+    '<span class="back-link" onclick="titWizGo(\'confirmar\')">Voltar</span>' +
     '<button class="ui-btn ui-btn-primary" onclick="openOtp(\'tit-2fa\')">' +
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>' +
     ' Enviar código</button>';
@@ -1263,7 +1279,7 @@ function titShowDocUpload() {
       '<span>A análise manual pelo time de atendimento pode levar até <b>3 dias úteis</b>. Você receberá uma notificação quando concluída.</span>' +
     '</div>';
   actions.innerHTML =
-    '<span class="back-link" onclick="titWizGo(\'confirmar\')">' + ICON.arrowL + ' Voltar</span>' +
+    '<span class="back-link" onclick="titWizGo(\'confirmar\')">Voltar</span>' +
     '<button class="ui-btn ui-btn-primary" onclick="titGoDocResult()">' +
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>' +
     ' Enviar para análise</button>';
@@ -1286,7 +1302,7 @@ function titGoDocResult() {
           '<div style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px;flex-shrink:0;margin-top:2px;color:var(--gray-400);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Janela de segurança de 24–72h após aprovação</span></div>' +
         '</div>' +
       '</div>' +
-      '<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">' + ICON.arrowL + ' Voltar aos cenários</button></div>';
+      '<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">Voltar aos cenários</button></div>';
     showView('v-tit-result');
     setAnno('tit-result-' + state.titScenario);
   }, 900);
@@ -1327,7 +1343,7 @@ function titGoResult() {
         '<div style="font-weight:600;">Thiago Pereira Consultoria ME</div>' +
         '<div style="font-family:monospace;color:var(--gray-500);margin-top:2px;">CNPJ 12.345.678/0001-99</div>' +
         '</div>' +
-        '<div style="margin-top:10px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">resolução em minutos, sem abrir chamado — SERPRO + biometria substituem análise manual.</span></div>';
+        '<div style="margin-top:10px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">resolução em minutos, sem abrir chamado. SERPRO + biometria substituem análise manual.</span></div>';
     } else {
       h = '<h2>Aguardando validação dos sócios</h2>' +
         '<p style="font-size:13.5px;color:var(--gray-500);margin-bottom:18px;">Notificações enviadas. Cada sócio deve confirmar sua identidade em sua própria conta Hotmart. A alteração só será efetivada após todas as validações.</p>' +
@@ -1346,27 +1362,34 @@ function titGoResult() {
             '<div class="st-info">' +
               '<div class="st-name">Maria Santos</div>' +
               '<div class="st-status pending">E-mail enviado · aguardando validação</div>' +
-              '<div class="st-note">Não possui conta Hotmart — receberá link para criar conta e validar identidade (biometria + documento + 2FA)</div>' +
+              '<div class="st-note">Não possui conta Hotmart. Receberá link para criar conta e validar identidade (biometria + documento + 2FA)</div>' +
             '</div>' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="#B4740A" stroke-width="2" style="width:18px;height:18px;flex-shrink:0;"><circle cx="12" cy="12" r="9" fill="#FEF3C7" stroke="#D97706"/><path d="M12 7v5.5M12 16.5v.01" stroke-linecap="round"/></svg>' +
           '</div>' +
         '</div>' +
         '<div class="carencia-timeline">' +
           '<div class="carencia-title">O que acontece a seguir</div>' +
-          '<div class="ct-step done"><div class="ct-dot done"></div><div class="ct-body"><b>Você confirmou</b> — biometria + 2FA validados</div></div>' +
-          '<div class="ct-step pending"><div class="ct-dot pending"></div><div class="ct-body"><b>Maria Santos valida</b> — biometria + documento + 2FA na conta dela</div></div>' +
+          '<div class="ct-step done"><div class="ct-dot done"></div><div class="ct-body"><b>Você confirmou</b>: biometria + 2FA validados</div></div>' +
+          '<div class="ct-step pending"><div class="ct-dot pending"></div><div class="ct-body"><b>Maria Santos valida</b>: biometria + documento + 2FA na conta dela</div></div>' +
           '<div class="ct-step future"><div class="ct-dot future"></div><div class="ct-body" style="flex:1;">' +
             '<div class="sec-window" style="margin:0 0 6px;">' +
               '<b>Janela de segurança (24–72h)</b><br>Enviamos um aviso aos canais de contato cadastrados. Se não foi você, é possível contestar e reverter a alteração neste período. Saques ficam bloqueados temporariamente por segurança.' +
             '</div>' +
             '<span class="notfixed" onclick="showToast(\'Contestação registrada, alteração revertida.\')">' + ICON.warn + ' Não fui eu, contestar alteração</span>' +
           '</div></div>' +
-          '<div class="ct-step future"><div class="ct-dot future"></div><div class="ct-body"><b>Alteração efetivada</b> — conta migrada para o novo CNPJ</div></div>' +
+          '<div class="ct-step future"><div class="ct-dot future"></div><div class="ct-body"><b>Alteração efetivada</b>: conta migrada para o novo CNPJ</div></div>' +
         '</div>' +
         '<div style="margin-top:14px;padding:10px 13px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;font-size:12.5px;color:var(--gray-500);">CX será acionado apenas se houver problema na validação de algum sócio. Sócios sem conta Hotmart recebem link de cadastro simplificado no e-mail.</div>' +
-        '<div style="margin-top:10px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">sem documentos físicos. Prazo: ~1–2 dias após aceite dos sócios, contra os 9 dias do processo atual.</span></div>';
+        '<div style="margin-top:10px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">sem documentos físicos. Prazo: ~1–2 dias após aceite dos sócios, contra os 9 dias do processo atual.</span></div>' +
+        '<div style="margin-top:20px;padding:14px 16px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:10px;">' +
+          '<div style="font-size:11.5px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Simulação · perspectiva da sócia</div>' +
+          '<p style="font-size:13px;color:var(--gray-500);margin:0 0 12px;line-height:1.5;">Veja o e-mail que Maria Santos recebe e simule a experiência dela ao confirmar ou recusar.</p>' +
+          '<button class="ui-btn ui-btn-outline" style="width:100%;" onclick="showView(\'v-tit-socia-email\')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>' +
+          ' Ver e-mail da sócia</button>' +
+        '</div>';
     }
-    h += '<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">' + ICON.arrowL + ' Voltar aos cenários</button></div>';
+    h += '<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">Voltar aos cenários</button></div>';
     el.innerHTML = h;
     showView('v-tit-result');
     setAnno('tit-result-' + state.titScenario);
@@ -1375,7 +1398,7 @@ function titGoResult() {
 
 /* Anotações — titularidade */
 ANNO['tit-conta-hoje'] = { title:'Minha Conta · Titularidade', step:'Como é hoje', secs:[
-  S('O que o usuário encontra','do',['O campo "Natureza do negócio" está bloqueado. Alterar a natureza da conta — de PF para PJ, ou de um CNPJ para outro — só é possível abrindo um chamado no atendimento, com envio de documentos e selfie.']),
+  S('O que o usuário encontra','do',['O campo "Natureza do negócio" está bloqueado. Alterar a natureza da conta (de PF para PJ, ou de um CNPJ para outro) só é possível abrindo um chamado no atendimento, com envio de documentos e selfie.']),
   S('Impacto operacional','check',['Qualquer solicitação gera um ticket com validação manual: documento, selfie, QSA, aceite de sócios. Casos PJ envolvem N2 e múltiplas interações.']),
   S('Custo','safe',['Alterações de titularidade estão entre os subtipos de maior complexidade e DSAT no motivo "Dados da Conta".'])
 ]};
@@ -1385,9 +1408,9 @@ ANNO['tit-conta-proposta'] = { title:'Minha Conta · Titularidade', step:'Propos
   S('Impacto','safe',['Elimina envio de documentos para os casos onde a vinculação CPF-CNPJ já existe no QSA. Para PJ→PJ, reduz 9 dias para ~1 dia útil.'])
 ]};
 ANNO['tit-biometria'] = { title:'Biometria', step:'Verificação de identidade', secs:[
-  S('O que a pessoa faz','do',['Realiza captura facial com prova de vida (liveness) — o mesmo motor FaceTec usado no KYC da conta.']),
+  S('O que a pessoa faz','do',['Realiza captura facial com prova de vida (liveness), o mesmo motor FaceTec usado no KYC da conta.']),
   S('Bastidores','check',['FaceTec compara o rosto com o documento já cadastrado na conta e detecta foto, vídeo ou deepfake.']),
-  S('Por que é seguro','safe',['Garante que é a pessoa real e titular, sem selfie manual enviada por ticket — mais robusto e consistente.'])
+  S('Por que é seguro','safe',['Garante que é a pessoa real e titular, sem selfie manual enviada por ticket. Mais robusto e consistente.'])
 ]};
 ANNO['tit-cnpj'] = { title:'Consulta CNPJ via SERPRO', step:'Validação automática', secs:[
   S('O que acontece','do',['A plataforma consulta a API da Receita Federal (SERPRO) com o CNPJ informado, retornando razão social, situação e quadro societário em tempo real.']),
@@ -1397,20 +1420,283 @@ ANNO['tit-cnpj'] = { title:'Consulta CNPJ via SERPRO', step:'Validação automá
 ANNO['tit-confirmar'] = { title:'Confirmação + 2FA', step:'Último passo antes da validação', secs:[
   S('O que a pessoa faz','do',['Confere os dados pré-preenchidos pelo SERPRO e confirma com um código de 6 dígitos enviado ao e-mail ou SMS cadastrado (2FA obrigatório em todas as trocas de titularidade).']),
   S('PF→PJ (self-service)','check',['CPF no QSA + biometria + 2FA = alteração imediata, sem CX. O sócio único é o próprio solicitante.']),
-  S('PJ→PJ (múltiplos sócios)','safe',['Após o 2FA do solicitante, cada sócio recebe notificação no e-mail para validar sua identidade (biometria + documento + 2FA) em sua própria conta Hotmart. A alteração só é efetivada após todos validarem.'])
+  S('PJ→PJ (múltiplos sócios)','safe',['Após o 2FA do solicitante, cada sócio recebe um e-mail. Se já tem conta Hotmart, autentica pela própria conta (biometria + 2FA). Se não tem conta, escolhe entre: (1) criar conta Hotmart e confirmar com biometria + documento + 2FA, ou (2) enviar documentos sem criar conta — nesse caso o documento com QR Code é validado automaticamente via API (CIN/Gov.br, CNH/SENATRAN); sem QR Code, o time de CX faz a análise manual. A alteração só é efetivada após todos os sócios validarem.'])
 ]};
 ANNO['tit-result-pf-pj'] = { title:'Conta migrada', step:'Desfecho · PF→PJ', secs:[
   S('O que aconteceu','do',['Biometria validou a identidade; SERPRO confirmou o CPF no QSA. Conta alterada em minutos, sem ticket.']),
   S('Contraste com hoje','check',['Hoje: 4 dias, 9 interações, dois reenvios, escalonamento N2. Na proposta: minutos, sem atendimento humano.']),
-  S('Escala','safe',['Alterações PF→PJ são frequentes em criadores que abrem empresa para formalizar a atividade — um caso de alto volume.'])
+  S('Escala','safe',['Alterações PF→PJ são frequentes em criadores que abrem empresa para formalizar a atividade. Um caso de alto volume.'])
 ]};
 ANNO['tit-result-pj-pj'] = { title:'Aguardando sócios', step:'Desfecho · PJ→PJ', secs:[
   S('O que aconteceu','do',['Solicitante validou biometria + 2FA. Cada sócio da nova empresa recebeu e-mail com link para validar sua identidade (biometria + documento + 2FA) em sua própria conta Hotmart. Após todos validarem, entra a carência de 48h antes da efetivação.']),
-  S('Sócio sem conta Hotmart','check',['Recebe link para criar conta simplificada e validar a identidade antes de confirmar. CX só entra se houver problema nessa validação.']),
+  S('Sócio sem conta Hotmart','check',['Recebe e-mail com duas opções: (1) criar conta Hotmart e confirmar via biometria + documento + 2FA, ou (2) enviar documentos sem criar conta. QR Code validado automaticamente via API Gov.br / SENATRAN / PF; sem QR Code vai para CX.']),
   S('Melhoria vs hoje','safe',['Hoje: 9 dias, 13 interações, perda de contexto, reenvio de documentos físicos. Na proposta: ~1–2 dias, sem documentos, sem CX proativo.'])
 ]};
 ANNO['tit-asis-persona'] = { title:'Abertura de chamado', step:'Titularidade · Como é hoje', secs:[
-  S('O que o usuário faz','do',['Identifica seu perfil — Produtor ou Afiliado — para iniciar a solicitação no portal de suporte.']),
+  S('O que o usuário faz','do',['Identifica seu perfil (Produtor ou Afiliado) para iniciar a solicitação no portal de suporte.']),
   S('Custo já começa aqui','check',['A partir desta etapa, a resolução depende integralmente do atendimento humano.']),
   S('Ponto de atenção','safe',['Nenhuma triagem ou pré-validação acontece aqui: o ticket vai para a fila geral antes de qualquer checagem.'])
 ]};
+
+ANNO['socia-conta'] = { title:'Sócia · Criar conta', step:'Início do fluxo', secs:[
+  S('O que a sócia faz','do',['Cria uma conta Hotmart com o e-mail do convite e preenche os dados básicos de cadastro.']),
+  S('O que roda por trás','check',['Conta vinculada ao CPF da sócia, já presente no quadro societário validado pelo SERPRO. A biometria + 2FA finais garantem que é a própria pessoa.']),
+  S('Por que é necessário','safe',['A validação forte de identidade (biometria facial + 2FA) exige uma conta Hotmart ativa como âncora segura.'])
+]};
+ANNO['socia-doc'] = { title:'Sócia · Documento de identidade', step:'Validação automática por QR Code', secs:[
+  S('Documentos aceitos','do',['RG (CIN · novo modelo 2022+), CNH ou RNM. Passaporte não é aceito pois o padrão ICAO do chip NFC não é suportado neste fluxo.']),
+  S('Validação automática via API','check',[
+    'CIN (novo RG): QR Code lido e verificado via API Gov.br / Confia.gov.br. Dados assinados digitalmente pelo SERPRO/ITI. Resposta em segundos.',
+    'CNH: QR Code verificado via API SENATRAN/DENATRAN (RENACH). Retorna nome, CPF e validade do condutor em tempo real.',
+    'RNM: versões recentes emitidas pela Polícia Federal têm QR Code verificável via API SISCART (PF).'
+  ]),
+  S('Sem QR Code legível','safe',['PDF sem QR Code vai para análise manual do time de CX. A selfie segurando o documento serve como segunda evidência. Prazo estimado: até 3 dias úteis.'])
+]};
+ANNO['socia-verif'] = { title:'Sócia · Verificação em andamento', step:'Processamento automático', secs:[
+  S('O que o sistema faz','do',['Lê o QR Code do PDF enviado, chama a API do órgão emissor (Gov.br, SENATRAN ou PF) e valida os dados retornados contra o CPF no QSA da empresa (via SERPRO).']),
+  S('Selfie + documento','check',['A selfie segurando o documento adiciona prova de presença sem exigir biometria FaceTec, reduzindo a fricção para quem não tem conta Hotmart. O CX valida a selfie como etapa final.']),
+  S('Fallback automático','safe',['QR ausente, ilegível ou API indisponível → o caso cai automaticamente para análise manual do CX, sem que o sócio precise reenviar nada.'])
+]};
+ANNO['socia-cx'] = { title:'Sócia · Aguardando CX', step:'Análise manual da selfie', secs:[
+  S('O que acontece','do',['O time de CX valida a selfie com o documento. Com QR Code já verificado automaticamente, o CX só precisa conferir a prova de presença (selfie), reduzindo muito o tempo de análise.']),
+  S('Impacto vs hoje','check',['Fluxo atual: sócio envia e-mail com documentos → CX confere tudo manualmente. Na proposta: QR Code elimina a conferência do documento; CX foca só na selfie.']),
+  S('Prazo','safe',['Até 3 dias úteis. O sócio recebe notificação por e-mail ao concluir. A alteração de titularidade só é efetivada após todos os sócios validarem.'])
+]};
+ANNO['socia-confirmado'] = { title:'Sócia · Identidade confirmada', step:'Validação concluída', secs:[
+  S('O que acontece','do',['Identidade da sócia verificada com sucesso. A alteração de titularidade só é efetivada após todos os sócios do QSA confirmarem e a carência de segurança de 24 a 72h.']),
+  S('Carência de segurança','check',['Janela de 24 a 72h após todas as confirmações permite reverter em caso de fraude ou identidade roubada, antes da efetivação irreversível.']),
+  S('Notificação em cascata','safe',['Thiago Pereira (solicitante) é notificado a cada confirmação de sócio. Transparência total sobre o andamento da solicitação.'])
+]};
+
+/* ═══════════ Fluxo da sócia (e-mail de confirmação) ═══════════ */
+var SOCIA_PATH = null;
+
+var SOCIA_STEPS_CONTA  = ['Criar conta', 'Documento', 'Biometria', '2FA', 'Confirmado'];
+var SOCIA_STEPS_DOCS   = ['Enviar documentos', 'Verificação', 'Aguardando CX'];
+
+function titSociaEmailCta(path) {
+  SOCIA_PATH = path;
+  showView('v-tit-socia-flow');
+  sociaFlowGo(0);
+}
+
+function sociaFlowGo(stepIdx) {
+  var steps = SOCIA_PATH === 'criar-conta' ? SOCIA_STEPS_CONTA : SOCIA_STEPS_DOCS;
+  var stepsHtml = '';
+  steps.forEach(function(s, idx) {
+    var cls = idx < stepIdx ? 'done' : (idx === stepIdx ? 'active' : '');
+    var mark = idx < stepIdx
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:13px;height:13px;"><path d="M5 12.5l4.5 4.5L19 7"/></svg>'
+      : (idx + 1);
+    stepsHtml += '<div class="wz-step ' + cls + '">' + (idx > 0 ? '<div class="wz-line"></div>' : '') + '<div class="dot">' + mark + '</div><div class="lbl">' + s + '</div></div>';
+  });
+  document.getElementById('socia-wz-steps').innerHTML = stepsHtml;
+
+  var panel  = document.getElementById('socia-wz-panel');
+  var actions = document.getElementById('socia-wz-actions');
+
+  if (SOCIA_PATH === 'criar-conta') {
+    if (stepIdx === 0) {
+      document.getElementById('socia-breadcrumb').textContent = 'Criar conta Hotmart';
+      panel.innerHTML =
+        '<h2>Crie sua conta Hotmart</h2>' +
+        '<p class="desc">Para confirmar sua participação no quadro societário, crie uma conta gratuita. Você precisará confirmar sua identidade nos próximos passos.</p>' +
+        '<div class="field-label">Nome completo</div>' +
+        '<div class="field-box" style="margin-bottom:10px;"><input style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="Maria Santos"></div>' +
+        '<div class="field-label">E-mail</div>' +
+        '<div class="field-box" style="margin-bottom:10px;"><input style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="maria.santos@empresa.com.br"></div>' +
+        '<div class="field-label">Senha</div>' +
+        '<div class="field-box"><input type="password" style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="••••••••"></div>';
+      actions.innerHTML =
+        '<span class="back-link" onclick="showView(\'v-tit-socia-email\')">Voltar</span>' +
+        '<button class="ui-btn ui-btn-primary" onclick="sociaFlowGo(1)">Criar conta</button>';
+    } else if (stepIdx === 1) {
+      document.getElementById('socia-breadcrumb').textContent = 'Enviar documento de identidade';
+      panel.innerHTML =
+        '<h2>Envie seu documento</h2>' +
+        '<p class="desc">Para validar sua identidade, envie uma foto do seu documento oficial com foto (RG, CNH ou RNM).</p>' +
+        '<div style="border:1.5px dashed var(--gray-300);border-radius:10px;padding:22px;text-align:center;cursor:pointer;background:var(--gray-100);margin-bottom:14px;" onclick="showToast(\'Arquivo selecionado\')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:30px;height:30px;margin:0 auto 8px;display:block;color:var(--gray-400);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+          '<div style="font-size:13px;color:var(--gray-500);">Clique para selecionar</div>' +
+          '<div style="font-size:11.5px;color:var(--gray-400);margin-top:4px;">RG, CNH ou RNM · frente e verso · JPG, PNG ou PDF</div>' +
+        '</div>' +
+        '<div style="padding:10px 12px;background:#E6F5EE;border:1px solid #A8D8BF;border-radius:8px;font-size:12.5px;color:#128A4B;display:flex;gap:8px;align-items:flex-start;">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="1.8" style="width:15px;height:15px;flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v.4M12 11v5" stroke-linecap="round"/></svg>' +
+          '<span>Documentos com QR Code (novo RG, CNH digital) são validados automaticamente via consulta oficial.</span>' +
+        '</div>';
+      actions.innerHTML =
+        '<span class="back-link" onclick="sociaFlowGo(0)">Voltar</span>' +
+        '<button class="ui-btn ui-btn-primary" onclick="sociaFlowGo(2)">Enviar documento</button>';
+    } else if (stepIdx === 2) {
+      document.getElementById('socia-breadcrumb').textContent = 'Biometria facial';
+      panel.innerHTML =
+        '<h2>Confirme que é você</h2>' +
+        '<p class="desc">Posicione seu rosto no contorno. Faremos a captura com prova de vida para garantir que você é a pessoa do documento.</p>';
+      actions.innerHTML =
+        '<span class="back-link" onclick="sociaFlowGo(1)">Voltar</span>' +
+        '<button class="ui-btn ui-btn-primary" onclick="sociaFacetec()">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="2.4"/><path d="M6.5 18a5.5 5.5 0 0111 0"/></svg>' +
+        ' Iniciar biometria</button>';
+    } else if (stepIdx === 3) {
+      document.getElementById('socia-breadcrumb').textContent = 'Verificação de segurança';
+      panel.innerHTML =
+        '<h2>Confirme com código</h2>' +
+        '<p class="desc">Enviamos um código de 6 dígitos para <b>maria.santos@empresa.com.br</b>. Digite-o para concluir a confirmação.</p>';
+      actions.innerHTML =
+        '<span class="back-link" onclick="sociaFlowGo(2)">Voltar</span>' +
+        '<button class="ui-btn ui-btn-primary" onclick="openOtp(\'socia-2fa\')">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>' +
+        ' Enviar código</button>';
+    } else if (stepIdx === 4) {
+      document.getElementById('socia-breadcrumb').textContent = 'Identidade confirmada';
+      panel.innerHTML =
+        '<div class="rico ok">' + ICON.check + '</div>' +
+        '<h2>Identidade confirmada</h2>' +
+        '<p>Sua participação no quadro societário foi verificada. A solicitação de troca de titularidade prosseguirá após a validação de todos os sócios.</p>' +
+        '<div style="margin:14px 0;padding:12px 14px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:10px;font-size:13px;color:var(--gray-500);line-height:1.6;">' +
+          'A Hotmart notificará Thiago Pereira sobre a sua confirmação. A alteração será efetivada após a carência de segurança de 24 a 72h.' +
+        '</div>';
+      actions.innerHTML =
+        '<div></div><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">Voltar aos cenários</button>';
+    }
+  } else {
+    if (stepIdx === 0) {
+      document.getElementById('socia-breadcrumb').textContent = 'Enviar documentos';
+      panel.innerHTML =
+        '<h2>Confirme sua identidade</h2>' +
+        '<p class="desc">Sem precisar criar uma conta, você pode confirmar sua participação enviando os documentos abaixo.</p>' +
+        '<div class="field-label" style="margin-top:4px;">1. Selfie segurando o documento</div>' +
+        '<div style="border:1.5px dashed var(--gray-300);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:var(--gray-100);margin-bottom:12px;" onclick="showToast(\'Selfie selecionada\')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:26px;height:26px;margin:0 auto 6px;display:block;color:var(--gray-400);"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="2.4"/><path d="M6.5 18a5.5 5.5 0 0111 0"/></svg>' +
+          '<div style="font-size:12.5px;color:var(--gray-500);">Foto com rosto visível segurando o documento</div>' +
+        '</div>' +
+        '<div class="field-label">2. PDF do documento de identidade</div>' +
+        '<div style="border:1.5px dashed var(--gray-300);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:var(--gray-100);margin-bottom:14px;" onclick="showToast(\'PDF selecionado\')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:26px;height:26px;margin:0 auto 6px;display:block;color:var(--gray-400);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+          '<div style="font-size:12.5px;color:var(--gray-500);">RG, CNH ou RNM em PDF · preferencialmente com QR Code</div>' +
+        '</div>' +
+        '<div style="padding:10px 12px;background:#E6F5EE;border:1px solid #A8D8BF;border-radius:8px;font-size:12.5px;color:#128A4B;display:flex;gap:8px;align-items:flex-start;">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="1.8" style="width:15px;height:15px;flex-shrink:0;margin-top:1px;"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>' +
+          '<span>Documentos com QR Code são validados automaticamente. PDFs sem QR Code passam por análise manual do time de CX.</span>' +
+        '</div>';
+      actions.innerHTML =
+        '<span class="back-link" onclick="showView(\'v-tit-socia-email\')">Voltar</span>' +
+        '<button class="ui-btn ui-btn-primary" onclick="sociaFlowGo(1)">Enviar documentos</button>';
+    } else if (stepIdx === 1) {
+      document.getElementById('socia-breadcrumb').textContent = 'Verificando documentos';
+      panel.innerHTML =
+        '<h2>Verificando documentos</h2>' +
+        '<p class="desc">O sistema está analisando os documentos enviados.</p>' +
+        '<div style="margin:20px 0;display:flex;flex-direction:column;gap:10px;">' +
+          '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:var(--gray-100);border-radius:8px;font-size:13px;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9" fill="#E6F5EE" stroke="#128A4B"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +
+            '<span>QR Code do documento verificado via Receita Federal</span>' +
+          '</div>' +
+          '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:var(--gray-100);border-radius:8px;font-size:13px;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9" fill="#E6F5EE" stroke="#128A4B"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +
+            '<span>Nome e CPF conferem com o Quadro Societário da empresa</span>' +
+          '</div>' +
+          '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:8px;font-size:13px;color:#78350F;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="1.8" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.5M12 16.5v.01" stroke-linecap="round"/></svg>' +
+            '<span>Análise final da selfie em andamento pelo time de CX</span>' +
+          '</div>' +
+        '</div>';
+      actions.innerHTML =
+        '<div></div><button class="ui-btn ui-btn-primary" onclick="sociaFlowGo(2)">Ver resultado</button>';
+    } else if (stepIdx === 2) {
+      document.getElementById('socia-breadcrumb').textContent = 'Aguardando CX';
+      panel.innerHTML =
+        '<div class="rico wait"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5M12 16v.4" stroke-linecap="round"/></svg></div>' +
+        '<h2>Documentos em análise</h2>' +
+        '<p>Os documentos foram recebidos. O QR Code foi validado automaticamente. A selfie passará por análise manual do time de CX.</p>' +
+        '<div style="margin:14px 0;padding:12px 14px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:10px;font-size:13px;color:var(--gray-500);line-height:1.6;">' +
+          '<b>Prazo estimado:</b> até 3 dias úteis. Você receberá um e-mail ao concluir.' +
+        '</div>' +
+        '<div style="margin-top:10px;"><span class="novo-badge">Novo</span> <span style="font-size:12.5px;color:var(--gray-500);">Documentos com QR Code válido dispensam análise manual.</span></div>';
+      actions.innerHTML =
+        '<div></div><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">Voltar aos cenários</button>';
+    }
+  }
+  var _annoMap = {
+    'criar-conta-0':'socia-conta', 'criar-conta-1':'socia-doc',
+    'criar-conta-2':'facetec',     'criar-conta-3':'socia-verif',
+    'criar-conta-4':'socia-confirmado',
+    'enviar-docs-0':'socia-doc',   'enviar-docs-1':'socia-verif',
+    'enviar-docs-2':'socia-cx'
+  };
+  var _k = _annoMap[SOCIA_PATH + '-' + stepIdx];
+  if (_k) setAnno(_k);
+}
+
+function sociaFacetec() {
+  state.titFacetecNext = false;
+  state.sociaFacetecNext = true;
+  document.getElementById('ft-overlay').classList.add('show');
+  document.getElementById('ft-oval').classList.remove('scanning');
+  var btn = document.getElementById('ft-btn');
+  if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="2.4"/><path d="M6.5 18a5.5 5.5 0 0111 0"/></svg> Iniciar captura'; }
+}
+
+/* ═══════════ Popup genérico ═══════════ */
+function openGenericPopup(title, html) {
+  document.getElementById('sim-popup-title').textContent = title;
+  document.getElementById('sim-popup-body').innerHTML = html;
+  document.getElementById('sim-popup').classList.add('show');
+}
+function closeGenericPopup() {
+  document.getElementById('sim-popup').classList.remove('show');
+}
+
+/* ═══════════ Titularidade · helpers SERPRO ═══════════ */
+var IC_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round"/></svg>';
+var IC_PDF = '<svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#CC1818" stroke-width="1.5" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8" stroke="#CC1818" stroke-width="1.5" stroke-linejoin="round"/><text x="6.5" y="17.5" font-size="4.5" fill="currentColor" font-weight="700" font-family="monospace" letter-spacing=".3">PDF</text></svg>';
+
+function titContinuarDepois() {
+  openGenericPopup('Cache de 60 dias',
+    '<p style="font-size:13.5px;color:var(--gray-500);line-height:1.6;">Ao selecionar esta opção, o sistema salva os dados da consulta SERPRO em cache por <b>60 dias</b>. Se o usuário retornar nesse período para concluir a troca, os dados já consultados são reutilizados.</p>' +
+    '<div style="margin:14px 0;padding:12px 14px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;color:var(--gray-600);line-height:1.6;">' +
+      '<b>Por que isso existe?</b><br>Cada consulta à API SERPRO gera um custo. Ao armazenar o resultado em cache, evitamos uma nova cobrança caso o usuário volte e conclua a troca dentro do prazo.' +
+    '</div>' +
+    '<div style="padding:8px 10px;background:#FEF9EC;border:1px solid #FCD34D;border-radius:6px;font-size:12px;color:#78350F;">' +
+      'Esta lógica não é exibida ao usuário final. Aparece aqui apenas para ilustrar o comportamento do sistema no simulador.' +
+    '</div>'
+  );
+}
+
+function titPdfClick() {
+  openGenericPopup('Extrato SERPRO em PDF',
+    '<p style="font-size:13.5px;color:var(--gray-500);line-height:1.6;">O arquivo com os dados obtidos via consulta SERPRO está disponível para download.</p>' +
+    '<div style="margin:14px 0;padding:12px 14px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;line-height:1.7;">' +
+      '<b>O que acontece automaticamente:</b>' +
+      '<ul style="margin:8px 0 0;padding-left:18px;color:var(--gray-500);">' +
+        '<li>O PDF fica disponível para o usuário visualizar e baixar</li>' +
+        '<li>Uma cópia é salva automaticamente no BackOffice da Hotmart</li>' +
+        '<li>O time de CX pode consultar o extrato a qualquer momento para validação ou auditoria</li>' +
+      '</ul>' +
+    '</div>'
+  );
+}
+
+function titSerproValidar() {
+  openGenericPopup('Como validar esses dados',
+    '<p style="font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:14px;">Você pode conferir as informações da empresa nas fontes oficiais do governo:</p>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;">' +
+      '<div style="padding:10px 12px;background:var(--gray-100);border-radius:8px;font-size:13px;">' +
+        '<b style="font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--gray-400);">Razão Social, CNPJ, Natureza Jurídica, Situação e Quadro Societário</b>' +
+        '<br><span style="color:var(--gray-500);">Consulta de CNPJ na Receita Federal</span>' +
+        '<br><a href="https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjok.asp" target="_blank" style="color:var(--orange);font-size:12px;word-break:break-all;">solucoes.receita.fazenda.gov.br/servicos/cnpjreva</a>' +
+        '<br><span style="font-size:11.5px;color:var(--gray-400);">Digite o CNPJ e clique em Consultar.</span>' +
+      '</div>' +
+      '<div style="padding:10px 12px;background:var(--gray-100);border-radius:8px;font-size:13px;">' +
+        '<b style="font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--gray-400);">Simples Nacional</b>' +
+        '<br><span style="color:var(--gray-500);">Verificar se a empresa é optante pelo Simples</span>' +
+        '<br><a href="https://www8.receita.fazenda.gov.br/SimplesNacional/aplicacoes.aspx?id=21" target="_blank" style="color:var(--orange);font-size:12px;word-break:break-all;">www8.receita.fazenda.gov.br/SimplesNacional</a>' +
+      '</div>' +
+      '<div style="padding:10px 12px;background:var(--gray-100);border-radius:8px;font-size:13px;">' +
+        '<b style="font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--gray-400);">Registro na Junta Comercial</b>' +
+        '<br><span style="color:var(--gray-500);">Consulta do ato constitutivo registrado (REDESIM)</span>' +
+        '<br><a href="https://www.redesim.gov.br/" target="_blank" style="color:var(--orange);font-size:12px;">www.redesim.gov.br</a>' +
+      '</div>' +
+    '</div>'
+  );
+}

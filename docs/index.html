@@ -271,6 +271,64 @@
         <div class="mc-view" id="v-tit-result" style="display:none;">
           <div class="result" id="tit-result-inner"></div>
         </div>
+
+        <!-- VIEW: Titularidade — E-mail da sócia -->
+        <div class="mc-view" id="v-tit-socia-email" style="display:none;">
+          <div style="max-width:560px;margin:0 auto;padding:16px 0 32px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <span class="back-link" onclick="showView('v-tit-result')">Voltar ao resultado</span>
+              <span style="font-size:11.5px;color:var(--gray-400);background:var(--gray-100);padding:3px 10px;border-radius:20px;border:1px solid var(--gray-200);">Simulação · e-mail recebido por Maria Santos</span>
+            </div>
+            <!-- Shell de cliente de e-mail -->
+            <div style="background:var(--gray-100);border:1px solid var(--gray-200);border-radius:10px;overflow:hidden;">
+              <!-- Cabeçalho do cliente -->
+              <div style="padding:10px 14px;border-bottom:1px solid var(--gray-200);font-size:12px;color:var(--gray-500);line-height:1.7;">
+                <div><b>De:</b> Hotmart &lt;noreply@hotmart.com&gt;</div>
+                <div><b>Para:</b> maria.santos@empresa.com.br</div>
+                <div><b>Assunto:</b> Confirme sua participação na troca de titularidade</div>
+              </div>
+              <!-- Corpo do e-mail -->
+              <div style="background:#fff;">
+                <img src="cabeçalho-template.jpg" alt="Hotmart" style="width:100%;display:block;">
+                <div style="padding:32px 40px;">
+                  <p style="margin:0 0 14px;font-size:15px;">Olá, <b>Maria Santos</b>.</p>
+                  <p style="margin:0 0 14px;font-size:14px;color:#444;line-height:1.6;">Uma solicitação de <b>troca de titularidade</b> foi iniciada na Hotmart. O solicitante indica que você faz parte do quadro societário da empresa abaixo:</p>
+                  <div style="border:1px solid #e0e0e0;border-radius:8px;padding:14px 18px;margin:0 0 20px;background:#fafafa;">
+                    <div style="font-weight:700;font-size:15px;color:#111;">Nova Empresa Digital Ltda</div>
+                    <div style="font-family:monospace;font-size:13px;color:#666;margin-top:3px;">CNPJ 98.765.432/0001-11</div>
+                    <div style="font-size:12.5px;color:#888;margin-top:4px;">Sociedade Limitada · Situação: Ativa</div>
+                  </div>
+                  <p style="margin:0 0 20px;font-size:14px;color:#444;line-height:1.6;">Para que a alteração seja concluída, precisamos confirmar a sua identidade. Escolha como prefere fazer isso:</p>
+                  <!-- CTAs -->
+                  <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
+                    <a href="#" onclick="titSociaEmailCta('criar-conta'); return false;" style="display:block;background:#F05A28;color:#fff;text-align:center;padding:14px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;">Criar conta Hotmart e confirmar</a>
+                    <a href="#" onclick="titSociaEmailCta('enviar-docs'); return false;" style="display:block;border:1.5px solid #F05A28;color:#F05A28;text-align:center;padding:13px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;background:#fff;">Enviar documentos sem criar conta</a>
+                  </div>
+                  <div style="border-top:1px solid #eee;padding-top:16px;">
+                    <p style="margin:0 0 6px;font-size:12px;color:#999;line-height:1.5;">Se você não reconhece esta solicitação ou não faz parte do quadro societário desta empresa, ignore este e-mail. Nenhuma alteração será feita sem a sua confirmação.</p>
+                    <p style="margin:0;font-size:12px;color:#bbb;">Este link é válido por 7 dias.</p>
+                  </div>
+                </div>
+                <img src="rodape-template.jpg" alt="" style="width:100%;display:block;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Titularidade — Fluxo da sócia -->
+        <div class="mc-view" id="v-tit-socia-flow" style="display:none;">
+          <div style="max-width:480px;margin:0 auto;padding:16px 0 32px;">
+            <div style="margin-bottom:14px;">
+              <span class="back-link" onclick="showView('v-tit-socia-email')">Voltar ao e-mail</span>
+            </div>
+            <div class="wz">
+              <div class="mc-breadcrumb" id="socia-breadcrumb">Confirmação de identidade</div>
+              <div id="socia-wz-steps" class="wz-steps" style="margin-bottom:20px;"></div>
+              <div class="wz-panel" id="socia-wz-panel"></div>
+              <div class="wz-actions" id="socia-wz-actions"></div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -314,6 +372,17 @@
         Iniciar captura
       </button>
       <div class="ft-provider">Biometria por <strong>FaceTec</strong>, o mesmo motor já usado no cadastro/KYC da conta.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ POPUP GENÉRICO ══════════════ -->
+<div class="checkout-modal-overlay" id="sim-popup" onclick="if(event.target===this)closeGenericPopup()">
+  <div class="checkout-modal" style="max-width:440px;">
+    <button class="checkout-modal-close" onclick="closeGenericPopup()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="enotas-step-body left" style="padding-top:36px;">
+      <div class="enotas-step-title" id="sim-popup-title" style="font-size:17px;margin-bottom:12px;"></div>
+      <div id="sim-popup-body"></div>
     </div>
   </div>
 </div>

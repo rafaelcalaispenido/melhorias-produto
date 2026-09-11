@@ -1152,6 +1152,12 @@ function titWizGo(step) {
           '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="1.8" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +
           '<span>CPF encontrado no quadro societário. A alteração pode ser concluída agora, sem envio de documentos.</span>' +
         '</div>' +
+        '<div style="margin-top:14px;padding:12px 14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;">' +
+          '<label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray-600);cursor:pointer;">' +
+            '<input type="checkbox" id="tit-serpro-aceite" style="margin-top:2px;cursor:pointer;"> ' +
+            '<span>Confirmo que os dados acima estão corretos e autorizo a alteração da titularidade da conta.</span>' +
+          '</label>' +
+        '</div>' +
         '<div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">' +
           '<span class="back-link" style="font-size:12px;gap:5px;" onclick="titPdfClick()">' + IC_PDF + ' Extrato SERPRO</span>' +
           '<button class="ui-btn ui-btn-ghost" style="font-size:12.5px;padding:6px 12px;" onclick="titShowDocUpload()">' +
@@ -1166,7 +1172,7 @@ function titWizGo(step) {
       actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'cnpj\')">Voltar</span>' +
         '<div style="display:flex;gap:10px;align-items:center;">' +
           '<span class="back-link" style="display:inline-flex;gap:5px;" onclick="titContinuarDepois()">' + IC_CLOCK + ' Continuar depois</span>' +
-          '<button class="ui-btn ui-btn-primary" onclick="titShowTwoFA()">' +
+          '<button class="ui-btn ui-btn-primary" onclick="titConfirmSerproData(\'pf-pj\')">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M20 6L9 17l-5-5"/></svg>' +
           ' Confirmar alteração</button>' +
         '</div>';
@@ -1183,6 +1189,12 @@ function titWizGo(step) {
             '<div class="qsa-item" style="justify-content:space-between;"><span><b>Thiago Pereira</b> · CPF 115.***.**6-94 · Sócio</span><svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2.5" style="width:16px;height:16px;flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg></div>' +
             '<div class="qsa-item" style="justify-content:space-between;margin-top:6px;"><span><b>Maria Santos</b> · CPF 042.***.**3-17 · Sócia <span style="color:var(--gray-500);">(aceite pendente)</span></span><svg viewBox="0 0 24 24" fill="none" stroke="#B4740A" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5M12 16v.4"/></svg></div>' +
           '</span></div>' +
+        '</div>' +
+        '<div style="margin-top:14px;padding:12px 14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;">' +
+          '<label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray-600);cursor:pointer;">' +
+            '<input type="checkbox" id="tit-serpro-aceite-pj" style="margin-top:2px;cursor:pointer;"> ' +
+            '<span>Confirmo que os dados acima estão corretos. Autorizo o envio de notificações para cada sócio confirmar sua identidade.</span>' +
+          '</label>' +
         '</div>' +
         '<div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">' +
           '<span class="back-link" style="font-size:12px;gap:5px;" onclick="titPdfClick()">' + IC_PDF + ' Extrato SERPRO</span>' +
@@ -1217,7 +1229,7 @@ function titWizGo(step) {
       actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'cnpj\')">Voltar</span>' +
         '<div style="display:flex;gap:10px;align-items:center;">' +
           '<span class="back-link" style="display:inline-flex;gap:5px;" onclick="titContinuarDepois()">' + IC_CLOCK + ' Continuar depois</span>' +
-          '<button class="ui-btn ui-btn-primary" onclick="titShowTwoFA()">' +
+          '<button class="ui-btn ui-btn-primary" onclick="titConfirmSerproData(\'pj-pj\')">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:15px;height:15px;"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>' +
           ' Confirmar alteração</button>' +
         '</div>';
@@ -1234,6 +1246,37 @@ function titOpenFacetec() {
   btn.disabled = false;
   btn.innerHTML = ICON.face + ' Iniciar captura';
   setAnno('tit-biometria');
+}
+
+function titConfirmSerproData(scenario) {
+  var checkboxId = scenario === 'pf-pj' ? 'tit-serpro-aceite' : 'tit-serpro-aceite-pj';
+  var checkbox = document.getElementById(checkboxId);
+
+  if (!checkbox || !checkbox.checked) {
+    showToast('Por favor, confirme que os dados estão corretos.');
+    return;
+  }
+
+  var msg = scenario === 'pf-pj'
+    ? 'Confirmo que os dados estão corretos. Autorizo a alteração da titularidade da minha conta de Pessoa Física para Pessoa Jurídica com o CNPJ informado.'
+    : 'Confirmo que os dados da nova empresa estão corretos. Autorizo o envio de notificações para cada sócio confirmar sua identidade.';
+
+  openSerproConfirmPopup(msg, scenario);
+}
+
+function openSerproConfirmPopup(message, scenario) {
+  var html = '<p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:16px;">' + message + '</p>' +
+    '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
+      '<button class="ui-btn ui-btn-outline" onclick="closeGenericPopup()">Cancelar</button>' +
+      '<button class="ui-btn ui-btn-primary" onclick="titProsseguirAposFirma(\'' + scenario + '\')">Confirmar</button>' +
+    '</div>';
+
+  openGenericPopup('Confirmar alteração', html);
+}
+
+function titProsseguirAposFirma(scenario) {
+  closeGenericPopup();
+  titShowTwoFA();
 }
 
 function titShowTwoFA() {
@@ -1418,9 +1461,10 @@ ANNO['tit-cnpj'] = { title:'Consulta CNPJ via SERPRO', step:'Validação automá
   S('Por que importa','safe',['O CX hoje valida manualmente o que o SERPRO retorna em segundos. A automação elimina reprovações por documento ilegível ou CPF não visível.'])
 ]};
 ANNO['tit-confirmar'] = { title:'Confirmação + 2FA', step:'Último passo antes da validação', secs:[
-  S('O que a pessoa faz','do',['Confere os dados pré-preenchidos pelo SERPRO e confirma com um código de 6 dígitos enviado ao e-mail ou SMS cadastrado (2FA obrigatório em todas as trocas de titularidade).']),
-  S('PF→PJ (self-service)','check',['CPF no QSA + biometria + 2FA = alteração imediata, sem CX. O sócio único é o próprio solicitante.']),
-  S('PJ→PJ (múltiplos sócios)','safe',['Após o 2FA do solicitante, cada sócio recebe um e-mail. Se já tem conta Hotmart, autentica pela própria conta (biometria + 2FA). Se não tem conta, escolhe entre: (1) criar conta Hotmart e confirmar com biometria + documento + 2FA, ou (2) enviar documentos sem criar conta — nesse caso o documento com QR Code é validado automaticamente via API (CIN/Gov.br, CNH/SENATRAN); sem QR Code, o time de CX faz a análise manual. A alteração só é efetivada após todos os sócios validarem.'])
+  S('O que a pessoa faz','do',['Confere os dados pré-preenchidos pelo SERPRO, marca checkbox confirmando que tudo está correto, clica em "Confirmar alteração" (abre popup de confirmação), depois recebe um código de 6 dígitos enviado ao e-mail ou SMS cadastrado (2FA obrigatório em todas as trocas de titularidade).']),
+  S('O checkbox antes de 2FA','check',['Força a pessoa a revisar os dados antes de comprometer-se. Sem marcá-lo, o botão não funciona. Ao clicar em Confirmar, abre um popup reafirmando o que está sendo autorizado. Cancelar volta para a tela anterior sem perder os dados.']),
+  S('PF→PJ (self-service)','safe',['CPF no QSA + biometria + checkbox + 2FA = alteração imediata, sem CX. O sócio único é o próprio solicitante.']),
+  S('PJ→PJ (múltiplos sócios)','safe',['Após o 2FA do solicitante, cada sócio recebe e-mail. Se já tem conta Hotmart, autentica pela própria conta (biometria + 2FA). Se não tem conta, escolhe entre: (1) criar conta Hotmart e confirmar com biometria + documento + 2FA, ou (2) enviar documentos sem criar conta, documentos com QR Code são validados automaticamente via API (CIN/Gov.br, CNH/SENATRAN), sem QR Code o time de CX faz análise manual. Alteração só é efetivada após todos os sócios validarem.'])
 ]};
 ANNO['tit-result-pf-pj'] = { title:'Conta migrada', step:'Desfecho · PF→PJ', secs:[
   S('O que aconteceu','do',['Biometria validou a identidade; SERPRO confirmou o CPF no QSA. Conta alterada em minutos, sem ticket.']),
@@ -1444,13 +1488,17 @@ ANNO['socia-conta'] = { title:'Sócia · Criar conta', step:'Início do fluxo', 
   S('Por que é necessário','safe',['A validação forte de identidade (biometria facial + 2FA) exige uma conta Hotmart ativa como âncora segura.'])
 ]};
 ANNO['socia-doc'] = { title:'Sócia · Documento de identidade', step:'Validação automática por QR Code', secs:[
-  S('Documentos aceitos','do',['RG (CIN · novo modelo 2022+), CNH ou RNM. Passaporte não é aceito pois o padrão ICAO do chip NFC não é suportado neste fluxo.']),
-  S('Validação automática via API','check',[
-    'CIN (novo RG): QR Code lido e verificado via API Gov.br / Confia.gov.br. Dados assinados digitalmente pelo SERPRO/ITI. Resposta em segundos.',
-    'CNH: QR Code verificado via API SENATRAN/DENATRAN (RENACH). Retorna nome, CPF e validade do condutor em tempo real.',
-    'RNM: versões recentes emitidas pela Polícia Federal têm QR Code verificável via API SISCART (PF).'
+  S('Documentos aceitos','do',['RG (CIN, novo modelo 2022+), CNH ou RNM. Passaporte não é aceito pois o padrão de chip não é suportado neste fluxo.']),
+  S('Como funciona o QR Code','check',[
+    'O novo RG (CIN) tem um QR Code impresso que contém dados criptografados e assinados digitalmente. CNH também possui QR Code com informações do condutor. O sistema lê o código e valida a autenticidade com o órgão emissor.',
+    'Não é conferência manual do documento: é uma consulta criptografada aos servidores oficiais. O Gov.br, SENATRAN (CNH) ou PF (RNM) confirmam que aquele documento é genuíno e está ativo.'
   ]),
-  S('Sem QR Code legível','safe',['PDF sem QR Code vai para análise manual do time de CX. A selfie segurando o documento serve como segunda evidência. Prazo estimado: até 3 dias úteis.'])
+  S('Validação automática por API','safe',[
+    'CIN (novo RG): Sistema lê o QR Code do PDF enviado e consulta a API Gov.br / Confia.gov.br. Dados são assinados digitalmente pelo SERPRO/ITI. A resposta vem em segundos: sim ou não, é válido.',
+    'CNH: QR Code verificado contra a API SENATRAN/DENATRAN (banco nacional de dados de condutores). Retorna nome, CPF e validade em tempo real.',
+    'RNM: Polícia Federal valida mediante API SISCART. Confirma a situação migratória.',
+    'Fallback automático: Se o QR Code não estiver legível, for corrompido ou a API cair, o caso cai automaticamente para análise manual do CX. Sem requerer reenvia.'
+  ])
 ]};
 ANNO['socia-verif'] = { title:'Sócia · Verificação em andamento', step:'Processamento automático', secs:[
   S('O que o sistema faz','do',['Lê o QR Code do PDF enviado, chama a API do órgão emissor (Gov.br, SENATRAN ou PF) e valida os dados retornados contra o CPF no QSA da empresa (via SERPRO).']),
@@ -1466,6 +1514,20 @@ ANNO['socia-confirmado'] = { title:'Sócia · Identidade confirmada', step:'Vali
   S('O que acontece','do',['Identidade da sócia verificada com sucesso. A alteração de titularidade só é efetivada após todos os sócios do QSA confirmarem e a carência de segurança de 24 a 72h.']),
   S('Carência de segurança','check',['Janela de 24 a 72h após todas as confirmações permite reverter em caso de fraude ou identidade roubada, antes da efetivação irreversível.']),
   S('Notificação em cascata','safe',['Thiago Pereira (solicitante) é notificado a cada confirmação de sócio. Transparência total sobre o andamento da solicitação.'])
+]};
+
+ANNO['tit-aceite-serpro'] = { title:'Aceite dos dados SERPRO', step:'Confirmação antes de prosseguir', secs:[
+  S('Por que existe o checkbox','do',['Antes de enviar a solicitação para 2FA, a pessoa precisa confirmar que conferiu os dados retornados pela Receita Federal. É um passo de segurança: força a revisão antes de comprometer-se.']),
+  S('O que está no popup','check',[
+    'Uma mensagem clara explicando o que está sendo autorizado, ex: "Confirmo que os dados estão corretos. Autorizo a alteração da titularidade da minha conta."',
+    'Botões "Cancelar" (volta para a tela anterior, permite editar) e "Confirmar" (prossegue para 2FA).',
+    'É um momento de pausa: a pessoa lê, entende o que está acontecendo, e só depois confirma de forma deliberada.'
+  ]),
+  S('Impacto no fluxo','safe',[
+    'Reduz arrependimento e solicitações de reversão: a pessoa já foi explicitamente informada do que está fazendo.',
+    'Aumenta confiança no processo: existem etapas de confirmação claras, não é automático.',
+    'Nos sócios sem conta Hotmart que enviam apenas documentos, o QR Code é validado automaticamente, dispensando essa etapa nesse caso.'
+  ])
 ]};
 
 /* ═══════════ Fluxo da sócia (e-mail de confirmação) ═══════════ */

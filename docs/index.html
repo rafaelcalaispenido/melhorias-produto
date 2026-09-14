@@ -34,19 +34,17 @@
     </div>
 
     <div class="scn-section">
-      <div class="sec-h">E-mail da compra <span class="sub">Comprador</span></div>
+      <div class="sec-h">E-mail da compra <span class="sub">Comprador · 15.998 tickets/semestre</span></div>
       <div class="scn-grid cols2">
         <div class="scn-card" onclick="startCompra()">
-          <div class="risk-line"><span class="scn-tickets"><b>15.998</b> tickets/semestre</span></div>
           <h3>Trocar o e-mail de uma compra</h3>
-          <p>O comprador tem acesso à plataforma e quer trocar o e-mail vinculado a uma compra específica. Valida com os últimos 4 dígitos do cartão.</p>
+          <p>O comprador tem acesso à plataforma e quer trocar o e-mail vinculado a uma compra específica.</p>
           <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </div>
-        <div class="scn-card scn-card-soon">
-          <div class="risk-line"><span class="tag-soon">Em breve</span></div>
+        <div class="scn-card" onclick="startContaCompra()">
           <h3>Trocar o e-mail da conta</h3>
-          <p>O comprador precisa trocar o e-mail principal da conta Hotmart. Fluxo com validacao forte: FaceTec, codigo e carencia de seguranca.</p>
-          <span class="go" style="color:var(--gray-400);">Em construcao</span>
+          <p>O comprador precisa trocar o e-mail principal da conta Hotmart. Validação por dois canais e janela de segurança de até 72h.</p>
+          <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </div>
       </div>
     </div>
@@ -221,6 +219,11 @@
         <!-- VIEW: E-mail da compra (fluxo proposta) -->
         <div class="mc-view" id="v-compra-flow" style="display:none;">
           <div class="wz"><div id="compra-flow-inner"></div></div>
+        </div>
+
+        <!-- VIEW: E-mail da conta · Comprador (fluxo proposta) -->
+        <div class="mc-view" id="v-conta-compra-flow" style="display:none;">
+          <div class="wz"><div id="conta-compra-flow-inner"></div></div>
         </div>
 
         <!-- VIEW: Titularidade — Minha Conta entry -->

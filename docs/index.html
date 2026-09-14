@@ -43,7 +43,7 @@
         </div>
         <div class="scn-card" onclick="startContaCompra()">
           <h3>Trocar o e-mail da conta</h3>
-          <p>O comprador precisa trocar o e-mail principal da conta Hotmart. Validação por dois canais e janela de segurança de até 72h.</p>
+          <p>O comprador precisa trocar o e-mail principal da conta Hotmart. Confirma o acesso por código no e-mail atual ou SMS, valida o novo endereço e aplica uma janela de segurança de 24 a 72h.</p>
           <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </div>
       </div>
@@ -219,6 +219,20 @@
         <!-- VIEW: E-mail da compra (fluxo proposta) -->
         <div class="mc-view" id="v-compra-flow" style="display:none;">
           <div class="wz"><div id="compra-flow-inner"></div></div>
+        </div>
+
+        <!-- VIEW: E-mail da conta · Comprador (entrada) -->
+        <div class="mc-view" id="v-conta-comprador" style="display:none;">
+          <div class="help-wrap">
+            <div class="mc-breadcrumb">Painel / <b>E-mail da conta</b></div>
+            <div class="mc-title" style="margin-bottom:10px;">Trocar o e-mail da conta</div>
+            <div class="seg" id="cc-seg">
+              <button id="ccseg-hoje" class="is-hoje" onclick="setContaCompradorMode('hoje')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Como é hoje</button>
+              <button id="ccseg-prop" class="on" onclick="setContaCompradorMode('proposta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg> Proposta</button>
+            </div>
+            <div id="conta-comprador-inner"></div>
+            <div style="margin-top:22px;"><span class="back-link" onclick="goTo('scr-hub')">Voltar aos cenários</span></div>
+          </div>
         </div>
 
         <!-- VIEW: E-mail da conta · Comprador (fluxo proposta) -->

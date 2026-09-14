@@ -39,8 +39,14 @@
         <div class="scn-card" onclick="startCompra()">
           <div class="risk-line"><span class="scn-tickets"><b>15.998</b> tickets/semestre</span></div>
           <h3>Trocar o e-mail de uma compra</h3>
-          <p>O produtor já troca sozinho (com regras). O comprador não consegue trocar o próprio e precisa abrir chamado.</p>
+          <p>O comprador tem acesso à plataforma e quer trocar o e-mail vinculado a uma compra específica. Valida com os últimos 4 dígitos do cartão.</p>
           <span class="go">Simular <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+        <div class="scn-card scn-card-soon">
+          <div class="risk-line"><span class="tag-soon">Em breve</span></div>
+          <h3>Trocar o e-mail da conta</h3>
+          <p>O comprador precisa trocar o e-mail principal da conta Hotmart. Fluxo com validacao forte: FaceTec, codigo e carencia de seguranca.</p>
+          <span class="go" style="color:var(--gray-400);">Em construcao</span>
         </div>
       </div>
     </div>
@@ -300,6 +306,9 @@
                   </div>
                   <p style="margin:0 0 20px;font-size:14px;color:#444;line-height:1.6;">Para que a alteração seja concluída, precisamos confirmar a sua identidade. Escolha como prefere fazer isso:</p>
                   <!-- CTAs -->
+                  <div style="margin-bottom:14px;padding:10px 14px;background:#FFF4F0;border:1px solid #FBCFBF;border-radius:8px;font-size:13px;color:#8A3010;line-height:1.5;">
+                    Caso não possua uma conta criada na Hotmart, escolha uma das opções abaixo:
+                  </div>
                   <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
                     <a href="#" onclick="titSociaEmailCta('criar-conta'); return false;" style="display:block;background:#F05A28;color:#fff;text-align:center;padding:14px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;">Criar conta Hotmart e confirmar</a>
                     <a href="#" onclick="titSociaEmailCta('enviar-docs'); return false;" style="display:block;border:1.5px solid #F05A28;color:#F05A28;text-align:center;padding:13px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;background:#fff;">Enviar documentos sem criar conta</a>

@@ -116,6 +116,10 @@ function openOtp(kind){
   else if(kind==='compra-new'){ s.innerHTML='Digite o código que enviamos para o <strong>novo e-mail</strong> da compra.'; }
   else if(kind==='tit-2fa'){ s.innerHTML='Digite o código que enviamos para confirmar a solicitação de <strong>troca de titularidade</strong>.'; }
   else if(kind==='socia-2fa'){ s.innerHTML='Digite o código que enviamos para <strong>maria.santos@empresa.com.br</strong> para confirmar sua identidade.'; }
+  else if(kind==='conta-compra-email'){ s.innerHTML='Digite o código que enviamos para o seu <strong>e-mail atual</strong> (t***@email.com).'; }
+  else if(kind==='conta-compra-sms'){ s.innerHTML='Digite o código que enviamos por SMS para <strong>(31) 9 9***-**12</strong>.'; }
+  else if(kind==='conta-compra-secondary'){ s.innerHTML='Digite o código que enviamos para o seu <strong>e-mail de recuperação</strong> (s***@email.com).'; }
+  else if(kind==='conta-compra-new'){ s.innerHTML='Digite o código que enviamos para o <strong>novo e-mail</strong> da conta.'; }
   setAnno('otp-'+kind);
   document.querySelectorAll('#otp-overlay .enotas-otp-box').forEach(function(b){ b.value=''; });
   document.getElementById('otp-overlay').classList.add('show');
@@ -143,6 +147,9 @@ function otpComplete(){
     else if(ctx==='compra-new'){ compraResult(); }  // novo e-mail confirmado
     else if(ctx==='tit-2fa'){ titGoResult(); }
     else if(ctx==='socia-2fa'){ sociaFlowGo(4); }
+    else if(ctx==='conta-compra-email'){ contaCompra1Done(); }
+    else if(ctx==='conta-compra-sms'||ctx==='conta-compra-secondary'){ contaCompra2Done(); }
+    else if(ctx==='conta-compra-new'){ contaCompraResult(); }
     else { openFacetec(); }                        // após confirmar e-mail/telefone
   }, 900);
 }
@@ -809,6 +816,127 @@ ANNO['compra-proposta']={ title:'E-mail da compra', step:'Proposta', secs:[
   S('Situação','do',['O produtor já troca o e-mail de uma compra sozinho, com regras. O comprador ainda não consegue trocar o próprio.']),
   S('Proposta','check',['Habilitar o comprador a trocar sozinho com dois fatores obrigatórios: código por SMS no telefone do checkout e dados do meio de pagamento (cartão: 4 dígitos e validade; PIX: CPF do titular; boleto: número do pedido). Depois informa o novo e-mail e confirma com um código.']),
   S('Impacto','safe',['É o maior volume de troca de e-mail (cerca de 15.998 tickets no semestre), boa parte aberta pelo próprio comprador, com DSAT de 12,19%.']) ]};
+
+/* ═══════════ E-mail da conta · Comprador ═══════════ */
+function startContaCompra(){
+  state.contaCompraOtp1Done=false; state.contaCompraOtp2Done=false; state.contaCompraCh=null;
+  goTo('scr-platform'); showView('v-conta-compra-flow'); contaCompraFlow('verify');
+}
+function contaCompraSteps(active){
+  var labels=['Confirmar identidade','Novo e-mail','Confirmado'];
+  var html='';
+  labels.forEach(function(s,idx){
+    var cls=idx<active?'done':(idx===active?'active':'');
+    var mark=idx<active?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:13px;height:13px;"><path d="M5 12.5l4.5 4.5L19 7"/></svg>':(idx+1);
+    html+='<div class="wz-step '+cls+'">'+(idx>0?'<div class="wz-line"></div>':'')+'<div class="dot">'+mark+'</div><div class="lbl">'+s+'</div></div>';
+  });
+  return '<div class="wz-steps">'+html+'</div>';
+}
+function contaCompraFlow(step){
+  var el=document.getElementById('conta-compra-flow-inner'); var h='';
+  if(step==='verify'){
+    h='<div class="mc-title">Alterar e-mail da conta <span class="novo-badge">Novo</span></div>'+
+      contaCompraSteps(0)+
+      '<div class="wz-panel"><h2>Confirme sua identidade</h2>'+
+      '<p class="desc">Para alterar o e-mail da sua conta, confirme dois fatores de verificação.</p>'+
+      '<div class="factor-section" id="cc-factor-1">'+
+        '<div class="factor-num">1</div>'+
+        '<div style="flex:1;"><h4 style="margin:0 0 2px;font-size:14px;">Código no e-mail atual</h4>'+
+        '<p style="margin:0 0 10px;font-size:13px;color:var(--gray-500);">t***@email.com · confirma que você ainda tem acesso</p>'+
+        '<button class="ui-btn ui-btn-outline" style="font-size:12.5px;padding:6px 13px;" onclick="openOtp(\'conta-compra-email\')">'+ICON.mail+' Enviar código</button></div>'+
+      '</div>'+
+      '<div class="factor-section" id="cc-factor-2">'+
+        '<div class="factor-num">2</div>'+
+        '<div style="flex:1;"><h4 style="margin:0 0 2px;font-size:14px;">Segundo canal de verificação</h4>'+
+        '<p style="margin:0 0 10px;font-size:13px;color:var(--gray-500);">Escolha um canal adicional para confirmar sua identidade.</p>'+
+        '<div class="choice-row" style="margin-bottom:10px;">'+
+          '<div class="choice" data-ccch="sms" onclick="contaCompraCh(this,\'sms\')"><div class="choice-head"><h4>SMS</h4></div><p>(31) 9 9***-**12 · telefone cadastrado</p></div>'+
+          '<div class="choice" data-ccch="secondary" onclick="contaCompraCh(this,\'secondary\')"><div class="choice-head"><h4>E-mail de recuperação</h4></div><p>s***@email.com · canal secundário</p></div>'+
+        '</div>'+
+        '<button class="ui-btn ui-btn-outline" id="cc-ch-btn" style="font-size:12.5px;padding:6px 13px;display:none;" onclick="contaCompraOpenCh()">Enviar código</button>'+
+      '</div></div>'+
+      '</div>'+
+      '<div class="wz-actions"><span class="back-link" onclick="goTo(\'scr-hub\')">Voltar aos cenários</span>'+
+      '<button class="ui-btn ui-btn-primary" id="cc-cta" disabled onclick="contaCompraFlow(\'newemail\')">Continuar</button></div>';
+  } else if(step==='newemail'){
+    h='<div class="mc-title">Novo e-mail da conta <span class="novo-badge">Novo</span></div>'+
+      contaCompraSteps(1)+
+      '<div class="wz-panel"><h2>Qual será o novo e-mail?</h2>'+
+      '<p class="desc">Identidade confirmada. Informe o novo e-mail. Enviaremos um código para confirmar o acesso a ele.</p>'+
+      '<div class="field-label">Novo e-mail</div>'+
+      '<div class="field-box"><input id="cc-new-input" style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="thiago.novo@email.com"></div></div>'+
+      '<div class="wz-actions"><span class="back-link" onclick="contaCompraFlow(\'verify\')">Voltar</span>'+
+      '<button class="ui-btn ui-btn-primary" onclick="openOtp(\'conta-compra-new\')">'+ICON.send+' Enviar código</button></div>';
+  }
+  el.innerHTML=h;
+  setAnno(step==='verify'?'conta-compra-verify':'conta-compra-newemail');
+}
+function contaCompraCh(elm, ch){
+  state.contaCompraCh=ch;
+  document.querySelectorAll('#cc-factor-2 .choice').forEach(function(c){ c.classList.toggle('selected', c.dataset.ccch===ch); });
+  var btn=document.getElementById('cc-ch-btn');
+  if(btn){ btn.style.display=''; btn.innerHTML=(ch==='sms'?ICON.send+' Enviar código por SMS':ICON.mail+' Enviar código por e-mail'); }
+}
+function contaCompraOpenCh(){ openOtp(state.contaCompraCh==='sms'?'conta-compra-sms':'conta-compra-secondary'); }
+function contaCompra1Done(){
+  state.contaCompraOtp1Done=true;
+  var sec=document.getElementById('cc-factor-1');
+  if(sec){
+    sec.innerHTML='<div class="factor-num done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:13px;height:13px;"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>'+
+      '<div style="flex:1;"><h4 style="margin:0 0 2px;font-size:14px;">Código no e-mail atual</h4><p style="margin:0;font-size:13px;color:#128A4B;">Verificado · t***@email.com</p></div>';
+    sec.style.borderColor='#A3D9B6'; sec.style.background='#F0FAF4';
+  }
+  contaCompraCheck();
+}
+function contaCompra2Done(){
+  state.contaCompraOtp2Done=true;
+  var ch=state.contaCompraCh;
+  var label=ch==='sms'?'SMS · (31) 9 9***-**12':'E-mail de recuperação · s***@email.com';
+  var sec=document.getElementById('cc-factor-2');
+  if(sec){
+    sec.innerHTML='<div class="factor-num done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:13px;height:13px;"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>'+
+      '<div style="flex:1;"><h4 style="margin:0 0 2px;font-size:14px;">Segundo canal de verificação</h4><p style="margin:0;font-size:13px;color:#128A4B;">Verificado · '+label+'</p></div>';
+    sec.style.borderColor='#A3D9B6'; sec.style.background='#F0FAF4';
+  }
+  contaCompraCheck();
+}
+function contaCompraCheck(){
+  var cta=document.getElementById('cc-cta'); if(!cta) return;
+  cta.disabled=!(state.contaCompraOtp1Done && state.contaCompraOtp2Done);
+}
+function contaCompraResult(){
+  var el=document.getElementById('result-inner');
+  el.innerHTML=
+    '<div class="rico ok">'+ICON.check+'</div>'+
+    '<h2>Solicitação recebida</h2>'+
+    '<p>A troca de e-mail da conta está em análise. A alteração entrará em vigor em até 72 horas, caso não seja cancelada.</p>'+
+    '<div class="carencia-timeline">'+
+      '<div class="tl-item active"><div class="tl-dot"></div><div class="tl-lbl">Agora</div></div>'+
+      '<div class="tl-bar"></div>'+
+      '<div class="tl-item"><div class="tl-dot"></div><div class="tl-lbl">24h</div></div>'+
+      '<div class="tl-bar"></div>'+
+      '<div class="tl-item"><div class="tl-dot"></div><div class="tl-lbl">72h</div></div>'+
+      '<div class="tl-bar"></div>'+
+      '<div class="tl-item end"><div class="tl-dot"></div><div class="tl-lbl">Troca aplicada</div></div>'+
+    '</div>'+
+    '<div class="carencia-info">'+ICON.warn+'<div>Enviamos um link de cancelamento para <b>t***@email.com</b>. Use-o se não reconhecer esta solicitação.</div></div>'+
+    '<div class="carencia-info" style="margin-top:8px;">'+ICON.mail+'<div>O endereço <b>thiago.novo@email.com</b> receberá uma notificação quando a troca for aplicada.</div></div>'+
+    '<div style="margin-top:26px;"><button class="ui-btn ui-btn-outline" onclick="goTo(\'scr-hub\')">Voltar aos cenários</button></div>';
+  showView('v-result'); setAnno('conta-compra-result');
+}
+
+/* anotações · e-mail da conta comprador */
+ANNO['conta-compra-verify']={ title:'Confirmar identidade', step:'Proposta · E-mail da conta (Comprador)', secs:[
+  S('O que a pessoa faz','do',['Confirma dois fatores: um código no e-mail atual (prova de acesso) e um segundo código por SMS ou e-mail de recuperação (canal independente).']),
+  S('Por que sem FaceTec','check',['Compradores não fazem cadastro biométrico na Hotmart. A validação usa canais de posse (e-mail e telefone) registrados previamente na conta.']),
+  S('Por que dois fatores','safe',['Mesmo que um atacante acesse o e-mail atual, o segundo canal impede a troca. A janela de segurança de até 72h dá tempo adicional para o titular cancelar.']) ]};
+ANNO['conta-compra-newemail']={ title:'Novo e-mail da conta', step:'Proposta · E-mail da conta (Comprador)', secs:[
+  S('O que a pessoa faz','do',['Informa o novo e-mail e confirma o acesso a ele com um código enviado para esse endereço.']),
+  S('Por que confirmar o destino','safe',['Garante que o endereço de destino é real e acessível pela pessoa, evitando lock-out por erro de digitação.']) ]};
+ANNO['conta-compra-result']={ title:'Janela de segurança', step:'Proposta · E-mail da conta (Comprador)', secs:[
+  S('O que acontece','do',['A troca não é imediata. Entra em uma janela de segurança de 24 a 72 horas antes de ser aplicada.']),
+  S('Por que a carência','check',['Sem biometria, a carência é a última linha de defesa. O titular recebe um link de cancelamento no e-mail atual. Se a solicitação foi feita por um atacante, há tempo para reagir.']),
+  S('Notificações','safe',['O e-mail atual recebe o link de cancelamento. O novo e-mail recebe confirmação quando a troca é aplicada. Ambos os canais são notificados para garantir visibilidade.']) ]};
 
 /* ═══════════ Titularidade (Documentos e titularidade) ═══════════ */
 

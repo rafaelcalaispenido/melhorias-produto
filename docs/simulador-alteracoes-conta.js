@@ -827,9 +827,23 @@ function setContaCompradorMode(m){
   document.getElementById('ccseg-hoje').classList.toggle('on', m==='hoje');
   var el=document.getElementById('conta-comprador-inner');
   if(m==='hoje'){
-    el.innerHTML='<div class="mc-card"><h3>Comprador: precisa abrir chamado</h3>'+
-      '<div class="deadend" style="margin:8px 0 14px;">'+IC_ALERT+'<div>Hoje não existe opção de trocar o e-mail da conta pela plataforma. O comprador precisa abrir um chamado no atendimento.</div></div>'+
-      '<button class="btn-voltar" style="border-color:var(--gray-300);color:var(--black);" onclick="startAsis(\'compra\')">'+IC_CH+' Abrir chamado</button></div>';
+    el.innerHTML=
+      '<div class="mc-tabs">'+
+        '<div class="mc-tab">Perfil</div>'+
+        '<div class="mc-tab active">Dados Pessoais</div>'+
+        '<div class="mc-tab">Documentos</div>'+
+        '<div class="mc-tab">Dados Financeiros</div>'+
+        '<div class="mc-tab">Preferências</div>'+
+      '</div>'+
+      '<div class="mc-note"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></span> Estes dados são necessários para cumprimento dos requisitos de órgãos reguladores. Tratamos seus dados conforme os Termos de Uso e a Política de Privacidade.</div>'+
+      '<div class="mc-card">'+
+        '<h3>E-mail de acesso</h3>'+
+        '<div class="hint">É com este e-mail que você acessa a sua conta Hotmart.</div>'+
+        '<div class="field-label">E-mail atual</div>'+
+        '<div class="field-box locked"><span>thiago.oliveira@email.com</span></div>'+
+        '<div class="deadend" style="margin:14px 0 12px;">'+IC_ALERT+'<div>Hoje não existe opção de trocar o e-mail da conta pela plataforma. É preciso abrir um chamado no atendimento, com envio de documento e selfie.</div></div>'+
+        '<button class="btn-voltar" style="border-color:var(--gray-300);color:var(--black);" onclick="startAsis(\'compra\')">'+IC_CH+' Ir para a Central de Ajuda</button>'+
+      '</div>';
     setAnno('conta-comprador-hoje');
   } else {
     el.innerHTML='<div class="mc-card"><h3>Comprador: troca pelo app <span class="novo-badge">Novo</span></h3>'+

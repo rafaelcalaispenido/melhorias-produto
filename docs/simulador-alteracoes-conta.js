@@ -657,7 +657,7 @@ function setCompraMode(m){
   document.getElementById('compra-inner').innerHTML=regras+buyer;
 }
 function compraSteps(active){
-  var labels=['Verificação','Novo e-mail','Confirmar novo e-mail'];
+  var labels=['Validar compra','Novo e-mail','Confirmado'];
   var html='';
   labels.forEach(function(s,idx){
     var cls=idx<active?'done':(idx===active?'active':'');
@@ -666,20 +666,24 @@ function compraSteps(active){
   });
   return '<div class="wz-steps">'+html+'</div>';
 }
-function compraStart(){ state.compraCh=null; showView('v-compra-flow'); compraFlow('verify'); }
+function compraStart(){ state.compraCh=null; showView('v-compra-flow'); compraFlow('validate'); }
 function compraFlow(step){
   var el=document.getElementById('compra-flow-inner'); var h='';
-  if(step==='verify'){
+  if(step==='validate'){
     h='<div class="mc-title">Alterar e-mail da compra <span class="novo-badge">Novo</span></div>'+
       compraSteps(0)+
-      '<div class="wz-panel"><h2>Confirme que é você</h2>'+
-      '<p class="desc">Escolha por onde receber o código de confirmação. O comprador não tem biometria, então usamos um código.</p>'+
-      '<div class="choice-row">'+
-        '<div class="choice" data-cch="email" onclick="compraSelectCh(this,\'email\')"><div class="choice-head"><h4>Código no e-mail da compra</h4></div><p>c***@email.com</p></div>'+
-        '<div class="choice" data-cch="sms" onclick="compraSelectCh(this,\'sms\')"><div class="choice-head"><h4>Código por SMS</h4></div><p>(31) 9 9***-**12 · telefone do checkout</p></div>'+
-      '</div></div>'+
+      '<div class="wz-panel"><h2>Confirme a compra</h2>'+
+      '<p class="desc">Selecione a compra que deseja alterar e informe os últimos 4 dígitos do cartão usado no pagamento.</p>'+
+      '<div class="field-label" style="margin-top:14px;">Compra</div>'+
+      '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">'+
+        '<div style="font-weight:600;font-size:14px;margin-bottom:4px;">Curso de Marketing Digital</div>'+
+        '<div style="font-size:13px;color:var(--gray-500);">R$ 297,00 · comprado em 12/08/2025</div>'+
+        '<div style="font-size:12.5px;color:var(--gray-400);margin-top:3px;">thiago.comprador@email.com</div>'+
+      '</div>'+
+      '<div class="field-label">Últimos 4 dígitos do cartão</div>'+
+      '<div class="field-box"><input id="compra-card-input" maxlength="4" inputmode="numeric" style="border:none;outline:none;width:100%;font-size:18px;background:transparent;letter-spacing:6px;" placeholder="····" oninput="compraCardInput(this)"></div></div>'+
       '<div class="wz-actions"><span class="back-link" onclick="setCompraMode(\'proposta\'); showView(\'v-compra\');">Voltar</span>'+
-      '<button class="ui-btn ui-btn-primary" id="compra-cta" disabled onclick="compraFlowCta()">Enviar código</button></div>';
+      '<button class="ui-btn ui-btn-primary" id="compra-cta" disabled onclick="compraValidate()">Validar compra</button></div>';
   } else if(step==='newemail'){
     h='<div class="mc-title">Novo e-mail da compra <span class="novo-badge">Novo</span></div>'+
       compraSteps(1)+
@@ -687,19 +691,20 @@ function compraFlow(step){
       '<p class="desc">Identidade confirmada. Informe o novo e-mail. Enviaremos um código para confirmar o acesso a ele.</p>'+
       '<div class="field-label">Novo e-mail</div>'+
       '<div class="field-box"><input id="compra-new-input" style="border:none;outline:none;width:100%;font-size:14px;background:transparent;" value="thiago.comprador.novo@email.com"></div></div>'+
-      '<div class="wz-actions"><span class="back-link" onclick="compraFlow(\'verify\')">Voltar</span>'+
+      '<div class="wz-actions"><span class="back-link" onclick="compraFlow(\'validate\')">Voltar</span>'+
       '<button class="ui-btn ui-btn-primary" onclick="openOtp(\'compra-new\')">'+ICON.send+' Enviar código</button></div>';
   }
   el.innerHTML=h;
-  setAnno(step==='verify'?'compra-verify':'compra-newemail');
+  setAnno(step==='validate'?'compra-validate':'compra-newemail');
 }
-function compraSelectCh(elm,ch){
-  state.compraCh=ch;
-  document.querySelectorAll('#compra-flow-inner .choice').forEach(function(c){ c.classList.toggle('selected', c.dataset.cch===ch); });
-  var cta=document.getElementById('compra-cta'); cta.disabled=false;
-  cta.innerHTML=(ch==='sms'?ICON.send+' Enviar código por SMS':ICON.mail+' Enviar código por e-mail');
+function compraCardInput(el){
+  var cta=document.getElementById('compra-cta');
+  cta.disabled = (el.value.replace(/\D/g,'').length < 4);
 }
-function compraFlowCta(){ openOtp(state.compraCh==='sms'?'compra-sms':'compra-mail'); }
+function compraValidate(){
+  showLoading();
+  setTimeout(function(){ hideLoading(); compraFlow('newemail'); }, 1600);
+}
 function compraResult(){
   var el=document.getElementById('result-inner');
   el.innerHTML='<div class="rico ok">'+ICON.check+'</div><h2>E-mail da compra alterado</h2>'+
@@ -710,10 +715,6 @@ function compraResult(){
 }
 
 /* anotações da compra */
-ANNO['compra-proposta']={ title:'E-mail da compra', step:'Proposta', secs:[
-  S('Situação','do',['O produtor já troca o e-mail de uma compra sozinho, com regras. O comprador ainda não consegue trocar o próprio.']),
-  S('Proposta','check',['Habilitar o comprador a trocar sozinho, confirmando por código no e-mail da compra ou por SMS (telefone do checkout), sem depender de biometria.']),
-  S('Impacto','safe',['É o maior volume de troca de e-mail (cerca de 16 mil tickets), boa parte aberta pelo próprio comprador.']) ]};
 ANNO['compra-hoje']={ title:'E-mail da compra', step:'Como é hoje', secs:[
   S('Situação','do',['O comprador não consegue trocar o próprio e-mail nem transferir compras de vários produtores.']),
   S('O que acontece','check',['Vira chamado, mesmo fluxo manual de atendimento.']),
@@ -734,10 +735,10 @@ ANNO['asis-especificacoes']={ title:'Especificações da compra', step:'Dados do
   S('Custo','safe',['Tudo isso para uma troca que, na proposta, o próprio comprador faria com um código no e-mail da compra.']) ]};
 
 /* anotações do fluxo proposta da compra */
-ANNO['compra-verify']={ title:'Confirme que é você', step:'Proposta · E-mail da compra', secs:[
-  S('O que a pessoa faz','do',['Escolhe receber um código no e-mail da compra ou por SMS no telefone do checkout.']),
-  S('Por que sem biometria','check',['O comprador não faz cadastro biométrico para comprar, então a verificação é por código de posse de canal.']),
-  S('Por que é seguro','safe',['Prova que a pessoa controla o e-mail da compra ou o telefone informado no checkout.']) ]};
+ANNO['compra-validate']={ title:'Validar compra', step:'Proposta · E-mail da compra', secs:[
+  S('O que a pessoa faz','do',['Seleciona a compra que deseja alterar e informa os últimos 4 dígitos do cartão usado no pagamento.']),
+  S('Por que essa validação','check',['Prova que quem está alterando foi quem pagou. O acesso ao número do cartão é um fator de posse difícil de adivinhar sem ser o titular da compra.']),
+  S('Por que é seguro','safe',['Combina sessão autenticada com prova de pagamento. Sem biometria, adequado para o perfil do comprador.']) ]};
 ANNO['compra-newemail']={ title:'Novo e-mail da compra', step:'Proposta · E-mail da compra', secs:[
   S('O que a pessoa faz','do',['Informa o novo e-mail e confirma o acesso a ele com um segundo código.']),
   S('Por que é seguro','safe',['Confirma que o destino é válido e controlado pela pessoa, evitando erro de digitação ou e-mail de terceiros.']) ]};
@@ -749,7 +750,7 @@ ANNO['otp-compra-new']={ title:'Confirmar novo e-mail', step:'Proposta · E-mail
   S('Por que é seguro','safe',['Garante que o novo endereço é realmente da pessoa.']) ]};
 ANNO['compra-proposta']={ title:'E-mail da compra', step:'Proposta', secs:[
   S('Situação','do',['O produtor já troca o e-mail de uma compra sozinho, com regras. O comprador ainda não consegue trocar o próprio.']),
-  S('Proposta','check',['Habilitar o comprador a trocar sozinho, com código no e-mail da compra ou por SMS do checkout. Sem biometria, porque ele não tem cadastro biométrico.']),
+  S('Proposta','check',['Habilitar o comprador a trocar sozinho. Ele confirma a compra com os últimos 4 dígitos do cartão usado no pagamento, depois informa o novo e-mail e confirma o acesso a ele com um código. Sem biometria, adequado ao perfil do comprador.']),
   S('Impacto','safe',['É o maior volume de troca de e-mail (cerca de 15.998 tickets no semestre), boa parte aberta pelo próprio comprador, com DSAT de 12,19%.']) ]};
 
 /* ═══════════ Titularidade (Documentos e titularidade) ═══════════ */
@@ -1152,12 +1153,6 @@ function titWizGo(step) {
           '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="1.8" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +
           '<span>CPF encontrado no quadro societário. A alteração pode ser concluída agora, sem envio de documentos.</span>' +
         '</div>' +
-        '<div style="margin-top:14px;padding:12px 14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;">' +
-          '<label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray-600);cursor:pointer;">' +
-            '<input type="checkbox" id="tit-serpro-aceite" style="margin-top:2px;cursor:pointer;"> ' +
-            '<span>Confirmo que os dados acima estão corretos e autorizo a alteração da titularidade da conta.</span>' +
-          '</label>' +
-        '</div>' +
         '<div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">' +
           '<span class="back-link" style="font-size:12px;gap:5px;" onclick="titPdfClick()">' + IC_PDF + ' Extrato SERPRO</span>' +
           '<button class="ui-btn ui-btn-ghost" style="font-size:12.5px;padding:6px 12px;" onclick="titShowDocUpload()">' +
@@ -1172,7 +1167,7 @@ function titWizGo(step) {
       actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'cnpj\')">Voltar</span>' +
         '<div style="display:flex;gap:10px;align-items:center;">' +
           '<span class="back-link" style="display:inline-flex;gap:5px;" onclick="titContinuarDepois()">' + IC_CLOCK + ' Continuar depois</span>' +
-          '<button class="ui-btn ui-btn-primary" onclick="titConfirmSerproData(\'pf-pj\')">' +
+          '<button class="ui-btn ui-btn-primary" onclick="titShowTwoFA()">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M20 6L9 17l-5-5"/></svg>' +
           ' Confirmar alteração</button>' +
         '</div>';
@@ -1189,12 +1184,6 @@ function titWizGo(step) {
             '<div class="qsa-item" style="justify-content:space-between;"><span><b>Thiago Pereira</b> · CPF 115.***.**6-94 · Sócio</span><svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2.5" style="width:16px;height:16px;flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg></div>' +
             '<div class="qsa-item" style="justify-content:space-between;margin-top:6px;"><span><b>Maria Santos</b> · CPF 042.***.**3-17 · Sócia <span style="color:var(--gray-500);">(aceite pendente)</span></span><svg viewBox="0 0 24 24" fill="none" stroke="#B4740A" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5M12 16v.4"/></svg></div>' +
           '</span></div>' +
-        '</div>' +
-        '<div style="margin-top:14px;padding:12px 14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;">' +
-          '<label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray-600);cursor:pointer;">' +
-            '<input type="checkbox" id="tit-serpro-aceite-pj" style="margin-top:2px;cursor:pointer;"> ' +
-            '<span>Confirmo que os dados acima estão corretos. Autorizo o envio de notificações para cada sócio confirmar sua identidade.</span>' +
-          '</label>' +
         '</div>' +
         '<div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">' +
           '<span class="back-link" style="font-size:12px;gap:5px;" onclick="titPdfClick()">' + IC_PDF + ' Extrato SERPRO</span>' +
@@ -1229,7 +1218,7 @@ function titWizGo(step) {
       actions.innerHTML = '<span class="back-link" onclick="titWizGo(\'cnpj\')">Voltar</span>' +
         '<div style="display:flex;gap:10px;align-items:center;">' +
           '<span class="back-link" style="display:inline-flex;gap:5px;" onclick="titContinuarDepois()">' + IC_CLOCK + ' Continuar depois</span>' +
-          '<button class="ui-btn ui-btn-primary" onclick="titConfirmSerproData(\'pj-pj\')">' +
+          '<button class="ui-btn ui-btn-primary" onclick="titShowTwoFA()">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:15px;height:15px;"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>' +
           ' Confirmar alteração</button>' +
         '</div>';
@@ -1246,37 +1235,6 @@ function titOpenFacetec() {
   btn.disabled = false;
   btn.innerHTML = ICON.face + ' Iniciar captura';
   setAnno('tit-biometria');
-}
-
-function titConfirmSerproData(scenario) {
-  var checkboxId = scenario === 'pf-pj' ? 'tit-serpro-aceite' : 'tit-serpro-aceite-pj';
-  var checkbox = document.getElementById(checkboxId);
-
-  if (!checkbox || !checkbox.checked) {
-    showToast('Por favor, confirme que os dados estão corretos.');
-    return;
-  }
-
-  var msg = scenario === 'pf-pj'
-    ? 'Confirmo que os dados estão corretos. Autorizo a alteração da titularidade da minha conta de Pessoa Física para Pessoa Jurídica com o CNPJ informado.'
-    : 'Confirmo que os dados da nova empresa estão corretos. Autorizo o envio de notificações para cada sócio confirmar sua identidade.';
-
-  openSerproConfirmPopup(msg, scenario);
-}
-
-function openSerproConfirmPopup(message, scenario) {
-  var html = '<p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:16px;">' + message + '</p>' +
-    '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
-      '<button class="ui-btn ui-btn-outline" onclick="closeGenericPopup()">Cancelar</button>' +
-      '<button class="ui-btn ui-btn-primary" onclick="titProsseguirAposFirma(\'' + scenario + '\')">Confirmar</button>' +
-    '</div>';
-
-  openGenericPopup('Confirmar alteração', html);
-}
-
-function titProsseguirAposFirma(scenario) {
-  closeGenericPopup();
-  titShowTwoFA();
 }
 
 function titShowTwoFA() {
@@ -1461,10 +1419,9 @@ ANNO['tit-cnpj'] = { title:'Consulta CNPJ via SERPRO', step:'Validação automá
   S('Por que importa','safe',['O CX hoje valida manualmente o que o SERPRO retorna em segundos. A automação elimina reprovações por documento ilegível ou CPF não visível.'])
 ]};
 ANNO['tit-confirmar'] = { title:'Confirmação + 2FA', step:'Último passo antes da validação', secs:[
-  S('O que a pessoa faz','do',['Confere os dados pré-preenchidos pelo SERPRO, marca checkbox confirmando que tudo está correto, clica em "Confirmar alteração" (abre popup de confirmação), depois recebe um código de 6 dígitos enviado ao e-mail ou SMS cadastrado (2FA obrigatório em todas as trocas de titularidade).']),
-  S('O checkbox antes de 2FA','check',['Força a pessoa a revisar os dados antes de comprometer-se. Sem marcá-lo, o botão não funciona. Ao clicar em Confirmar, abre um popup reafirmando o que está sendo autorizado. Cancelar volta para a tela anterior sem perder os dados.']),
-  S('PF→PJ (self-service)','safe',['CPF no QSA + biometria + checkbox + 2FA = alteração imediata, sem CX. O sócio único é o próprio solicitante.']),
-  S('PJ→PJ (múltiplos sócios)','safe',['Após o 2FA do solicitante, cada sócio recebe e-mail. Se já tem conta Hotmart, autentica pela própria conta (biometria + 2FA). Se não tem conta, escolhe entre: (1) criar conta Hotmart e confirmar com biometria + documento + 2FA, ou (2) enviar documentos sem criar conta, documentos com QR Code são validados automaticamente via API (CIN/Gov.br, CNH/SENATRAN), sem QR Code o time de CX faz análise manual. Alteração só é efetivada após todos os sócios validarem.'])
+  S('O que a pessoa faz','do',['Confere os dados pré-preenchidos pelo SERPRO e confirma com um código de 6 dígitos enviado ao e-mail ou SMS cadastrado (2FA obrigatório em todas as trocas de titularidade).']),
+  S('PF→PJ (self-service)','check',['CPF no QSA + biometria + 2FA = alteração imediata, sem CX. O sócio único é o próprio solicitante.']),
+  S('PJ→PJ (múltiplos sócios)','safe',['Após o 2FA do solicitante, cada sócio recebe um e-mail. Se já tem conta Hotmart, autentica pela própria conta (biometria + 2FA). Se não tem conta, escolhe entre: (1) criar conta Hotmart e confirmar com biometria + documento + 2FA, ou (2) enviar documentos sem criar conta — nesse caso o documento com QR Code é validado automaticamente via API (CIN/Gov.br, CNH/SENATRAN); sem QR Code, o time de CX faz a análise manual. A alteração só é efetivada após todos os sócios validarem.'])
 ]};
 ANNO['tit-result-pf-pj'] = { title:'Conta migrada', step:'Desfecho · PF→PJ', secs:[
   S('O que aconteceu','do',['Biometria validou a identidade; SERPRO confirmou o CPF no QSA. Conta alterada em minutos, sem ticket.']),
@@ -1488,17 +1445,13 @@ ANNO['socia-conta'] = { title:'Sócia · Criar conta', step:'Início do fluxo', 
   S('Por que é necessário','safe',['A validação forte de identidade (biometria facial + 2FA) exige uma conta Hotmart ativa como âncora segura.'])
 ]};
 ANNO['socia-doc'] = { title:'Sócia · Documento de identidade', step:'Validação automática por QR Code', secs:[
-  S('Documentos aceitos','do',['RG (CIN, novo modelo 2022+), CNH ou RNM. Passaporte não é aceito pois o padrão de chip não é suportado neste fluxo.']),
-  S('Como funciona o QR Code','check',[
-    'O novo RG (CIN) tem um QR Code impresso que contém dados criptografados e assinados digitalmente. CNH também possui QR Code com informações do condutor. O sistema lê o código e valida a autenticidade com o órgão emissor.',
-    'Não é conferência manual do documento: é uma consulta criptografada aos servidores oficiais. O Gov.br, SENATRAN (CNH) ou PF (RNM) confirmam que aquele documento é genuíno e está ativo.'
+  S('Documentos aceitos','do',['RG (CIN · novo modelo 2022+), CNH ou RNM. Passaporte não é aceito pois o padrão ICAO do chip NFC não é suportado neste fluxo.']),
+  S('Validação automática via API','check',[
+    'CIN (novo RG): QR Code lido e verificado via API Gov.br / Confia.gov.br. Dados assinados digitalmente pelo SERPRO/ITI. Resposta em segundos.',
+    'CNH: QR Code verificado via API SENATRAN/DENATRAN (RENACH). Retorna nome, CPF e validade do condutor em tempo real.',
+    'RNM: versões recentes emitidas pela Polícia Federal têm QR Code verificável via API SISCART (PF).'
   ]),
-  S('Validação automática por API','safe',[
-    'CIN (novo RG): Sistema lê o QR Code do PDF enviado e consulta a API Gov.br / Confia.gov.br. Dados são assinados digitalmente pelo SERPRO/ITI. A resposta vem em segundos: sim ou não, é válido.',
-    'CNH: QR Code verificado contra a API SENATRAN/DENATRAN (banco nacional de dados de condutores). Retorna nome, CPF e validade em tempo real.',
-    'RNM: Polícia Federal valida mediante API SISCART. Confirma a situação migratória.',
-    'Fallback automático: Se o QR Code não estiver legível, for corrompido ou a API cair, o caso cai automaticamente para análise manual do CX. Sem requerer reenvia.'
-  ])
+  S('Sem QR Code legível','safe',['PDF sem QR Code vai para análise manual do time de CX. A selfie segurando o documento serve como segunda evidência. Prazo estimado: até 3 dias úteis.'])
 ]};
 ANNO['socia-verif'] = { title:'Sócia · Verificação em andamento', step:'Processamento automático', secs:[
   S('O que o sistema faz','do',['Lê o QR Code do PDF enviado, chama a API do órgão emissor (Gov.br, SENATRAN ou PF) e valida os dados retornados contra o CPF no QSA da empresa (via SERPRO).']),
@@ -1514,20 +1467,6 @@ ANNO['socia-confirmado'] = { title:'Sócia · Identidade confirmada', step:'Vali
   S('O que acontece','do',['Identidade da sócia verificada com sucesso. A alteração de titularidade só é efetivada após todos os sócios do QSA confirmarem e a carência de segurança de 24 a 72h.']),
   S('Carência de segurança','check',['Janela de 24 a 72h após todas as confirmações permite reverter em caso de fraude ou identidade roubada, antes da efetivação irreversível.']),
   S('Notificação em cascata','safe',['Thiago Pereira (solicitante) é notificado a cada confirmação de sócio. Transparência total sobre o andamento da solicitação.'])
-]};
-
-ANNO['tit-aceite-serpro'] = { title:'Aceite dos dados SERPRO', step:'Confirmação antes de prosseguir', secs:[
-  S('Por que existe o checkbox','do',['Antes de enviar a solicitação para 2FA, a pessoa precisa confirmar que conferiu os dados retornados pela Receita Federal. É um passo de segurança: força a revisão antes de comprometer-se.']),
-  S('O que está no popup','check',[
-    'Uma mensagem clara explicando o que está sendo autorizado, ex: "Confirmo que os dados estão corretos. Autorizo a alteração da titularidade da minha conta."',
-    'Botões "Cancelar" (volta para a tela anterior, permite editar) e "Confirmar" (prossegue para 2FA).',
-    'É um momento de pausa: a pessoa lê, entende o que está acontecendo, e só depois confirma de forma deliberada.'
-  ]),
-  S('Impacto no fluxo','safe',[
-    'Reduz arrependimento e solicitações de reversão: a pessoa já foi explicitamente informada do que está fazendo.',
-    'Aumenta confiança no processo: existem etapas de confirmação claras, não é automático.',
-    'Nos sócios sem conta Hotmart que enviam apenas documentos, o QR Code é validado automaticamente, dispensando essa etapa nesse caso.'
-  ])
 ]};
 
 /* ═══════════ Fluxo da sócia (e-mail de confirmação) ═══════════ */

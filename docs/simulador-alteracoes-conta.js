@@ -650,14 +650,14 @@ function setCompraMode(m){
     setAnno('compra-hoje');
   } else {
     buyer='<div class="mc-card"><h3>Comprador: passa a trocar sozinho <span class="novo-badge">Novo</span></h3>'+
-      '<div class="hint">Self-service com verificação por código, no e-mail da compra ou por SMS no telefone do checkout. Sem biometria, porque o comprador não tem cadastro biométrico.</div>'+
-      '<button class="ui-btn ui-btn-primary" onclick="compraStart()">'+ICON.mail+' Simular troca self-service</button></div>';
+      '<div class="hint">Self-service com confirmação de identidade: código por SMS no telefone do checkout (recomendado) ou validação pelos dados do pagamento (cartão, CPF do PIX etc.). Sem biometria, adequado ao perfil do comprador.</div>'+
+      '<button class="ui-btn ui-btn-primary" onclick="compraStart()">'+ICON.send+' Simular troca self-service</button></div>';
     setAnno('compra-proposta');
   }
   document.getElementById('compra-inner').innerHTML=regras+buyer;
 }
 function compraSteps(active){
-  var labels=['Validar compra','Novo e-mail','Confirmado'];
+  var labels=['Confirmar identidade','Novo e-mail','Confirmado'];
   var html='';
   labels.forEach(function(s,idx){
     var cls=idx<active?'done':(idx===active?'active':'');
@@ -666,24 +666,29 @@ function compraSteps(active){
   });
   return '<div class="wz-steps">'+html+'</div>';
 }
-function compraStart(){ state.compraCh=null; showView('v-compra-flow'); compraFlow('validate'); }
+function compraStart(){ state.compraCh=null; state.compraValidMethod='sms'; showView('v-compra-flow'); compraFlow('validate'); }
 function compraFlow(step){
   var el=document.getElementById('compra-flow-inner'); var h='';
   if(step==='validate'){
     h='<div class="mc-title">Alterar e-mail da compra <span class="novo-badge">Novo</span></div>'+
       compraSteps(0)+
-      '<div class="wz-panel"><h2>Confirme a compra</h2>'+
-      '<p class="desc">Selecione a compra que deseja alterar e informe os últimos 4 dígitos do cartão usado no pagamento.</p>'+
-      '<div class="field-label" style="margin-top:14px;">Compra</div>'+
-      '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">'+
+      '<div class="wz-panel"><h2>Confirme sua identidade</h2>'+
+      '<p class="desc">Para alterar o e-mail desta compra, confirme que você é o titular.</p>'+
+      '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;">'+
         '<div style="font-weight:600;font-size:14px;margin-bottom:4px;">Curso de Marketing Digital</div>'+
         '<div style="font-size:13px;color:var(--gray-500);">R$ 297,00 · comprado em 12/08/2025</div>'+
-        '<div style="font-size:12.5px;color:var(--gray-400);margin-top:3px;">thiago.comprador@email.com</div>'+
+        '<div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Pago com cartão final 1234</div>'+
       '</div>'+
-      '<div class="field-label">Últimos 4 dígitos do cartão</div>'+
-      '<div class="field-box"><input id="compra-card-input" maxlength="4" inputmode="numeric" style="border:none;outline:none;width:100%;font-size:18px;background:transparent;letter-spacing:6px;" placeholder="····" oninput="compraCardInput(this)"></div></div>'+
+      '<div class="choice-row">'+
+        '<div class="choice selected" data-cval="sms" onclick="compraValidChoice(this,\'sms\')"><div class="choice-head"><h4>Código por SMS</h4><span class="rec">Recomendado</span></div><p>(31) 9 9***-**12 · telefone do checkout</p></div>'+
+        '<div class="choice" data-cval="card" onclick="compraValidChoice(this,\'card\')"><div class="choice-head"><h4>Dados do pagamento</h4></div><p>Últimos 4 dígitos do cartão</p>'+
+          '<div id="compra-card-wrap" style="display:none;margin-top:10px;">'+
+            '<div class="field-box" style="margin-top:0;"><input id="compra-card-input" maxlength="4" inputmode="numeric" style="border:none;outline:none;width:100%;font-size:18px;background:transparent;letter-spacing:6px;" placeholder="····" oninput="compraCardInput(this)"></div>'+
+          '</div>'+
+        '</div>'+
+      '</div></div>'+
       '<div class="wz-actions"><span class="back-link" onclick="setCompraMode(\'proposta\'); showView(\'v-compra\');">Voltar</span>'+
-      '<button class="ui-btn ui-btn-primary" id="compra-cta" disabled onclick="compraValidate()">Validar compra</button></div>';
+      '<button class="ui-btn ui-btn-primary" id="compra-cta" onclick="compraValidate()">'+ICON.send+' Enviar código por SMS</button></div>';
   } else if(step==='newemail'){
     h='<div class="mc-title">Novo e-mail da compra <span class="novo-badge">Novo</span></div>'+
       compraSteps(1)+
@@ -697,13 +702,33 @@ function compraFlow(step){
   el.innerHTML=h;
   setAnno(step==='validate'?'compra-validate':'compra-newemail');
 }
+function compraValidChoice(elm, val){
+  state.compraValidMethod = val;
+  document.querySelectorAll('#compra-flow-inner .choice').forEach(function(c){ c.classList.toggle('selected', c.dataset.cval===val); });
+  var wrap = document.getElementById('compra-card-wrap');
+  if(wrap) wrap.style.display = val==='card' ? 'block' : 'none';
+  var cta = document.getElementById('compra-cta');
+  if(val==='sms'){
+    cta.disabled = false;
+    cta.innerHTML = ICON.send + ' Enviar código por SMS';
+  } else {
+    var inp = document.getElementById('compra-card-input');
+    cta.disabled = !(inp && inp.value.replace(/\D/g,'').length >= 4);
+    cta.innerHTML = 'Validar compra';
+  }
+}
 function compraCardInput(el){
-  var cta=document.getElementById('compra-cta');
-  cta.disabled = (el.value.replace(/\D/g,'').length < 4);
+  var cta = document.getElementById('compra-cta');
+  if(cta) cta.disabled = (el.value.replace(/\D/g,'').length < 4);
 }
 function compraValidate(){
-  showLoading();
-  setTimeout(function(){ hideLoading(); compraFlow('newemail'); }, 1600);
+  var method = state.compraValidMethod || 'sms';
+  if(method==='sms'){
+    openOtp('compra-sms');
+  } else {
+    showLoading();
+    setTimeout(function(){ hideLoading(); compraFlow('newemail'); }, 1600);
+  }
 }
 function compraResult(){
   var el=document.getElementById('result-inner');
@@ -735,10 +760,10 @@ ANNO['asis-especificacoes']={ title:'Especificações da compra', step:'Dados do
   S('Custo','safe',['Tudo isso para uma troca que, na proposta, o próprio comprador faria com um código no e-mail da compra.']) ]};
 
 /* anotações do fluxo proposta da compra */
-ANNO['compra-validate']={ title:'Validar compra', step:'Proposta · E-mail da compra', secs:[
-  S('O que a pessoa faz','do',['Seleciona a compra que deseja alterar e informa os últimos 4 dígitos do cartão usado no pagamento.']),
-  S('Por que essa validação','check',['Prova que quem está alterando foi quem pagou. O acesso ao número do cartão é um fator de posse difícil de adivinhar sem ser o titular da compra.']),
-  S('Por que é seguro','safe',['Combina sessão autenticada com prova de pagamento. Sem biometria, adequado para o perfil do comprador.']) ]};
+ANNO['compra-validate']={ title:'Confirmar identidade', step:'Proposta · E-mail da compra', secs:[
+  S('O que a pessoa faz','do',['Escolhe como confirmar a titularidade: código por SMS enviado ao telefone do checkout, ou validação pelos dados do pagamento (cartão, PIX, boleto).']),
+  S('Por que SMS é o principal','check',['Funciona para qualquer meio de pagamento e prova a posse de um dispositivo físico. O telefone foi informado no checkout, antes da tentativa de troca. É independente do método de pagamento usado.']),
+  S('Fallback por dados do pagamento','safe',['Para quem não tem telefone cadastrado: últimos 4 dígitos do cartão, CPF do titular do PIX ou número do pedido (boleto). O campo muda conforme o meio de pagamento da compra.']) ]};
 ANNO['compra-newemail']={ title:'Novo e-mail da compra', step:'Proposta · E-mail da compra', secs:[
   S('O que a pessoa faz','do',['Informa o novo e-mail e confirma o acesso a ele com um segundo código.']),
   S('Por que é seguro','safe',['Confirma que o destino é válido e controlado pela pessoa, evitando erro de digitação ou e-mail de terceiros.']) ]};
@@ -750,7 +775,7 @@ ANNO['otp-compra-new']={ title:'Confirmar novo e-mail', step:'Proposta · E-mail
   S('Por que é seguro','safe',['Garante que o novo endereço é realmente da pessoa.']) ]};
 ANNO['compra-proposta']={ title:'E-mail da compra', step:'Proposta', secs:[
   S('Situação','do',['O produtor já troca o e-mail de uma compra sozinho, com regras. O comprador ainda não consegue trocar o próprio.']),
-  S('Proposta','check',['Habilitar o comprador a trocar sozinho. Ele confirma a compra com os últimos 4 dígitos do cartão usado no pagamento, depois informa o novo e-mail e confirma o acesso a ele com um código. Sem biometria, adequado ao perfil do comprador.']),
+  S('Proposta','check',['Habilitar o comprador a trocar sozinho. Confirma a identidade por SMS no telefone do checkout (recomendado) ou pelos dados do pagamento (cartão, PIX, boleto), depois informa o novo e-mail e confirma com um código. Sem biometria, adequado ao perfil do comprador.']),
   S('Impacto','safe',['É o maior volume de troca de e-mail (cerca de 15.998 tickets no semestre), boa parte aberta pelo próprio comprador, com DSAT de 12,19%.']) ]};
 
 /* ═══════════ Titularidade (Documentos e titularidade) ═══════════ */

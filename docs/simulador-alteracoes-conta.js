@@ -45,8 +45,6 @@ function goTo(id){
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
-  var btnHub = document.getElementById('btn-hub');
-  if(btnHub) btnHub.classList.toggle('visible', id!=='scr-hub');
   if(id==='scr-hub'){ clearHash(); setAnno('hub'); }
 }
 

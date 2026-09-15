@@ -40,7 +40,7 @@ function goTo(id){
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
-  if(id==='scr-hub') setAnno('hub');
+  if(id==='scr-hub'){ clearHash(); setAnno('hub'); }
 }
 
 /* inner view switch (inside platform) */
@@ -630,12 +630,13 @@ var MOTIVOS = {
                 nota:'A pessoa ainda tem acesso ao e-mail atual, então a verificação é a mais simples.' }
 };
 function startMotivo(key){
+  setHash({trocasimples:1, perda:2}[key]||'');
   state.motivo=key;
   startBranch(MOTIVOS[key].branch);
 }
 
 /* ═══════════ E-mail da compra ═══════════ */
-function startCompra(){ state.motivo=null; state.branch=null; goTo('scr-platform'); showView('v-compra'); setCompraMode('hoje'); }
+function startCompra(){ setHash(3); state.motivo=null; state.branch=null; goTo('scr-platform'); showView('v-compra'); setCompraMode('hoje'); }
 
 function setCompraMode(m){
   state.compraMode=m;
@@ -818,6 +819,7 @@ ANNO['compra-proposta']={ title:'E-mail da compra', step:'Proposta', secs:[
 
 /* ═══════════ E-mail da conta · Comprador ═══════════ */
 function startContaCompra(){
+  setHash(4);
   state.motivo=null; state.branch=null;
   goTo('scr-platform'); showView('v-conta-comprador'); setContaCompradorMode('hoje');
 }
@@ -976,6 +978,7 @@ var TIT = {
 };
 
 function startTitularidade(key) {
+  setHash({'pf-pj':5, 'pj-pj':6}[key]||'');
   state.titScenario = key;
   var scn = TIT[key];
   document.getElementById('tit-natureza').textContent = scn.natureza;
@@ -1906,3 +1909,22 @@ function titSerproValidar() {
     '</div>'
   );
 }
+
+/* ═══════════ Hash routing ═══════════ */
+var _hashRouting = false;
+var ROUTE = {
+  '1': function(){ startMotivo('trocasimples'); },
+  '2': function(){ startMotivo('perda'); },
+  '3': function(){ startCompra(); },
+  '4': function(){ startContaCompra(); },
+  '5': function(){ startTitularidade('pf-pj'); },
+  '6': function(){ startTitularidade('pj-pj'); }
+};
+function setHash(n){ if(!_hashRouting) history.replaceState(null,'','#'+n); }
+function clearHash(){ history.replaceState(null,'',window.location.pathname+window.location.search); }
+function routeFromHash(){
+  var h=window.location.hash.replace('#','');
+  if(ROUTE[h]){ _hashRouting=true; ROUTE[h](); _hashRouting=false; }
+}
+window.addEventListener('hashchange', routeFromHash);
+document.addEventListener('DOMContentLoaded', function(){ if(window.location.hash) routeFromHash(); });

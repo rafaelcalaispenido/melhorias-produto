@@ -32,6 +32,11 @@ function startBranch(b){
   document.getElementById('conta-natureza').textContent = isPJ ? 'Pessoa Jurídica · CNPJ 12.***.***/0001-**' : 'Pessoa Física · CPF 115.***.**6-94';
   document.getElementById('conta-natureza-tag').textContent = isPJ ? ': Pessoa Jurídica' : ': Pessoa Física';
   document.getElementById('up-socios').style.display = isPJ ? 'flex' : 'none';
+  var scnTitle = state.motivo && MOTIVOS[state.motivo] ? MOTIVOS[state.motivo].titulo : 'Minha Conta';
+  var titleEl = document.getElementById('conta-scn-title');
+  var crumbEl = document.getElementById('conta-scn-crumb');
+  if(titleEl) titleEl.textContent = scnTitle;
+  if(crumbEl) crumbEl.textContent = scnTitle;
   goTo('scr-platform'); showView('v-conta'); setContaMode('hoje');
 }
 
@@ -40,6 +45,8 @@ function goTo(id){
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
+  var btnHub = document.getElementById('btn-hub');
+  if(btnHub) btnHub.style.display = (id==='scr-hub') ? 'none' : 'inline-flex';
   if(id==='scr-hub'){ clearHash(); setAnno('hub'); }
 }
 
@@ -965,12 +972,14 @@ ANNO['conta-compra-result']={ title:'Janela de segurança', step:'Proposta · E-
 var TIT = {
   'pf-pj': {
     label: 'PF → PJ',
+    titulo: 'Pessoa Física → Pessoa Jurídica',
     natureza: 'Pessoa Física · CPF 115.***.**6-94',
     naturezaTag: ': Pessoa Física',
     hasPropostaSelfService: true
   },
   'pj-pj': {
     label: 'PJ → PJ',
+    titulo: 'Pessoa Jurídica → outra PJ',
     natureza: 'Pessoa Jurídica · CNPJ 12.345.678/0001-99',
     naturezaTag: ': Pessoa Jurídica',
     hasPropostaSelfService: false
@@ -983,6 +992,10 @@ function startTitularidade(key) {
   var scn = TIT[key];
   document.getElementById('tit-natureza').textContent = scn.natureza;
   document.getElementById('tit-natureza-tag').textContent = scn.naturezaTag;
+  var titleEl = document.getElementById('tit-scn-title');
+  var crumbEl = document.getElementById('tit-scn-crumb');
+  if(titleEl) titleEl.textContent = scn.titulo;
+  if(crumbEl) crumbEl.textContent = scn.titulo;
   goTo('scr-platform');
   showView('v-tit-conta');
   setTitMode('hoje');

@@ -100,8 +100,8 @@
         <!-- VIEW: Minha Conta -->
         <div class="mc-view" id="v-conta">
           <div class="mc-wrap">
-            <div class="mc-breadcrumb">Painel / <b>Minha Conta</b></div>
-            <div class="mc-title">Minha Conta</div>
+            <div class="mc-breadcrumb">Painel / <b id="conta-scn-crumb">Minha Conta</b></div>
+            <div class="mc-title" id="conta-scn-title">Minha Conta</div>
             <div class="seg" id="mode-seg">
               <button id="seg-hoje" class="is-hoje" onclick="setContaMode('hoje')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Como é hoje</button>
               <button id="seg-prop" class="on" onclick="setContaMode('proposta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg> Proposta</button>
@@ -243,8 +243,8 @@
         <!-- VIEW: Titularidade — Minha Conta entry -->
         <div class="mc-view" id="v-tit-conta" style="display:none;">
           <div class="mc-wrap">
-            <div class="mc-breadcrumb">Painel / <b>Minha Conta</b></div>
-            <div class="mc-title">Minha Conta</div>
+            <div class="mc-breadcrumb">Painel / <b id="tit-scn-crumb">Minha Conta</b></div>
+            <div class="mc-title" id="tit-scn-title">Minha Conta</div>
             <div class="seg" id="tit-seg">
               <button id="tseg-hoje" class="is-hoje" onclick="setTitMode('hoje')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Como é hoje</button>
               <button id="tseg-prop" class="on" onclick="setTitMode('proposta')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg> Proposta</button>
@@ -428,6 +428,7 @@
 <!-- toast + fixed controls -->
 <div class="toast" id="toast"></div>
 <button class="restart" onclick="location.reload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 12a8 8 0 108-8"/><path d="M4 4v5h5"/></svg> Reiniciar simulador</button>
+<button class="restart" id="btn-hub" style="display:none;left:auto;right:18px;" onclick="goTo('scr-hub')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Voltar aos cenários</button>
 
 <script src="simulador-alteracoes-conta.js"></script>
 </body>

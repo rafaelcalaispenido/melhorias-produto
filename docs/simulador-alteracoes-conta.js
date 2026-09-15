@@ -46,7 +46,7 @@ function goTo(id){
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   var btnHub = document.getElementById('btn-hub');
-  if(btnHub) btnHub.style.display = (id==='scr-hub') ? 'none' : 'inline-flex';
+  if(btnHub) btnHub.classList.toggle('visible', id!=='scr-hub');
   if(id==='scr-hub'){ clearHash(); setAnno('hub'); }
 }
 

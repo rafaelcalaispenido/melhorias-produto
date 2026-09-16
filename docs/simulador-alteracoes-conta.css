@@ -1442,10 +1442,23 @@ body.anno-on .sim-cover{ padding-right:340px; }
 .sel-menu-drop{ display:none; }
 .sel-drop.open .sel-menu-drop{ display:block; }
 .sel-item-disabled{ color:var(--gray-300)!important; cursor:not-allowed!important; pointer-events:none; }
+.sel-item-active{ font-weight:600; color:var(--black); cursor:default; pointer-events:none; }
 .pill-disabled{ opacity:0.35; cursor:not-allowed!important; pointer-events:none; }
 .fld{ margin-bottom:15px; } .fld label{ display:block; font-size:12.5px; color:var(--gray-600,#4b4b49); margin-bottom:6px; }
 .fld input,.fld textarea{ width:100%; border:1px solid var(--gray-300); border-radius:8px; padding:11px 12px; font-family:var(--font); font-size:13.5px; background:var(--white); }
 .fld textarea{ min-height:78px; resize:vertical; }
+.file-pick{ display:flex; align-items:center; border:1px solid var(--gray-300); border-radius:8px; background:var(--white); overflow:hidden; }
+.file-pick .fp-lbl{ flex:1; padding:11px 12px; font-size:13.5px; color:var(--gray-400); }
+.file-pick .fp-btn{ padding:10px 16px; border:none; border-left:1px solid var(--gray-300); background:var(--gray-100); font-size:13px; color:var(--black); cursor:pointer; white-space:nowrap; font-family:var(--font); }
+.file-pick .fp-btn:hover{ background:var(--gray-200); }
+.fld-desc{ font-size:11.5px; color:var(--gray-500); line-height:1.55; margin-top:6px; }
+.info-box-tit{ background:var(--gray-100); border:1px solid var(--gray-200); border-radius:9px; padding:11px 14px; font-size:12.5px; color:var(--gray-600,#4b4b49); line-height:1.55; margin-top:6px; margin-bottom:4px; }
+.socio-section-label{ font-size:12px; font-weight:700; color:var(--gray-500); text-transform:uppercase; letter-spacing:.05em; margin:14px 0 10px; }
+.socio-card{ background:var(--white); border:1px solid var(--gray-300); border-radius:10px; padding:14px 16px; margin-bottom:10px; }
+.socio-card-head{ font-size:11.5px; font-weight:700; color:var(--gray-500); text-transform:uppercase; letter-spacing:.04em; margin-bottom:12px; }
+.socio-added{ display:flex; align-items:center; gap:8px; padding:10px 14px; background:var(--green-bg,#E6F5EE); border:1px solid #9ED8B8; border-radius:9px; font-size:13px; color:#0d6e3d; font-weight:500; margin-bottom:10px; }
+.btn-add-socio{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font); font-size:13px; font-weight:600; color:var(--orange); background:var(--white); border:1px dashed var(--orange); border-radius:9px; padding:9px 16px; cursor:pointer; margin-top:4px; }
+.btn-add-socio:hover{ background:var(--orange-bg,#FFF3EE); }
 .help-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:22px; }
 .btn-voltar{ font-family:var(--font); font-size:13.5px; font-weight:600; color:var(--orange); background:var(--white); border:1px solid var(--orange); border-radius:10px; padding:11px 20px; cursor:pointer; display:inline-flex; gap:7px; align-items:center; }
 .btn-voltar svg{ width:15px; height:15px; }

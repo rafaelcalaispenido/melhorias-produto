@@ -355,29 +355,37 @@ function setContaMode(m){
   }
 }
 
-function startAsis(ctx){ state.asisCtx=ctx||null; state.asis={motivo:'Acesso e configurações da conta', espec:'Alteração do email da compra ou da minha conta Hotmart'}; showView('v-asis'); asisGo('persona'); }
+function startAsis(ctx){ state.asisCtx=ctx||null; state.asis={motivo:'Acesso e configurações da conta', espec:'Alteração do e-mail de cadastro Hotmart'}; showView('v-asis'); asisGo('persona'); }
 
 function asisGo(step){
   state.asisStep=step;
   var el=document.getElementById('asis-inner'); var h='';
   var back='<span class="back-link" onclick="showView(\'v-conta\')">Voltar</span>';
   if(step==='persona'){
-    var compradorClass = (state.asisCtx==='compra') ? 'pill-opt' : 'pill-opt pill-disabled';
-    var compradorClick = (state.asisCtx==='compra') ? 'onclick="asisPersona(this,\'Comprador\')"' : '';
+    var isCompraCtx = (state.asisCtx==='compra');
+    var compradorClass = isCompraCtx ? 'pill-opt' : 'pill-opt pill-disabled';
+    var compradorClick = isCompraCtx ? 'onclick="asisPersona(this,\'Comprador\')"' : '';
+    var prodAfilClass = isCompraCtx ? 'pill-opt pill-disabled' : 'pill-opt';
+    var prodClick = isCompraCtx ? '' : 'onclick="asisPersona(this,\'Produtor\')"';
+    var afilClick = isCompraCtx ? '' : 'onclick="asisPersona(this,\'Afiliado\')"';
     h='<div class="help-card"><div class="help-h1">Como podemos ajudar?</div><div class="help-lead">Selecione o tipo de atendimento que precisa:</div>'+
       '<div class="pill-row">'+
       '<div class="'+compradorClass+'" '+compradorClick+'>Sou Comprador(a)</div>'+
-      '<div class="pill-opt" onclick="asisPersona(this,\'Produtor\')">Sou Produtor(a)</div>'+
-      '<div class="pill-opt" onclick="asisPersona(this,\'Afiliado\')">Sou Afiliado(a)</div></div>'+
+      '<div class="'+prodAfilClass+'" '+prodClick+'>Sou Produtor(a)</div>'+
+      '<div class="'+prodAfilClass+'" '+afilClick+'>Sou Afiliado(a)</div></div>'+
       '<div class="hd-sep"></div><div class="help-actions">'+back+
       '<button class="ui-btn ui-btn-primary" id="asis-cta" disabled onclick="asisAfterPersona()">Iniciar solicitação '+IC_AR+'</button></div></div>';
   } else if(step==='motispec'){
-    state.asis.motivo=''; state.asis.espec='';
+    var _chev='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>';
+    var _mVal=state.asis.motivo||''; var _eVal=state.asis.espec||'';
+    var _mCls=_mVal?'sel-box filled':'sel-box'; var _eCls=_eVal?'sel-box filled':'sel-box';
+    var _mLbl=_mVal||'Selecione o motivo do contato'; var _eLbl=_eVal||'Especifique um pouco mais';
+    var _ctaDis=(_mVal&&_eVal)?'':' disabled';
     h='<div class="help-card"><div class="etapa-label">Solicitação de atendimento</div><div class="help-h1">Como podemos ajudar?</div>'+
       vstep(0)+
       '<div class="fld sel-drop" id="sd-motivo">'+
         '<label>Selecione o motivo do contato *</label>'+
-        '<div class="sel-box" onclick="toggleSelDrop(\'sd-motivo\')">Selecione o motivo do contato <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg></div>'+
+        '<div class="'+_mCls+'" onclick="toggleSelDrop(\'sd-motivo\')">'+_mLbl+' '+_chev+'</div>'+
         '<div class="sel-menu sel-menu-drop">'+
           '<div class="sel-item-disabled">Cancelamentos e reembolsos</div>'+
           '<div class="sel-item-disabled">Dúvidas e problemas gerais sobre o produto que comprei</div>'+
@@ -388,9 +396,9 @@ function asisGo(step){
       '</div>'+
       '<div class="fld sel-drop" id="sd-espec">'+
         '<label>Informe a especificação *</label>'+
-        '<div class="sel-box" onclick="toggleSelDrop(\'sd-espec\')">Especifique um pouco mais <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg></div>'+
+        '<div class="'+_eCls+'" onclick="toggleSelDrop(\'sd-espec\')">'+_eLbl+' '+_chev+'</div>'+
         '<div class="sel-menu sel-menu-drop">'+
-          '<div onclick="pickMotiSpec(\'espec\',\'Alteração do email da compra ou da minha conta Hotmart\')">Alteração do email da compra ou da minha conta Hotmart</div>'+
+          '<div onclick="pickMotiSpec(\'espec\',\'Alteração do e-mail de cadastro Hotmart\')">Alteração do e-mail de cadastro Hotmart</div>'+
           '<div class="sel-item-disabled">Conta bloqueada</div>'+
           '<div class="sel-item-disabled">Dúvidas sobre aplicativo Hotmart</div>'+
           '<div class="sel-item-disabled">Excluir, desativar ou reativar conta</div>'+
@@ -400,7 +408,7 @@ function asisGo(step){
         '</div>'+
       '</div>'+
       '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'persona\')">Voltar</button>'+
-      '<button class="ui-btn ui-btn-primary" id="asis-cta" disabled onclick="asisGo(\'dados\')">Avançar '+IC_AR+'</button></div></div>';
+      '<button class="ui-btn ui-btn-primary" id="asis-cta"'+_ctaDis+' onclick="asisGo(\'dados\')">Avançar '+IC_AR+'</button></div></div>';
   } else if(step==='motivo'||step==='espec'){
     asisGo('motispec'); return;
   } else if(step==='dados'){
@@ -415,16 +423,53 @@ function asisGo(step){
       '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'espec\')">Voltar</button>'+
       (state.asisCtx==='compra'
         ? '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'especificacoes\')">Avançar '+IC_AR+'</button>'
-        : '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'enviado\')">Enviar solicitação '+IC_AR+'</button>')+
+        : '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'dados-upload\')">Avançar '+IC_AR+'</button>')+
       '</div></div>';
   } else if(step==='especificacoes'){
+    var _chev2='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>';
     h='<div class="help-card"><div class="etapa-label">Solicitação de atendimento</div><div class="help-h1">Especificações</div>'+
-      '<div class="fld"><label>Anexe o comprovante de pagamento da compra, se houver</label><input value="" placeholder="Selecione um arquivo"></div>'+
-      '<div class="fld"><label>E-mail atualmente cadastrado *</label><input value="thiago.comprador@email.com"></div>'+
-      '<div class="fld"><label>Novo e-mail que deseja utilizar *</label><input value="thiago.comprador.novo@email.com"></div>'+
-      '<div class="fld"><label>CPF do comprador *</label><input value="115.***.**6-94"></div>'+
-      '<div class="fld"><label>Número da transação e nome do produto, se houver</label><input value="" placeholder="HP1234567890 · Curso de..."></div>'+
-      '<div class="fld"><label>Motivo da solicitação *</label>'+selBox('E-mail incorreto','Selecione o motivo')+'</div>'+
+      '<div class="fld">'+
+        '<label>Comprovante de pagamento da compra</label>'+
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo</span><button class="fp-btn" type="button">Browse</button></div>'+
+        '<div class="fld-desc">Envie o arquivo com o registro na fatura, ou solicite uma declaração de compra para a administradora do cartão de crédito.</div>'+
+      '</div>'+
+      '<div class="fld"><label>Email atual</label><input value="" placeholder="Digite o e-mail que será atualizado"></div>'+
+      '<div class="fld"><label>Novo e-mail *</label><input value="" placeholder="Digite o novo e-mail"></div>'+
+      '<div class="fld"><label>CPF</label><input value="" placeholder="Digite o CPF"></div>'+
+      '<div class="fld">'+
+        '<label>Código da transação</label>'+
+        '<input value="" placeholder="Ex: HP00000000000001">'+
+        '<div class="fld-desc">Você encontra esse código no email recebido com os detalhes de acesso ao produto. Ele tem duas letras e alguns números. Ex: HP00000000000001 ou HP00000000000001C1.</div>'+
+      '</div>'+
+      '<div class="fld sel-drop" id="sd-motivo-compra">'+
+        '<label>Selecione o motivo da alteração</label>'+
+        '<div class="sel-box filled" onclick="toggleSelDrop(\'sd-motivo-compra\')">Digitou o email errado '+_chev2+'</div>'+
+        '<div class="sel-menu sel-menu-drop">'+
+          '<div class="sel-item-disabled">Atualizar o email do aluno</div>'+
+          '<div class="sel-item-active">Digitou o email errado</div>'+
+          '<div class="sel-item-disabled">Email foi hackeado</div>'+
+          '<div class="sel-item-disabled">Reunir produtos no mesmo email</div>'+
+          '<div class="sel-item-disabled">Dar acesso de presente a outra pessoa</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'dados\')">Voltar</button>'+
+      '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'enviado\')">Enviar solicitação '+IC_AR+'</button></div></div>';
+  } else if(step==='dados-upload'){
+    h='<div class="help-card"><div class="etapa-label">Solicitação de atendimento</div><div class="help-h1">Informe os dados necessários para o atendimento</div>'+
+      '<div class="fld">'+
+        '<label>Novo e-mail que deseja atualizar *</label>'+
+        '<input value="" placeholder="Digite o endereço de e-mail">'+
+      '</div>'+
+      '<div class="fld">'+
+        '<label>Foto do documento</label>'+
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo</span><button class="fp-btn" type="button">Browse</button></div>'+
+        '<div class="fld-desc">Documento de identidade oficial com foto do titular do CPF atualmente cadastrado, podendo ser CNH (a CNH deverá estar aberta), RG com CPF com o nome completo ou carteira profissional.</div>'+
+      '</div>'+
+      '<div class="fld">'+
+        '<label>Anexe foto recente do rosto (selfie)</label>'+
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo</span><button class="fp-btn" type="button">Browse</button></div>'+
+        '<div class="fld-desc">Anexe foto recente do rosto (selfie). Dicas: a selfie deve ser tirada em um local bem iluminado, com o rosto visível e centralizado. Mantenha uma expressão neutra (sem sorrisos ou outras expressões) e evite o uso de filtros ou efeitos. <span style="color:var(--link,#E05C00);text-decoration:underline;cursor:pointer;">imagem.</span></div>'+
+      '</div>'+
       '<div class="help-actions"><button class="btn-voltar" onclick="asisGo(\'dados\')">Voltar</button>'+
       '<button class="ui-btn ui-btn-primary" onclick="asisGo(\'enviado\')">Enviar solicitação '+IC_AR+'</button></div></div>';
   } else if(step==='chat'){
@@ -468,7 +513,7 @@ function vstep(active){
 function selBox(val,ph){ return '<div class="sel-box'+(val?' filled':'')+'">'+(val||ph)+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M6 9l6 6 6-6"/></svg></div>'; }
 function selMenu(opts,cb){ var h='<div class="sel-menu">'; opts.forEach(function(o){ h+='<div onclick="'+cb+'(\''+o.replace(/'/g,"\\'")+'\')">'+o+'</div>'; }); return h+'</div>'; }
 function asisPersona(el,p){ state.asis.persona=p; document.querySelectorAll('#asis-inner .pill-opt').forEach(function(x){x.classList.remove('sel');}); el.classList.add('sel'); document.getElementById('asis-cta').disabled=false; }
-function asisAfterPersona(){ if(state.asis.persona==='Produtor') asisGo('chat'); else asisGo('motispec'); }
+function asisAfterPersona(){ asisGo('motispec'); }
 function asisPickMotivo(v){ state.asis.motivo=v; asisGo('motispec'); }
 function asisPickEspec(v){ state.asis.espec=v; asisGo('motispec'); }
 function toggleSelDrop(id){
@@ -607,6 +652,10 @@ ANNO['asis-motispec']={ title:'Seleção de motivo e especificação', step:'Det
 ANNO['asis-dados']={ title:'Formulário', step:'Dados do atendimento', secs:[
   S('O que a pessoa faz','do',['Preenche nome, e-mail, descrição, país e idioma.']),
   S('O que falta','check',['O documento e a selfie nem são pedidos aqui: só depois, dentro do atendimento, o que alonga a jornada.']) ]};
+ANNO['asis-dados-upload']={ title:'Documentação exigida', step:'Dados do atendimento', secs:[
+  S('O que a pessoa faz','do',['Informa o novo e-mail e envia foto do documento de identidade e selfie antes de submeter o chamado.']),
+  S('Atrito hoje','check',['Hoje esses dados são solicitados dentro do atendimento, gerando idas e vindas com o agente e aumentando o tempo de resolução.']),
+  S('Por que importa','safe',['Antecipar a coleta de documento e selfie no formulário reduz interações humanas e acelera a triagem.']) ]};
 ANNO['asis-chat']={ title:'Chat do Produtor', step:'Atendimento', secs:[
   S('O que acontece','do',['O Produtor cai em uma fila de chat e o atendente conduz tudo manualmente.']),
   S('Custo','safe',['Ocupa um atendente em tempo real, do início ao fim.']) ]};
@@ -1039,6 +1088,19 @@ function startTitAsis() {
   titAsisGo('persona');
 }
 
+function titSideBar(activeIdx) {
+  var isPfPj = state.titScenario === 'pf-pj';
+  var steps = isPfPj
+    ? ['Detalhe da solicitação', 'Dados do atendimento', 'Dados do CPF atual', 'Dados do novo CNPJ']
+    : ['Detalhe da solicitação', 'Dados do atendimento', 'Dados do CNPJ atual', 'Dados do novo CNPJ'];
+  var html = '';
+  steps.forEach(function(s, i) {
+    var cls = i < activeIdx ? ' done' : i === activeIdx ? ' active' : '';
+    html += '<div class="asis-side-step' + cls + '"><span class="asis-side-dot"></span>' + s + '</div>';
+  });
+  return '<div class="asis-sidebar">' + html + '</div>';
+}
+
 function titAsisGo(step) {
   state.titAsisStep = step;
   var el = document.getElementById('tit-asis-inner');
@@ -1140,15 +1202,9 @@ function titAsisGo(step) {
     var desc = isPfPj3
       ? 'Quero alterar minha conta de Pessoa Física para o CNPJ da minha empresa.'
       : 'Quero trocar o CNPJ da minha conta para um novo CNPJ.';
-    var sideSteps = isPfPj3
-      ? ['Detalhe da solicitação', 'Dados do atendimento', 'Dados do CNPJ']
-      : ['Detalhe da solicitação', 'Dados do atendimento', 'Dados do CNPJ atual', 'Dados do novo CNPJ'];
-    var sideHtml = '';
-    sideSteps.forEach(function(s, i) {
-      sideHtml += '<div class="asis-side-step' + (i === 0 ? ' done' : i === 1 ? ' active' : '') + '"><span class="asis-side-dot"></span>' + s + '</div>';
-    });
+    var sideHtml2 = titSideBar(1);
     h = '<div class="help-card help-card-cols">' +
-      '<div class="asis-sidebar">' + sideHtml + '</div>' +
+      sideHtml2 +
       '<div class="asis-main">' +
       '<div class="etapa-label" style="display:flex;align-items:center;gap:5px;">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;opacity:.55;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
@@ -1163,7 +1219,102 @@ function titAsisGo(step) {
         '<div class="pill-row" style="flex-wrap:wrap;gap:6px;"><div class="pill-opt sel">Português Brasileiro</div><div class="pill-opt">Espanhol</div><div class="pill-opt">Inglês</div><div class="pill-opt">Francês</div><div class="pill-opt">Italiano</div></div>' +
       '</div>' +
       '<div class="help-actions" style="padding-top:10px;"><button class="btn-voltar" onclick="titAsisGo(\'motispec\')">Voltar</button>' +
-      '<button class="ui-btn ui-btn-primary" onclick="titAsisGo(\'enviado\')">Avançar ' + IC_AR + '</button></div>' +
+      '<button class="ui-btn ui-btn-primary" onclick="titAsisGo(state.titScenario===\'pf-pj\'?\'dados-cpf-atual\':\'dados-cnpj-atual\')">Avançar ' + IC_AR + '</button></div>' +
+      '<div style="text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-200);"><span style="font-size:17px;font-weight:800;color:var(--gray-300);letter-spacing:-.01em;">hotmart</span></div>' +
+      '</div></div>';
+  } else if (step === 'dados-cpf-atual') {
+    var IC_PDF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>';
+    h = '<div class="help-card help-card-cols">' + titSideBar(2) +
+      '<div class="asis-main">' +
+      '<div class="etapa-label" style="display:flex;align-items:center;gap:5px;">' + IC_PDF + 'Central de Ajuda · portal externo</div>' +
+      '<div class="help-h1" style="font-size:17px;margin-bottom:14px;">Documentos do CPF atual</div>' +
+      '<div class="fld"><label>Número do CPF atual *</label><input value="115.***.***-94" placeholder="000.000.000-00"></div>' +
+      '<div class="fld"><label>Frente do documento (RG, CNH ou carteira profissional) *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo PDF</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Documento de identidade oficial com foto. Formatos aceitos: PDF. Tamanho máximo: 10 MB. Para CNH, envie a frente com os dados pessoais.</div>' +
+      '</div>' +
+      '<div class="fld"><label>Verso do documento *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo PDF</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Verso do mesmo documento. CNH: verso com dados do processo habilitador.</div>' +
+      '</div>' +
+      '<div class="fld"><label>Selfie segurando o documento *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Foto recente com o rosto visível e o documento aberto na frente. Boa iluminação, sem óculos escuros, sem filtros.</div>' +
+      '</div>' +
+      '<div class="help-actions" style="padding-top:10px;"><button class="btn-voltar" onclick="titAsisGo(\'dados\')">Voltar</button>' +
+      '<button class="ui-btn ui-btn-primary" onclick="titAsisGo(\'dados-novo-cnpj\')">Avançar ' + IC_AR + '</button></div>' +
+      '<div style="text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-200);"><span style="font-size:17px;font-weight:800;color:var(--gray-300);letter-spacing:-.01em;">hotmart</span></div>' +
+      '</div></div>';
+  } else if (step === 'dados-novo-cnpj') {
+    var IC_PDF2 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>';
+    h = '<div class="help-card help-card-cols">' + titSideBar(3) +
+      '<div class="asis-main">' +
+      '<div class="etapa-label" style="display:flex;align-items:center;gap:5px;">' + IC_PDF2 + 'Central de Ajuda · portal externo</div>' +
+      '<div class="help-h1" style="font-size:17px;margin-bottom:14px;">Dados do novo CNPJ</div>' +
+      '<div class="fld"><label>CNPJ da empresa *</label><input value="12.345.678/0001-99" placeholder="00.000.000/0000-00"></div>' +
+      '<div class="fld"><label>Documento de constituição da empresa *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo PDF</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Contrato Social, CCMEI ou Estatuto Social registrado na Junta Comercial. Envie o PDF original completo, com todas as páginas e assinaturas.</div>' +
+      '</div>' +
+      '<div class="info-box-tit">Adicione os dados das pessoas físicas associadas ao novo CNPJ, incluindo o próprio solicitante. Cada sócio receberá um e-mail para confirmar os dados.</div>' +
+      '<div id="tit-socios-list" style="margin-top:8px;"></div>' +
+      '<button class="btn-add-socio" onclick="titAddSocio()" id="tit-add-socio-btn">+ Adicionar sócio</button>' +
+      '<div class="help-actions" style="padding-top:14px;"><button class="btn-voltar" onclick="titAsisGo(\'dados-cpf-atual\')">Voltar</button>' +
+      '<button class="ui-btn ui-btn-primary" id="tit-enviar-btn" disabled onclick="titAsisGo(\'enviado\')">Enviar solicitação ' + IC_AR + '</button></div>' +
+      '<div style="text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-200);"><span style="font-size:17px;font-weight:800;color:var(--gray-300);letter-spacing:-.01em;">hotmart</span></div>' +
+      '</div></div>';
+  } else if (step === 'dados-cnpj-atual') {
+    var IC_PDF3 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>';
+    h = '<div class="help-card help-card-cols">' + titSideBar(2) +
+      '<div class="asis-main">' +
+      '<div class="etapa-label" style="display:flex;align-items:center;gap:5px;">' + IC_PDF3 + 'Central de Ajuda · portal externo</div>' +
+      '<div class="help-h1" style="font-size:17px;margin-bottom:14px;">Documentos do CNPJ atual</div>' +
+      '<div class="fld"><label>CNPJ atual da conta *</label><input value="12.345.678/0001-99" placeholder="00.000.000/0000-00"></div>' +
+      '<div class="fld"><label>Documento de constituição da empresa atual *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo PDF</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Contrato Social, Estatuto Social ou CCMEI registrado na Junta Comercial. PDF completo com todas as páginas e assinaturas.</div>' +
+      '</div>' +
+      '<div class="info-box-tit">Adicione os dados do sócio responsável pela solicitação. Os demais sócios receberão e-mail solicitando aceite formal.</div>' +
+      '<div class="socio-section-label">Sócio responsável</div>' +
+      '<div class="fld"><label>E-mail pessoal *</label><input value="thiago.oliveira@email.com" placeholder="e-mail do sócio"></div>' +
+      '<div class="fld"><label>Frente do documento (RG, CNH) *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo PDF</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Frente do RG (CIN), CNH ou carteira profissional. PDF. Tamanho máximo: 10 MB.</div>' +
+      '</div>' +
+      '<div class="fld"><label>Verso do documento *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo PDF</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Verso do mesmo documento, com o CPF visível.</div>' +
+      '</div>' +
+      '<div class="fld"><label>Selfie recente do rosto *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Foto do rosto em boa iluminação. Expressão neutra, sem óculos escuros, sem filtros.</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;margin-top:14px;">' +
+        '<button class="btn-voltar" onclick="titAsisGo(\'dados\')">Cancelar</button>' +
+        '<button class="ui-btn" style="padding:10px 20px;font-size:13px;background:var(--gray-100);border:1px solid var(--gray-300);color:var(--black);border-radius:8px;cursor:pointer;" onclick="titSalvarSocioAtual()">Salvar sócio</button>' +
+      '</div>' +
+      '<div class="help-actions" style="padding-top:14px;border-top:1px solid var(--gray-200);margin-top:14px;">' +
+        '<button class="btn-voltar" onclick="titAsisGo(\'dados\')">Voltar</button>' +
+        '<button class="ui-btn ui-btn-primary" onclick="titAsisGo(\'dados-novo-cnpj-pjpj\')">Avançar ' + IC_AR + '</button>' +
+      '</div>' +
+      '<div style="text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-200);"><span style="font-size:17px;font-weight:800;color:var(--gray-300);letter-spacing:-.01em;">hotmart</span></div>' +
+      '</div></div>';
+  } else if (step === 'dados-novo-cnpj-pjpj') {
+    var IC_PDF4 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>';
+    h = '<div class="help-card help-card-cols">' + titSideBar(3) +
+      '<div class="asis-main">' +
+      '<div class="etapa-label" style="display:flex;align-items:center;gap:5px;">' + IC_PDF4 + 'Central de Ajuda · portal externo</div>' +
+      '<div class="help-h1" style="font-size:17px;margin-bottom:14px;">Dados do novo CNPJ</div>' +
+      '<div class="fld"><label>CNPJ para atualização *</label><input value="98.765.432/0001-11" placeholder="00.000.000/0000-00"></div>' +
+      '<div class="fld"><label>Documento de constituição da nova empresa *</label>' +
+        '<div class="file-pick"><span class="fp-lbl">Selecione um arquivo PDF</span><button class="fp-btn" type="button">Browse</button></div>' +
+        '<div class="fld-desc">Contrato Social, CCMEI ou Estatuto Social registrado na Junta Comercial. PDF completo com todas as páginas e assinaturas reconhecidas.</div>' +
+      '</div>' +
+      '<div class="info-box-tit">Adicione os dados das pessoas físicas associadas ao novo CNPJ. Todos os sócios receberão um e-mail solicitando aceite formal da transferência.</div>' +
+      '<div id="tit-socios-list-pjpj" style="margin-top:8px;"></div>' +
+      '<button class="btn-add-socio" onclick="titAddSocioPjPj()" id="tit-add-socio-btn-pjpj">+ Adicionar sócio</button>' +
+      '<div class="help-actions" style="padding-top:14px;"><button class="btn-voltar" onclick="titAsisGo(\'dados-cnpj-atual\')">Voltar</button>' +
+      '<button class="ui-btn ui-btn-primary" id="tit-enviar-btn-pjpj" disabled onclick="titAsisGo(\'enviado\')">Enviar solicitação ' + IC_AR + '</button></div>' +
       '<div style="text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-200);"><span style="font-size:17px;font-weight:800;color:var(--gray-300);letter-spacing:-.01em;">hotmart</span></div>' +
       '</div></div>';
   } else if (step === 'enviado') {
@@ -1196,6 +1347,59 @@ function titAsisGo(step) {
   if (step === 'loop') titAsisRenderThread();
 }
 
+function titAddSocio() {
+  var list = document.getElementById('tit-socios-list');
+  var addBtn = document.getElementById('tit-add-socio-btn');
+  if (!list) return;
+  if (addBtn) addBtn.style.display = 'none';
+  list.innerHTML = '<div class="socio-card"><div class="socio-card-head">Sócio 1</div>' +
+    '<div class="fld" style="margin-bottom:8px;"><label>Nome completo *</label><input value="Thiago Pereira"></div>' +
+    '<div class="fld" style="margin-bottom:8px;"><label>E-mail *</label><input value="thiago.oliveira@email.com"></div>' +
+    '<div class="fld" style="margin-bottom:12px;"><label>CPF *</label><input value="115.***.***-94"></div>' +
+    '<button class="ui-btn" style="padding:7px 16px;font-size:12.5px;background:var(--gray-100);border:1px solid var(--gray-300);color:var(--black);border-radius:7px;cursor:pointer;" onclick="titSaveSocio()">Salvar sócio</button>' +
+    '</div>';
+}
+
+function titSaveSocio() {
+  var list = document.getElementById('tit-socios-list');
+  var addBtn = document.getElementById('tit-add-socio-btn');
+  if (list) list.innerHTML = '<div class="socio-added">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2.5" style="width:14px;height:14px;flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg>' +
+    'Thiago Pereira · thiago.oliveira@email.com</div>';
+  if (addBtn) { addBtn.style.display = 'inline-flex'; addBtn.textContent = '+ Adicionar outro sócio'; }
+  var btn = document.getElementById('tit-enviar-btn');
+  if (btn) btn.disabled = false;
+}
+
+function titAddSocioPjPj() {
+  var list = document.getElementById('tit-socios-list-pjpj');
+  var addBtn = document.getElementById('tit-add-socio-btn-pjpj');
+  if (!list) return;
+  if (addBtn) addBtn.style.display = 'none';
+  list.innerHTML = '<div class="socio-card"><div class="socio-card-head">Sócio 1</div>' +
+    '<div class="fld" style="margin-bottom:8px;"><label>Nome completo *</label><input value="Maria Santos"></div>' +
+    '<div class="fld" style="margin-bottom:8px;"><label>E-mail *</label><input value="maria.santos@empresa.com.br"></div>' +
+    '<div class="fld" style="margin-bottom:12px;"><label>CPF *</label><input value="234.567.890-11"></div>' +
+    '<button class="ui-btn" style="padding:7px 16px;font-size:12.5px;background:var(--gray-100);border:1px solid var(--gray-300);color:var(--black);border-radius:7px;cursor:pointer;" onclick="titSaveSocioPjPj()">Salvar sócio</button>' +
+    '</div>';
+}
+
+function titSaveSocioPjPj() {
+  var list = document.getElementById('tit-socios-list-pjpj');
+  var addBtn = document.getElementById('tit-add-socio-btn-pjpj');
+  if (list) list.innerHTML = '<div class="socio-added">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2.5" style="width:14px;height:14px;flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg>' +
+    'Maria Santos · maria.santos@empresa.com.br</div>';
+  if (addBtn) { addBtn.style.display = 'inline-flex'; addBtn.textContent = '+ Adicionar outro sócio'; }
+  var btn = document.getElementById('tit-enviar-btn-pjpj');
+  if (btn) btn.disabled = false;
+}
+
+function titSalvarSocioAtual() {
+  var btn = document.querySelector('[onclick="titSalvarSocioAtual()"]');
+  if (btn) { btn.textContent = 'Sócio salvo'; btn.style.background = 'var(--green-bg,#E6F5EE)'; btn.style.color = '#128A4B'; btn.style.borderColor = '#128A4B'; }
+}
+
 function titAsisPersona(el) {
   document.querySelectorAll('#tit-asis-inner .pill-opt').forEach(function(x) { x.classList.remove('sel'); });
   el.classList.add('sel');
@@ -1222,48 +1426,48 @@ var TIT_ASIS_SETS = {
   tit_pf_pj: {
     msgs: [
       {t:'sys', text:'Solicitação #482310 aberta · Motivo: Alteração de documentos e titularidade'},
-      {t:'agent', who:'Ana · Suporte N1', text:'Olá! Para alterar a natureza da conta de Pessoa Física para Pessoa Jurídica, precisamos: RG ou CNH (frente e verso), selfie segurando o documento, Contrato Social ou CCMEI com o seu nome no quadro societário, e o cartão CNPJ.'},
-      {t:'me', text:'Entendido. Enviei todos os documentos.'},
+      {t:'sys', text:'Anexos recebidos: CNH (frente PDF), CNH (verso PDF), selfie com documento, Contrato Social PDF, CNPJ 12.345.678/0001-99'},
+      {t:'agent', who:'Ana · Suporte N1', text:'Olá, Thiago! Recebemos sua solicitação e os documentos anexados. Estamos analisando. Retornaremos assim que concluirmos a verificação.'},
       {t:'day', text:'1 dia depois'},
-      {t:'reprovado', who:'Ana · Suporte N1', text:'A selfie está com pouca iluminação e o rosto não ficou nítido. Poderia reenviar seguindo as orientações: boa iluminação, sem óculos escuros, rosto centralizado?'},
-      {t:'me', text:'Reenviei a selfie.'},
+      {t:'reprovado', who:'Ana · Suporte N1', text:'Obrigada pelo envio. A selfie está com pouca iluminação e o rosto não ficou nítido. Poderia reenviar seguindo as orientações: boa iluminação, sem óculos escuros, rosto centralizado?'},
+      {t:'me', text:'Reenviei a selfie com melhor iluminação.'},
       {t:'day', text:'1 dia depois'},
-      {t:'reprovado', who:'Ana · Suporte N1', text:'O Contrato Social enviado está em formato de imagem (print de tela) e as assinaturas não estão legíveis. Precisamos do documento original em PDF, com todas as páginas e assinaturas reconhecidas.'},
-      {t:'me', text:'Enviei o Contrato Social em PDF.'},
+      {t:'reprovado', who:'Ana · Suporte N1', text:'O Contrato Social recebido está com páginas faltando e a assinatura dos sócios está ilegível na última página. Precisamos do PDF completo, com todas as páginas.'},
+      {t:'me', text:'Enviei o Contrato Social completo em PDF.'},
       {t:'sys', text:'Atendimento encaminhado para o time N2 para validação da titularidade.'},
       {t:'day', text:'2 dias depois'},
-      {t:'agent', who:'Suporte N2', text:'Documentos validados. Seu CPF consta no quadro societário. A natureza da conta foi alterada para Pessoa Jurídica (CNPJ 12.345.678/0001-99).'}
+      {t:'agent', who:'Suporte N2', text:'Documentos validados. CPF confirmado no quadro societário. A natureza da conta foi alterada para Pessoa Jurídica (CNPJ 12.345.678/0001-99).'}
     ],
     desf: {
       title: 'Conta migrada para PJ',
       dias: '4 dias',
-      inter: '9 interações',
-      cost: 'N1 reprovou duas vezes (selfie com baixa iluminação, Contrato Social em print ao invés de PDF) e escalou para N2. Todo o processo validou uma informação (CPF no quadro societário) que o SERPRO retorna em segundos via API.'
+      inter: '8 interações',
+      cost: 'Mesmo com os docs já anexados no formulário, N1 reprovou a selfie (iluminação) e o Contrato Social (incompleto) antes de escalar para N2. O processo inteiro validou uma informação — CPF no QSA — que o SERPRO retorna via API em segundos.'
     }
   },
   tit_pj_pj: {
     msgs: [
       {t:'sys', text:'Solicitação #482341 aberta · Motivo: Troca de titularidade (PJ → PJ)'},
-      {t:'agent', who:'Bruno · Suporte N1', text:'Olá! Para alterar o CNPJ da conta, precisamos: RG ou CNH do responsável, selfie, Contrato Social da empresa atual assinado por todos os sócios, e Contrato Social da nova empresa.'},
-      {t:'me', text:'Enviei os documentos da empresa atual.'},
+      {t:'sys', text:'Anexos recebidos: Contrato Social empresa atual (PDF), CNH (frente e verso PDF), selfie, dados do sócio responsável'},
+      {t:'agent', who:'Bruno · Suporte N1', text:'Olá, Thiago! Recebemos os documentos da empresa atual. Para prosseguir, precisamos também do Contrato Social da nova empresa (CNPJ 98.765.432/0001-11) em PDF completo e assinado.'},
+      {t:'me', text:'Enviei o Contrato Social da nova empresa em PDF.'},
       {t:'day', text:'1 dia depois'},
-      {t:'reprovado', who:'Bruno · Suporte N1', text:'Faltam os documentos da nova empresa e o aceite formal dos demais sócios da empresa atual (precisa ser por e-mail cadastrado na Hotmart). Poderia providenciar?'},
-      {t:'me', text:'A nova empresa é ME. Enviei o Contrato Social. Estou solicitando o aceite à minha sócia.'},
+      {t:'agent', who:'Bruno · Suporte N1', text:'Recebemos. Porém, o processo exige o aceite formal dos demais sócios da empresa atual (CNPJ 12.345.678/0001-99) pelo e-mail cadastrado na Hotmart de cada um.'},
+      {t:'me', text:'Entendido. Estou solicitando o aceite à minha sócia.'},
       {t:'day', text:'2 dias depois'},
-      {t:'agent', who:'Bruno · Suporte N1', text:'Recebemos o Contrato Social. Aguardamos o aceite da outra sócia pelo e-mail cadastrado dela na Hotmart.'},
-      {t:'me', text:'Minha sócia enviou o aceite por e-mail.'},
+      {t:'me', text:'Minha sócia enviou o aceite pelo e-mail dela cadastrado na Hotmart.'},
       {t:'sys', text:'Atendimento encaminhado para o time N2.'},
       {t:'day', text:'3 dias depois'},
-      {t:'agent', who:'Carlos · Suporte N2', text:'Olá, sou o Carlos, vou continuar o atendimento. Poderia reenviar o Contrato Social da nova empresa e a confirmação da sócia? Não consigo localizar os arquivos anteriores.'},
-      {t:'me', text:'Reenviei os documentos novamente.'},
+      {t:'agent', who:'Carlos · Suporte N2', text:'Olá, assumi o atendimento. Preciso verificar os documentos da nova empresa. Poderia reenviar o Contrato Social dela? Não consigo localizar os arquivos no sistema.'},
+      {t:'me', text:'Reenviei o Contrato Social da nova empresa novamente.'},
       {t:'day', text:'3 dias depois'},
-      {t:'agent', who:'Suporte N2', text:'Titularidade validada. A conta foi migrada para o novo CNPJ 98.765.432/0001-11. Saldo e produtos mantidos.'}
+      {t:'agent', who:'Suporte N2', text:'Titularidade validada. Conta migrada para o CNPJ 98.765.432/0001-11. Saldo e produtos mantidos.'}
     ],
     desf: {
       title: 'CNPJ alterado com sucesso',
       dias: '9 dias',
-      inter: '13 interações',
-      cost: 'o caso mais complexo: documentos de duas empresas, aceite de todos os sócios de ambas, troca de atendente com perda total de contexto e reenvio de tudo. Um processo de 9 dias que, na proposta, seria reduzido com biometria + SERPRO eliminando o envio de documentos físicos.'
+      inter: '11 interações',
+      cost: 'Documentos de duas empresas, aceite de todos os sócios, troca de atendente com perda de contexto e reenvio dos arquivos. 9 dias para validar informações que a API SERPRO entrega em segundos.'
     }
   }
 };
@@ -1656,6 +1860,66 @@ ANNO['tit-asis-persona'] = { title:'Abertura de chamado', step:'Titularidade · 
   S('O que o usuário faz','do',['Identifica seu perfil (Produtor ou Afiliado) para iniciar a solicitação no portal de suporte.']),
   S('Custo já começa aqui','check',['A partir desta etapa, a resolução depende integralmente do atendimento humano.']),
   S('Ponto de atenção','safe',['Nenhuma triagem ou pré-validação acontece aqui: o ticket vai para a fila geral antes de qualquer checagem.'])
+]};
+
+ANNO['tit-asis-motispec'] = { title:'Motivo e documentos necessários', step:'Titularidade · Como é hoje', secs:[
+  S('O que o usuário vê','do',['A Central de Ajuda exibe a lista de documentos exigidos para a solicitação: identidade (frente e verso), selfie, Contrato Social ou CCMEI autenticado, e documentos dos sócios.']),
+  S('Problema central','check',['O usuário descobre o que precisa enviar apenas neste momento, depois de ter aberto o chamado. Qualquer documento em formato errado ou incompleto só será detectado pelo agente após dias.']),
+  S('Link para a proposta','safe',['A tela oferece um atalho para ver como o formulário funcionaria integrado à Hotmart — com dados pré-preenchidos e sem sair da plataforma.'])
+]};
+
+ANNO['tit-asis-proposta-embedded'] = { title:'Formulário integrado (proposta)', step:'Titularidade · Comparativo', secs:[
+  S('O que é diferente','do',['Na proposta, o formulário de suporte fica dentro da própria Hotmart. Nome, e-mail e especificação são pré-preenchidos automaticamente pelo sistema, sem que o usuário precise digitar.']),
+  S('Benefícios imediatos','check',['Elimina erros de digitação no e-mail e inconsistências de identificação. O agente recebe o ticket já com dados confiáveis, sem precisar cruzar informações manualmente.']),
+  S('Contexto da simulação','safe',['Esta tela é apenas uma prévia do formulário integrado. O fluxo de hoje continua a partir daqui: clique em "Simular envio" para ver o andamento do ticket.'])
+]};
+
+ANNO['tit-asis-dados'] = { title:'Dados básicos da solicitação', step:'Titularidade · Como é hoje', secs:[
+  S('O que o usuário preenche','do',['Nome completo, e-mail da conta Hotmart, descrição livre do motivo, país e idioma. Esses dados são preenchidos manualmente no portal externo da Central de Ajuda.']),
+  S('Fricção evitável','check',['Nome e e-mail já existem na conta Hotmart. Exigir que o usuário os redigite no portal externo cria oportunidade para erro — um e-mail digitado errado, por exemplo, impede o atendimento de localizar a conta.']),
+  S('O que vem a seguir','safe',['Após os dados básicos, o usuário envia os documentos do titular (CPF ou CNPJ atual) e da empresa de destino. São mais dois passos antes de o ticket ser aberto.'])
+]};
+
+ANNO['tit-asis-enviado'] = { title:'Ticket aberto', step:'Titularidade · Como é hoje', secs:[
+  S('O que aconteceu','do',['O formulário foi enviado e o ticket foi criado. O usuário recebe um número de protocolo e aguarda contato por e-mail. Não há estimativa clara de prazo na tela.']),
+  S('A partir daqui','check',['O caso entra na fila geral do atendimento. Um agente N1 verifica os documentos manualmente e pode solicitar reenvio se algo estiver errado. Cada rodada de reenvio acrescenta 1 a 2 dias úteis.']),
+  S('Impacto no usuário','safe',['Sem visibilidade do andamento: o usuário não sabe em que etapa está, quem está analisando, nem quanto tempo falta. A resolução media é de 4 a 9 dias dependendo da complexidade.'])
+]};
+
+ANNO['tit-asis-loop'] = { title:'Atendimento via ticket', step:'Titularidade · Como é hoje', secs:[
+  S('Como funciona','do',['O agente analisa os documentos enviados e responde por escrito no ticket. Cada mensagem pode aprovar, reprovar ou solicitar informações adicionais. O usuário é notificado por e-mail.']),
+  S('Onde mora o custo','check',['Documentos reprovados (selfie com má iluminação, PDF incompleto, Contrato Social sem assinaturas) reiniciam o ciclo de análise. Cada ciclo consome 1 a 2 dias e uma nova interação do agente.']),
+  S('Troca de atendente','safe',['Em escalações para N2, o contexto frequentemente se perde e o usuário é solicitado a reenviar documentos que já havia enviado — como a simulação demonstra.'])
+]};
+
+ANNO['tit-asis-resolvido'] = { title:'Desfecho do atendimento', step:'Titularidade · Como é hoje', secs:[
+  S('O que foi resolvido','do',['A alteração de titularidade foi efetivada após validação manual dos documentos pelo time N2. O usuário recebe confirmação por e-mail.']),
+  S('Custo real do processo','check',['O contador de dias e interações mostra o custo operacional real deste caso. Para PF-PJ: média de 4 dias e 8 interações. Para PJ-PJ: até 9 dias e mais de 10 interações.']),
+  S('Contraste com a proposta','safe',['Na proposta self-service (PF-PJ), biometria + SERPRO validam as mesmas informações em minutos, sem ticket. Para PJ-PJ, o CX ainda atua, mas sem reenvio de documentos físicos e com contexto preservado.'])
+]};
+
+ANNO['tit-asis-dados-cpf-atual'] = { title:'Documentos do CPF atual', step:'Titularidade · PF para PJ', secs:[
+  S('O que a pessoa envia','do',['CPF atual, frente e verso do documento (CNH ou RG) em PDF, e selfie segurando o documento. Tudo no formulário, antes de abrir o ticket.']),
+  S('Diferença vs hoje','check',['Hoje os documentos são solicitados pelo agente dentro do ticket — o usuário não sabe o que precisará trazer e o atendimento vira um vai-e-vem de reenvios.']),
+  S('Por que isso importa','safe',['Antecipar a coleta no formulário reduz interações no ticket e agiliza a triagem. O agente abre o caso já com os documentos em mãos.'])
+]};
+
+ANNO['tit-asis-dados-novo-cnpj'] = { title:'Dados do novo CNPJ', step:'Titularidade · PF para PJ', secs:[
+  S('O que a pessoa envia','do',['CNPJ da empresa, Contrato Social (PDF completo da Junta Comercial), e dados de pelo menos um sócio. O documento de constituição substitui o envio de print ou cópia informal.']),
+  S('Sócios no formulário','check',['Cada sócio adicionado receberá e-mail de confirmação. Isso informa o processo antes de abrir o ticket, mas o aceite formal ainda ocorre dentro do atendimento.']),
+  S('Atrito persistente','safe',['Mesmo com o formulário preenchido, o agente pode reprovar documentos incompletos ou pedir reenvio — como mostra a simulação do ticket a seguir.'])
+]};
+
+ANNO['tit-asis-dados-cnpj-atual'] = { title:'Documentos do CNPJ atual', step:'Titularidade · PJ para PJ', secs:[
+  S('O que a pessoa envia','do',['CNPJ atual, Contrato Social em PDF da empresa de origem, e dados do sócio responsável: e-mail, frente e verso do documento, selfie.']),
+  S('Por que o sócio responsável','check',['O aceite formal de todos os sócios da empresa atual é exigido. Identificar o responsável no formulário antecipa parte da triagem, mas o processo de aceite ocorre dentro do ticket.']),
+  S('Complexidade do caso PJ-PJ','safe',['Duas empresas, múltiplos sócios, documentos de ambas as empresas. É o caso mais custoso operacionalmente, como a simulação do ticket demonstra.'])
+]};
+
+ANNO['tit-asis-dados-novo-cnpj-pjpj'] = { title:'Dados do novo CNPJ', step:'Titularidade · PJ para PJ', secs:[
+  S('O que a pessoa envia','do',['CNPJ para o qual a conta será migrada, Contrato Social em PDF da nova empresa, e dados dos sócios desta empresa.']),
+  S('Dois conjuntos de documentos','check',['PJ para PJ exige documentação completa de duas empresas distintas. Isso multiplica as chances de rejeição por documento incompleto ou assinatura ilegível.']),
+  S('O que vem a seguir','safe',['Com todos os dados submetidos, o ticket é aberto. A simulação mostra como o atendimento ainda gera retrabalho mesmo com o formulário preenchido.'])
 ]};
 
 ANNO['socia-conta'] = { title:'Sócia · Criar conta', step:'Início do fluxo', secs:[

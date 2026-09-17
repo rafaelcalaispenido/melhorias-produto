@@ -1442,7 +1442,7 @@ var TIT_ASIS_SETS = {
       title: 'Conta migrada para PJ',
       dias: '4 dias',
       inter: '8 interações',
-      cost: 'Mesmo com os docs já anexados no formulário, N1 reprovou a selfie (iluminação) e o Contrato Social (incompleto) antes de escalar para N2. O processo inteiro validou uma informação — CPF no QSA — que o SERPRO retorna via API em segundos.'
+      cost: 'Mesmo com os docs já anexados no formulário, N1 reprovou a selfie (iluminação) e o Contrato Social (incompleto) antes de escalar para N2. O processo inteiro validou uma informação (CPF no QSA) que o SERPRO retorna via API em segundos.'
     }
   },
   tit_pj_pj: {
@@ -1820,7 +1820,7 @@ function titGoResult() {
   }, 800);
 }
 
-/* Anotações — titularidade */
+/* Anotações: titularidade */
 ANNO['tit-conta-hoje'] = { title:'Minha Conta · Titularidade', step:'Como é hoje', secs:[
   S('O que o usuário encontra','do',['O campo "Natureza do negócio" está bloqueado. Alterar a natureza da conta (de PF para PJ, ou de um CNPJ para outro) só é possível abrindo um chamado no atendimento, com envio de documentos e selfie.']),
   S('Impacto operacional','check',['Qualquer solicitação gera um ticket com validação manual: documento, selfie, QSA, aceite de sócios. Casos PJ envolvem N2 e múltiplas interações.']),
@@ -1844,7 +1844,7 @@ ANNO['tit-cnpj'] = { title:'Consulta CNPJ via SERPRO', step:'Validação automá
 ANNO['tit-confirmar'] = { title:'Confirmação + 2FA', step:'Último passo antes da validação', secs:[
   S('O que a pessoa faz','do',['Confere os dados pré-preenchidos pelo SERPRO e confirma com um código de 6 dígitos enviado ao e-mail ou SMS cadastrado (2FA obrigatório em todas as trocas de titularidade).']),
   S('PF→PJ (self-service)','check',['CPF no QSA + biometria + 2FA = alteração imediata, sem CX. O sócio único é o próprio solicitante.']),
-  S('PJ→PJ (múltiplos sócios)','safe',['Após o 2FA do solicitante, cada sócio recebe um e-mail. Se já tem conta Hotmart, autentica pela própria conta (biometria + 2FA). Se não tem conta, escolhe entre: (1) criar conta Hotmart e confirmar com biometria + documento + 2FA, ou (2) enviar documentos sem criar conta — nesse caso o documento com QR Code é validado automaticamente via API (CIN/Gov.br, CNH/SENATRAN); sem QR Code, o time de CX faz a análise manual. A alteração só é efetivada após todos os sócios validarem.'])
+  S('PJ→PJ (múltiplos sócios)','safe',['Após o 2FA do solicitante, cada sócio recebe um e-mail. Se já tem conta Hotmart, autentica pela própria conta (biometria + 2FA). Se não tem conta, escolhe entre: (1) criar conta Hotmart e confirmar com biometria + documento + 2FA, ou (2) enviar documentos sem criar conta; nesse caso o documento com QR Code é validado automaticamente via API (CIN/Gov.br, CNH/SENATRAN); sem QR Code, o time de CX faz a análise manual. A alteração só é efetivada após todos os sócios validarem.'])
 ]};
 ANNO['tit-result-pf-pj'] = { title:'Conta migrada', step:'Desfecho · PF→PJ', secs:[
   S('O que aconteceu','do',['Biometria validou a identidade; SERPRO confirmou o CPF no QSA. Conta alterada em minutos, sem ticket.']),
@@ -1852,9 +1852,9 @@ ANNO['tit-result-pf-pj'] = { title:'Conta migrada', step:'Desfecho · PF→PJ', 
   S('Escala','safe',['Alterações PF→PJ são frequentes em criadores que abrem empresa para formalizar a atividade. Um caso de alto volume.'])
 ]};
 ANNO['tit-result-pj-pj'] = { title:'Aguardando sócios', step:'Desfecho · PJ→PJ', secs:[
-  S('O que aconteceu','do',['Solicitante validou biometria + 2FA. Cada sócio da nova empresa recebeu e-mail com link para validar sua identidade (biometria + documento + 2FA) em sua própria conta Hotmart. Após todos validarem, entra a carência de 48h antes da efetivação.']),
-  S('Sócio sem conta Hotmart','check',['Recebe e-mail com duas opções: (1) criar conta Hotmart e confirmar via biometria + documento + 2FA, ou (2) enviar documentos sem criar conta. QR Code validado automaticamente via API Gov.br / SENATRAN / PF; sem QR Code vai para CX.']),
-  S('Melhoria vs hoje','safe',['Hoje: 9 dias, 13 interações, perda de contexto, reenvio de documentos físicos. Na proposta: ~1–2 dias, sem documentos, sem CX proativo.'])
+  S('O que aconteceu','do',['Solicitante validou biometria + 2FA. Cada sócio da nova empresa recebeu e-mail com link para validar sua identidade em sua própria conta Hotmart. Após todos validarem, entra a carência de 24 a 72h antes da efetivação.']),
+  S('3 caminhos para o sócio','check',['(1) Sócio já tem conta Hotmart: confirma pelo link recebido via biometria + 2FA. (2) Sócio sem conta: cria conta e valida biometria + documento (OCR + QR Code) + 2FA. (3) Sócio sem conta e sem intenção de criar: envia RG/CNH em PDF; QR Code validado automaticamente via API Gov.br / SENATRAN / PF; sem QR Code vai para CX.']),
+  S('Melhoria vs hoje','safe',['Hoje: 9 dias, 13 interações, perda de contexto, reenvio de documentos físicos. Na proposta: ~1 a 2 dias, sem documentos em papel, sem CX proativo.'])
 ]};
 ANNO['tit-asis-persona'] = { title:'Abertura de chamado', step:'Titularidade · Como é hoje', secs:[
   S('O que o usuário faz','do',['Identifica seu perfil (Produtor ou Afiliado) para iniciar a solicitação no portal de suporte.']),
@@ -1865,7 +1865,7 @@ ANNO['tit-asis-persona'] = { title:'Abertura de chamado', step:'Titularidade · 
 ANNO['tit-asis-motispec'] = { title:'Motivo e documentos necessários', step:'Titularidade · Como é hoje', secs:[
   S('O que o usuário vê','do',['A Central de Ajuda exibe a lista de documentos exigidos para a solicitação: identidade (frente e verso), selfie, Contrato Social ou CCMEI autenticado, e documentos dos sócios.']),
   S('Problema central','check',['O usuário descobre o que precisa enviar apenas neste momento, depois de ter aberto o chamado. Qualquer documento em formato errado ou incompleto só será detectado pelo agente após dias.']),
-  S('Link para a proposta','safe',['A tela oferece um atalho para ver como o formulário funcionaria integrado à Hotmart — com dados pré-preenchidos e sem sair da plataforma.'])
+  S('Link para a proposta','safe',['A tela oferece um atalho para ver como o formulário funcionaria integrado à Hotmart, com dados pré-preenchidos e sem sair da plataforma.'])
 ]};
 
 ANNO['tit-asis-proposta-embedded'] = { title:'Formulário integrado (proposta)', step:'Titularidade · Comparativo', secs:[
@@ -1876,7 +1876,7 @@ ANNO['tit-asis-proposta-embedded'] = { title:'Formulário integrado (proposta)',
 
 ANNO['tit-asis-dados'] = { title:'Dados básicos da solicitação', step:'Titularidade · Como é hoje', secs:[
   S('O que o usuário preenche','do',['Nome completo, e-mail da conta Hotmart, descrição livre do motivo, país e idioma. Esses dados são preenchidos manualmente no portal externo da Central de Ajuda.']),
-  S('Fricção evitável','check',['Nome e e-mail já existem na conta Hotmart. Exigir que o usuário os redigite no portal externo cria oportunidade para erro — um e-mail digitado errado, por exemplo, impede o atendimento de localizar a conta.']),
+  S('Fricção evitável','check',['Nome e e-mail já existem na conta Hotmart. Exigir que o usuário os redigite no portal externo cria oportunidade para erro: um e-mail digitado errado, por exemplo, impede o atendimento de localizar a conta.']),
   S('O que vem a seguir','safe',['Após os dados básicos, o usuário envia os documentos do titular (CPF ou CNPJ atual) e da empresa de destino. São mais dois passos antes de o ticket ser aberto.'])
 ]};
 
@@ -1889,7 +1889,7 @@ ANNO['tit-asis-enviado'] = { title:'Ticket aberto', step:'Titularidade · Como �
 ANNO['tit-asis-loop'] = { title:'Atendimento via ticket', step:'Titularidade · Como é hoje', secs:[
   S('Como funciona','do',['O agente analisa os documentos enviados e responde por escrito no ticket. Cada mensagem pode aprovar, reprovar ou solicitar informações adicionais. O usuário é notificado por e-mail.']),
   S('Onde mora o custo','check',['Documentos reprovados (selfie com má iluminação, PDF incompleto, Contrato Social sem assinaturas) reiniciam o ciclo de análise. Cada ciclo consome 1 a 2 dias e uma nova interação do agente.']),
-  S('Troca de atendente','safe',['Em escalações para N2, o contexto frequentemente se perde e o usuário é solicitado a reenviar documentos que já havia enviado — como a simulação demonstra.'])
+  S('Troca de atendente','safe',['Em escalações para N2, o contexto frequentemente se perde e o usuário é solicitado a reenviar documentos que já havia enviado, como a simulação demonstra.'])
 ]};
 
 ANNO['tit-asis-resolvido'] = { title:'Desfecho do atendimento', step:'Titularidade · Como é hoje', secs:[
@@ -1900,14 +1900,14 @@ ANNO['tit-asis-resolvido'] = { title:'Desfecho do atendimento', step:'Titularida
 
 ANNO['tit-asis-dados-cpf-atual'] = { title:'Documentos do CPF atual', step:'Titularidade · PF para PJ', secs:[
   S('O que a pessoa envia','do',['CPF atual, frente e verso do documento (CNH ou RG) em PDF, e selfie segurando o documento. Tudo no formulário, antes de abrir o ticket.']),
-  S('Diferença vs hoje','check',['Hoje os documentos são solicitados pelo agente dentro do ticket — o usuário não sabe o que precisará trazer e o atendimento vira um vai-e-vem de reenvios.']),
+  S('Diferença vs hoje','check',['Hoje os documentos são solicitados pelo agente dentro do ticket; o usuário não sabe o que precisará trazer e o atendimento vira um vai-e-vem de reenvios.']),
   S('Por que isso importa','safe',['Antecipar a coleta no formulário reduz interações no ticket e agiliza a triagem. O agente abre o caso já com os documentos em mãos.'])
 ]};
 
 ANNO['tit-asis-dados-novo-cnpj'] = { title:'Dados do novo CNPJ', step:'Titularidade · PF para PJ', secs:[
   S('O que a pessoa envia','do',['CNPJ da empresa, Contrato Social (PDF completo da Junta Comercial), e dados de pelo menos um sócio. O documento de constituição substitui o envio de print ou cópia informal.']),
   S('Sócios no formulário','check',['Cada sócio adicionado receberá e-mail de confirmação. Isso informa o processo antes de abrir o ticket, mas o aceite formal ainda ocorre dentro do atendimento.']),
-  S('Atrito persistente','safe',['Mesmo com o formulário preenchido, o agente pode reprovar documentos incompletos ou pedir reenvio — como mostra a simulação do ticket a seguir.'])
+  S('Atrito persistente','safe',['Mesmo com o formulário preenchido, o agente pode reprovar documentos incompletos ou pedir reenvio, como mostra a simulação do ticket a seguir.'])
 ]};
 
 ANNO['tit-asis-dados-cnpj-atual'] = { title:'Documentos do CNPJ atual', step:'Titularidade · PJ para PJ', secs:[
@@ -1927,19 +1927,25 @@ ANNO['socia-conta'] = { title:'Sócia · Criar conta', step:'Início do fluxo', 
   S('O que roda por trás','check',['Conta vinculada ao CPF da sócia, já presente no quadro societário validado pelo SERPRO. A biometria + 2FA finais garantem que é a própria pessoa.']),
   S('Por que é necessário','safe',['A validação forte de identidade (biometria facial + 2FA) exige uma conta Hotmart ativa como âncora segura.'])
 ]};
-ANNO['socia-doc'] = { title:'Sócia · Documento de identidade', step:'Validação automática por QR Code', secs:[
+ANNO['socia-doc'] = { title:'Sócia · Documento de identidade', step:'OCR + QR Code + API', secs:[
   S('Documentos aceitos','do',['RG (CIN · novo modelo 2022+), CNH ou RNM. Passaporte não é aceito pois o padrão ICAO do chip NFC não é suportado neste fluxo.']),
-  S('Validação automática via API','check',[
+  S('Passo 1 · OCR extrai os dados','check',['O sistema faz OCR no PDF e extrai nome, CPF e data de nascimento da zona de leitura ótica (MRZ ou campos impressos). Esses dados são guardados temporariamente para cruzamento.']),
+  S('Passo 2 · QR Code valida na fonte','do',[
     'CIN (novo RG): QR Code lido e verificado via API Gov.br / Confia.gov.br. Dados assinados digitalmente pelo SERPRO/ITI. Resposta em segundos.',
     'CNH: QR Code verificado via API SENATRAN/DENATRAN (RENACH). Retorna nome, CPF e validade do condutor em tempo real.',
     'RNM: versões recentes emitidas pela Polícia Federal têm QR Code verificável via API SISCART (PF).'
   ]),
-  S('Sem QR Code legível','safe',['PDF sem QR Code vai para análise manual do time de CX. A selfie segurando o documento serve como segunda evidência. Prazo estimado: até 3 dias úteis.'])
+  S('Passo 3 · Cruzamento anti-adulteração','check',['Os dados retornados pela API são comparados com o que o OCR extraiu. Divergência entre o impresso e o QR Code indica adulteração e bloqueia a validação automaticamente.']),
+  S('Sem QR Code legível','safe',['PDF sem QR Code vai para análise manual do time de CX. O OCR já extraiu os campos visíveis; a selfie segurando o documento serve como segunda evidência. Prazo estimado: até 3 dias úteis.'])
 ]};
-ANNO['socia-verif'] = { title:'Sócia · Verificação em andamento', step:'Processamento automático', secs:[
-  S('O que o sistema faz','do',['Lê o QR Code do PDF enviado, chama a API do órgão emissor (Gov.br, SENATRAN ou PF) e valida os dados retornados contra o CPF no QSA da empresa (via SERPRO).']),
+ANNO['socia-verif'] = { title:'Sócia · Verificação em andamento', step:'OCR + QR Code + cruzamento', secs:[
+  S('Pipeline automático (3 etapas)','do',[
+    '1. OCR: extrai nome, CPF e data de nascimento do PDF do documento.',
+    '2. QR Code: lê o código e chama a API do órgão emissor (Gov.br / SENATRAN / PF). Dados oficiais retornados em segundos.',
+    '3. Cruzamento: dados do OCR vs. dados da API vs. CPF no QSA da empresa (SERPRO). Qualquer divergência bloqueia e escala para CX.'
+  ]),
   S('Selfie + documento','check',['A selfie segurando o documento adiciona prova de presença sem exigir biometria FaceTec, reduzindo a fricção para quem não tem conta Hotmart. O CX valida a selfie como etapa final.']),
-  S('Fallback automático','safe',['QR ausente, ilegível ou API indisponível → o caso cai automaticamente para análise manual do CX, sem que o sócio precise reenviar nada.'])
+  S('Fallback automático','safe',['QR ausente, ilegível ou API indisponível → o caso cai automaticamente para análise manual do CX, sem que o sócio precise reenviar nada. O OCR já garantiu uma extração parcial dos dados.'])
 ]};
 ANNO['socia-cx'] = { title:'Sócia · Aguardando CX', step:'Análise manual da selfie', secs:[
   S('O que acontece','do',['O time de CX valida a selfie com o documento. Com QR Code já verificado automaticamente, o CX só precisa conferir a prova de presença (selfie), reduzindo muito o tempo de análise.']),
@@ -2074,7 +2080,11 @@ function sociaFlowGo(stepIdx) {
         '<div style="margin:20px 0;display:flex;flex-direction:column;gap:10px;">' +
           '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:var(--gray-100);border-radius:8px;font-size:13px;">' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9" fill="#E6F5EE" stroke="#128A4B"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +
-            '<span>QR Code do documento verificado via Receita Federal</span>' +
+            '<span>OCR extraiu nome, CPF e data de nascimento do documento</span>' +
+          '</div>' +
+          '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:var(--gray-100);border-radius:8px;font-size:13px;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9" fill="#E6F5EE" stroke="#128A4B"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +
+            '<span>QR Code verificado via API Gov.br / SENATRAN · dados conferem com OCR</span>' +
           '</div>' +
           '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:var(--gray-100);border-radius:8px;font-size:13px;">' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="9" fill="#E6F5EE" stroke="#128A4B"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' +

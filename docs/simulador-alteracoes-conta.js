@@ -172,6 +172,7 @@ function ftCapture(){
   setTimeout(function(){
     document.getElementById('ft-overlay').classList.remove('show');
     oval.classList.remove('scanning');
+    if(state.titFacetecNext && state.titEnroll){ titEnrollMatch(); return; }
     showToast('Biometria confirmada');
     if(state.titFacetecNext){
       state.titFacetecNext=false;
@@ -1036,6 +1037,8 @@ var TIT = {
 function startTitularidade(key) {
   setHash({'pf-pj':5, 'pj-pj':6}[key]||'');
   state.titScenario = key;
+  state.titHasFacetec = false;
+  state.titEnroll = false;
   var scn = TIT[key];
   document.getElementById('tit-natureza').textContent = scn.natureza;
   document.getElementById('tit-natureza-tag').textContent = scn.naturezaTag;
@@ -1536,7 +1539,11 @@ function titWizGo(step) {
   if (step === 'biometria') {
     panel.innerHTML = '<h2>Vamos confirmar que é você</h2>' +
       '<p class="desc">Para alterar a natureza do negócio, precisamos confirmar sua identidade com <b>biometria facial com prova de vida</b>, o mesmo motor já usado no KYC da conta.</p>' +
-      '<div class="info-row"><b>Conta:</b> Thiago Pereira · ' + (state.titScenario === 'pf-pj' ? 'Pessoa Física' : 'Pessoa Jurídica · CNPJ 12.345.678/0001-99') + '</div>';
+      '<div class="info-row"><b>Conta:</b> Thiago Pereira · ' + (state.titScenario === 'pf-pj' ? 'Pessoa Física' : 'Pessoa Jurídica · CNPJ 12.345.678/0001-99') + '</div>' +
+      (state.titScenario === 'pf-pj'
+        ? '<label style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px;color:var(--gray-400);cursor:pointer;">' +
+          '<input type="checkbox"' + (state.titHasFacetec ? ' checked' : '') + ' onchange="state.titHasFacetec=this.checked"> Simulação: cliente já possui biometria (FaceTec) cadastrada</label>'
+        : '');
     actions.innerHTML = '<span class="back-link" onclick="showView(\'v-tit-conta\')">' + ICON.arrowL + ' Cancelar</span>' +
       '<button class="ui-btn ui-btn-primary" onclick="titOpenFacetec()">' + ICON.face + ' Iniciar biometria</button>';
     setAnno('tit-biometria');
@@ -1651,6 +1658,58 @@ function titWizGo(step) {
 }
 
 function titOpenFacetec() {
+  if (state.titScenario === 'pf-pj' && !state.titHasFacetec) { titEnrollPopup(); return; }
+  titLaunchFacetec();
+}
+
+/* PF→PJ · cliente sem FaceTec: pop up → captura → match com a selfie do cadastro → segue */
+function titEnrollPopup() {
+  setAnno('tit-bio-popup');
+  openGenericPopup('Crie sua biometria para continuar',
+    '<p style="font-size:13.5px;color:var(--gray-500);line-height:1.6;">Para alterar a natureza da conta, precisamos de uma <b>biometria facial</b> sua na Hotmart. Você ainda não tem uma cadastrada.</p>' +
+    '<div style="margin:14px 0;padding:12px 14px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;color:var(--gray-600);line-height:1.6;">' +
+      '<b>Como funciona</b><br>1. Você faz uma selfie com prova de vida.<br>2. Comparamos na hora com a selfie do seu cadastro.<br>3. Se conferir, você segue com a alteração.' +
+    '</div>' +
+    '<div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">' +
+      '<span class="back-link" onclick="closeGenericPopup()">Agora não</span>' +
+      '<button class="ui-btn ui-btn-primary" onclick="titStartEnroll()">' + ICON.face + ' Criar minha biometria</button>' +
+    '</div>');
+}
+
+function titStartEnroll() {
+  closeGenericPopup();
+  state.titEnroll = true;
+  titLaunchFacetec();
+}
+
+function titEnrollMatch() {
+  setAnno('tit-bio-match');
+  function row(id, txt) {
+    return '<div id="' + id + '" style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--gray-500);margin-bottom:10px;"><span style="width:16px;text-align:center;">…</span><span>' + txt + '</span></div>';
+  }
+  openGenericPopup('Validando sua biometria',
+    row('tm-1', 'Prova de vida') + row('tm-2', 'Comparando com a selfie do seu cadastro') + row('tm-3', 'Biometria vinculada à sua conta'));
+  var okIc = '<svg viewBox="0 0 24 24" fill="none" stroke="#128A4B" stroke-width="2.5" style="width:16px;height:16px;"><path d="M20 6L9 17l-5-5"/></svg>';
+  function done(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.color = '#128A4B';
+    el.firstChild.innerHTML = okIc;
+  }
+  setTimeout(function(){ done('tm-1'); }, 600);
+  setTimeout(function(){ done('tm-2'); }, 1500);
+  setTimeout(function(){ done('tm-3'); }, 2100);
+  setTimeout(function(){
+    closeGenericPopup();
+    state.titEnroll = false;
+    state.titFacetecNext = false;
+    state.titHasFacetec = true;
+    showToast('Biometria criada e validada');
+    titWizGo('cnpj');
+  }, 2800);
+}
+
+function titLaunchFacetec() {
   state.titFacetecNext = true;
   document.getElementById('ft-overlay').classList.add('show');
   document.getElementById('ft-oval').classList.remove('scanning');
@@ -1835,6 +1894,16 @@ ANNO['tit-biometria'] = { title:'Biometria', step:'Verificação de identidade',
   S('O que a pessoa faz','do',['Realiza captura facial com prova de vida (liveness), o mesmo motor FaceTec usado no KYC da conta.']),
   S('Bastidores','check',['FaceTec compara o rosto com o documento já cadastrado na conta e detecta foto, vídeo ou deepfake.']),
   S('Por que é seguro','safe',['Garante que é a pessoa real e titular, sem selfie manual enviada por ticket. Mais robusto e consistente.'])
+]};
+ANNO['tit-bio-popup'] = { title:'Biometria obrigatória', step:'PF → PJ · cliente sem FaceTec', secs:[
+  S('O que a pessoa vê','do',['Ao clicar em "Iniciar biometria", se não tem FaceTec cadastrado, um pop up explica que a biometria é necessária para seguir com a alteração.']),
+  S('Por que existe','check',['Hoje poucos clientes têm biometria; a maioria só enviou documento e selfie manualmente no cadastro. A alteração de conta é o gatilho para criar a biometria.']),
+  S('Se não quiser agora','safe',['"Agora não" volta ao passo anterior e nada é alterado na conta.'])
+]};
+ANNO['tit-bio-match'] = { title:'Match com a selfie do cadastro', step:'PF → PJ · criação da biometria', secs:[
+  S('O que acontece','do',['Após a captura com prova de vida, a selfie é comparada na hora com a selfie que o cliente enviou no cadastro. Conferindo, o FaceMap é vinculado à conta e o fluxo segue para a consulta do CNPJ.']),
+  S('Bastidores','check',['Liveness 3D no FaceTec + face match contra a selfie validada do cadastro (e, se existir, a selfie com documento). Score alto aprova; faixa cinza vai para revisão manual; score baixo reprova e vai para suporte.']),
+  S('Depois disso','safe',['O cliente passa a ter biometria: nas próximas alterações a verificação é FaceTec contra FaceTec, sem repetir o match com o legado.'])
 ]};
 ANNO['tit-cnpj'] = { title:'Consulta CNPJ via SERPRO', step:'Validação automática', secs:[
   S('O que acontece','do',['A plataforma consulta a API da Receita Federal (SERPRO) com o CNPJ informado, retornando razão social, situação e quadro societário em tempo real.']),

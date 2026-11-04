@@ -82,7 +82,7 @@ function openStepIntro(){
   var cta=document.getElementById('verify-cta');
   if(state.branch==='baixo'){
     panel.innerHTML='<h2>Vamos confirmar que é você</h2><p class="desc">Enviaremos um código de segurança para o seu <b>e-mail atual</b>. Você vai digitá-lo na próxima etapa.</p>'+
-      '<div class="info-row"><b>Nome:</b> Thiago Pereira</div><div class="info-row"><b>E-mail:</b> thiago.oliveira@email.com</div>';
+      '<div class="info-row"><b>Nome:</b> Thiago Pereira</div><div class="info-row"><b>E-mail:</b> thiago.oliveira@email.com</div>'+simFacetecToggle();
     cta.innerHTML=ICON.mail+' Enviar código por e-mail';
   } else if(state.branch==='medio'){
     panel.innerHTML='<h2>Vamos confirmar que é você</h2><p class="desc">Como você não tem mais acesso ao e-mail atual, escolha por onde receber o código de confirmação. Depois, confirmamos com biometria.</p>'+
